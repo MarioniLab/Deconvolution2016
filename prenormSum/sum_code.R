@@ -11,7 +11,7 @@
 
 # This contains the function that performs normalization on the summed counts.
 
-normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100)) {
+normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), positive=FALSE) {
     ncells <- ncol(counts)
     if (any(sizes >= ncells)) { 
         stop("not enough cells for specified 'sizes'") 
@@ -50,7 +50,13 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100)) {
     design <- rbind(design, diag(ncells))
     output <- c(output, apply(exprs/ave.cell, 2, median))
     root.weights <- sqrt(weights)
-    final.nf <- solve(qr(design * root.weights), output * root.weights)
+
+    if (positive) { 
+        fitted <- limSolve::lsei(A=design*root.weights, B=output*root.weights, G=diag(ncells), H=numeric(ncells), type=2)
+        final.nf <- fitted$X
+    } else {
+        final.nf <- solve(qr(design * root.weights), output * root.weights)
+    }
 
     # Returning size factors, rather than normalization factors.
     final.sf <- final.nf * lib.sizes

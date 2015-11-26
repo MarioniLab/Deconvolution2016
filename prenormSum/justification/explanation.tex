@@ -51,6 +51,8 @@ It seems that generation of such values would require samples with very small li
     such that the true value of $\theta_j$ is already close to zero.
 Stochastic error may then be sufficient to push the estimate below zero.
 In general, this scenario seems somewhat pathological, as samples with small library sizes should be removed prior to analysis.
+Some protection may be possible to protect against negative factors by constraining the estimates to positive values, e.g., with linear inverse models.
+This won't help the affected cells, which will probably get zero factors -- but it might still be useful, by ensuring that negatives don't affect the estimates for the other cells.
 
 \section{Selecting cells to sum}
 A key step of this approach lies in how to select cells for each set $\mathcal{S}_{ik}$.
@@ -74,11 +76,12 @@ The use of a ring means that the window is still fully defined at the smallest a
 The total number of equations in the linear system is equal to the number of cells.
 Each cell is represented in $w$ equations where $w$ refers to the size of the window.
 Additional equations can be added to improve the precision of the estimates, by using different values of $w$.
-However, note that this is only possible when $w$ is coprime with the number of cells.
-Otherwise, the columns of the matrix become linearly dependent such that no solution is possible.
-Coprime identification is not easy, so instead, we add pseudo-cells with averaged counts to ensure that the total number of cells is not divisible by 2 or 5.
-Values of $w$ are then set to 20, 25, 40, 50, 80 and 100.
+To ensure that the system is solvable, an additional set of equations is added where the factor for each cell is equated to its estimate from the single cell counts.
+These equations are assigned very low weight compared to the other equations involving summed cells.
+This means that they do not contribute to the weighted least-squares solution and do not affect the estimated factors.
+Nonetheless, they are necessary as they guarantee that the columns of the matrix are linearly independent.
+Values of $w$ are then set to 20, 40, 60, 80 and 100.
 These are large enough to obtain stable sums yet small enough to maintain resolution.
-This increases the number of equations and ensures that each cell is represented in over 300 equations.
+This increases the number of equations and ensures that each cell is represented in 300 equations.
 
 \end{document}
