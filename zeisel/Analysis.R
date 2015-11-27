@@ -18,7 +18,7 @@ library('ggplot2',lib.loc=pkgs)
 library('gridExtra',lib.loc=pkgs)
 source("./functions.R") 
 source("./DM.R")
-source("./Aaron/sum_code.R")
+source("../prenormSum/sum_code.R")
 # ---- Data ----
 counts <- read.delim("../data/expression_mRNA_17-Aug-2014.txt", stringsAsFactors = FALSE, header =FALSE)
 molecules <- read.delim("../data/SilverBulletCTRLConc.txt",stringsAsFactors = FALSE,header = FALSE)
