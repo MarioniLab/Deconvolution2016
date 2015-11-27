@@ -56,6 +56,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), positive=FALSE
         final.nf <- fitted$X
     } else {
         final.nf <- solve(qr(design * root.weights), output * root.weights)
+        if (any(final.nf < 0)) { stop("negative factor estimates, re-run with 'positive=TRUE'") }
     }
 
     # Returning size factors, rather than normalization factors.
