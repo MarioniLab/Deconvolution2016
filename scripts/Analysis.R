@@ -3,11 +3,9 @@
 
 # ---- Packages ----
 pkgs <- "/nfs/research2/marioni/Karsten/utils/Rpack/"
-library('data.table',lib.loc=pkgs)
 library('rJava',lib.loc=pkgs)
 library('xlsxjars',lib.loc=pkgs)
 library('xlsx',lib.loc=pkgs)
-library('BASiCS',lib.loc=pkgs)        
 library('VennDiagram',lib.loc=pkgs)
 library('zoo',lib.loc=pkgs)
 library('tsne',lib.loc=pkgs)
