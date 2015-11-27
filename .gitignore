@@ -7,3 +7,5 @@ prenormSum/simulations/results.pdf
 
 data/
 results/
+zeisel/*.swp
+zeisel/.RData
