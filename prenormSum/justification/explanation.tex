@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+
+\title{Linear modelling of size factors after summation}
+\author{Aaron Lun}
+
+\begin{document}
+\maketitle
+
+\section{Description of the algorithm}
+Consider that each library $j$ has some bias $\theta_j$, representing the combined effects of capture efficiency and library size.
+Further assume that there is some constantly expressed gene $i$, for which the expression rate $\lambda_i$ is the same across all cells.
+The expectation of the count $y_{ij}$ for gene $i$ in cell $j$ is then defined as $\mu_{ij} = \theta_j\lambda_i$.
+
+Assume that we have a set of cells $\mathcal{S}_k$.
+Denote the sum of $y_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$.
+The expectation of $s_{ik}$ is
+\[
+    E(s_{ik}) = \lambda_i \sum_{j \in \mathcal{S}_k} \theta_j \;.
+\]
+Similarly, define $\mathcal{S}_0$ as the set of all cells in the data set, and $s_{i0}$ as the sum of counts across all cells for gene $i$.
+The expectation of the ratio $r_{ik}$ of the count sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ is defined as
+\[
+    E(r_{ik}) \approx \frac{E(s_{ik})}{E(s_{i0})} = \frac{\sum_{\mathcal{S}_k} \theta_j}{\sum_{\mathcal{S}_0} \theta_j} = \frac{\sum_{\mathcal{S}_k} \theta_j}{C}
+\]
+where $C$ is a constant that does not depend on the gene, cell or set $\mathcal{S}$.
+The approximation is valid if the variance of the count sums is low, which should be the case for large sets.
+This expectation is estimated by taking any robust average (e.g., median) of $r_{ik}$ across $i$.
+Robustness is required to protect against DE genes with extreme ratios.
+This approach assumes that most genes are non-DE -- see below for more details.
+
+Anyway, the estimated value of $E(r_{ik})$ can be plugged in as the right-hand side of a linear equation involving $\theta_j$ as the terms being added.
+Repeating this procedure for different sets of cells in $\mathcal{S}_{ik}$ will generate a system of linear equations.
+This system can be solved with standard methods (e.g., QR decomposition) to obtain estimates of $\theta_j$ for all cells.
+This approach may seem somewhat circuitous, given that $\theta_j$ could be estimated directly from the counts for each cell.
+However, the idea is to use summation to avoid zeros and near-zero counts that are present in the single-cell counts.
+These counts are problematic as they interfere with the calculation of median ratios and estimation of $\theta_j$.
+Ratios computed from summed counts are more stable, and this stability will propagate back to the $\theta_j$ estimates per cell when the linear system is solved.
+
+\section{Assumptions of this approach}
+This approach requires some moderately strong assumptions regarding the nature of DE across the data set.
+The use of the median is only valid when less than 50\% of genes are DE in any direction in each cell compared to the average across all cells,
+    i.e., less than 50\% of genes can be upregulated and less than 50\% of genes can be downregulated.
+This generally requires a proportion of genes to be constantly expressed across all cells in the data set (otherwise all genes would be DE against the average in at least one cell),
+    and is only guaranteed to be fulfilled when that proportion is equal to or greater than 50\% of all genes.
+
+Another sticking point with this approach is that, in theory, it is possible to obtain negative estimates for $\theta_j$.
+Such values are obviously ridiculous.
+It seems that generation of such values would require samples with very small library sizes relative to the other cells, 
+    such that the true value of $\theta_j$ is already close to zero.
+Stochastic error may then be sufficient to push the estimate below zero.
+In general, this scenario seems somewhat pathological, as samples with small library sizes should be removed prior to analysis.
+Some protection may be possible to protect against negative factors by constraining the estimates to positive values, e.g., with linear inverse models.
+This won't help the affected cells, which will probably get zero factors -- but it might still be useful, by ensuring that negatives don't affect the estimates for the other cells.
+
+\section{Selecting cells to sum}
+A key step of this approach lies in how to select cells for each set $\mathcal{S}_{ik}$.
+Ideally, one would prefer to sum cells with similar expression profiles.
+This ensures that the same set of genes are DE against the average for all cells in the set,
+    which minimizes the total amount of DE in the set and reduces the chance of violating the non-DE assumption.
+However, any attempt to quantify similarity between cells would require normalization.
+This becomes circular -- we need similarity to normalize, but we also need normalization to compute similarities.
+
+The quick-and-dirty solution is to use the library size as a rough proxy for cell similarity.
+This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, e.g., due to differences in total RNA or capture efficiency.
+First, cells are ordered by their total counts and partitioned into two groups, depending on whether the ranking of that cell is odd or even.
+The cells are then arranged in a ring, with odd cells on the left and even cells on the right.
+Conceptually, one can imagine starting at the 12 o'clock position on the ring, at the largest libraries; moving clockwise through the even cells for decreasing library size;
+    hitting the smallest libraries at 6 o'clock; and then, continuing to move clockwise, now through the odd cells, for increasing library size.
+For summation, a sliding window is moved cell-by-cell across this ring.
+Each window contains the same number of cells, where all cells of the ring lying in the window are used to define a single instance of the set $\mathcal{S}_{ik}$.
+Thus, each window defines a separate equation in the linear system.
+The use of a ring means that the window is still fully defined at the smallest and largest libraries.
+
+The total number of equations in the linear system is equal to the number of cells.
+Each cell is represented in $w$ equations where $w$ refers to the size of the window.
+Additional equations can be added to improve the precision of the estimates, by using different values of $w$.
+To ensure that the system is solvable, an additional set of equations is added where the factor for each cell is equated to its estimate from the single cell counts.
+These equations are assigned very low weight compared to the other equations involving summed cells.
+This means that they do not contribute to the weighted least-squares solution and do not affect the estimated factors.
+Nonetheless, they are necessary as they guarantee that the columns of the matrix are linearly independent.
+Values of $w$ are then set to 20, 40, 60, 80 and 100.
+These are large enough to obtain stable sums yet small enough to maintain resolution.
+This increases the number of equations and ensures that each cell is represented in 300 equations.
+
+\end{document}
