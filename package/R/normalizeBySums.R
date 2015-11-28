@@ -15,10 +15,16 @@
     c(out, out)
 }
 
+normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL, positive=FALSE) 
 # This contains the function that performs normalization on the summed counts.
-
-normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), 
-                            clusters=NULL, positive=FALSE, rescale=TRUE) {
+# It also provides support for normalization within clusters, and then between
+# clusters to make things comparable. It can also switch to linear inverse models
+# to ensure that the estimates are non-negative.
+#
+# written by Aaron Lun
+# created 23 November 2015
+# last modified 28 November 2015
+{
     ncells <- ncol(counts)
     if (!is.null(clusters)) {
         if (ncells!=length(clusters)) { 
@@ -29,6 +35,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100),
         indices <- list(seq_len(ncells))
     }
 
+    # Checking sizes.
     sizes <- as.integer(sizes)
     if (anyDuplicated(sizes)) { 
         stop("'sizes' is not unique") 
@@ -39,7 +46,10 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100),
     exprs <- t(t(counts)/lib.sizes)
     clust.nf <- clust.profile <- clust.libsize <- list()
 
-    # Computing normalization factors within each cluster first.    
+    # Computing normalization factors within each cluster first.
+    warned.size <- FALSE
+    warned.neg <- FALSE
+
     for (clust in seq_along(indices)) { 
         curdex <- indices[[clust]]
         cur.exprs <- exprs[,curdex,drop=FALSE]
@@ -48,9 +58,10 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100),
 
         # Checking cluster sizes
         if (any(sizes > cur.cells)) { 
-            stop("not enough cells for specified 'sizes'") 
+            stop("not enough cells in each clsuter for specified 'sizes'") 
         } else if (any(sizes*2L > cur.cells)) {
-            warning("number of cells should be at least twice that of the largest 'sizes'")
+            if (!warned.size) { warning("number of cells in each cluster should be at least twice that of the largest 'sizes'") }
+            warned.size <- TRUE
         }
 
         # Using our summation approach.
@@ -88,7 +99,10 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100),
             final.nf <- fitted$X
         } else {
             final.nf <- solve(qr(design * root.weights), output * root.weights)
-            if (any(final.nf < 0)) { stop("negative factor estimates, re-run with 'positive=TRUE'") }
+            if (any(final.nf < 0)) { 
+                if (!warned.neg) { warning("negative factor estimates, re-run with 'positive=TRUE'") }
+                warned.neg <- TRUE
+            }
         }
 
         # Adding per-cluster information.
@@ -108,7 +122,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100),
 
     # Returning size factors, rather than normalization factors.
     final.sf <- clust.nf * lib.sizes
-    if (rescale) { final.sf <- final.sf/mean(final.sf[final.sf>0]) }
+    final.sf <- final.sf/mean(final.sf[final.sf>0])
     return(final.sf)
 }
 
