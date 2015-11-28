@@ -3,7 +3,7 @@
 set.seed(100)
 ngenes <- 10000
 nlibs <- 800
-source("../sum_code.R")
+require(AK47)
 require(edgeR)
 
 fitNorm <- function(nf, truth) {
