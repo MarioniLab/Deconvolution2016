@@ -1,0 +1,13 @@
+Package: AK47
+Version: 0.1.0
+Date: 2015/11/28
+Title: Aaron and Karsten's normalization package for scRNA-seq data
+Author: Aaron Lun <aaron.lun@cruk.cam.ac.uk>, Karsten Bach <kbach@ebi.ac.uk>
+Maintainer: Aaron Lun <aaron.lun@cruk.cam.ac.uk>
+Depends: R (>= 3.3.0)
+Imports:
+Suggests: 
+biocViews: Normalization, Sequencing, RNASeq
+Description: Normalization of single-cell RNA-seq data, duh. 
+License: GPL-3
+NeedsCompilation: yes
