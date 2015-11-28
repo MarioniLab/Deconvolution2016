@@ -39,10 +39,13 @@ This is not straightforward in scRNA-seq data, where the high frequency of drop-
 A large number of zeroes will result in nonsensical size factors or undefined M-values in the TMM method.
 One could proceed by removing the offending genes during normalization for each cell, but this may introduce biases if the number of zeroes varies across cells.
 
-Correct normalization of scRNA-seq data is essential as it determines the accuracy of any downstream quantitative analyses.
-In this article, we describe a simple deconvolution approach that improves the accuracy of the non-DE (i.e., size factor or TMM) normalization methods.
-Using a variety of simple simulations, we demonstrate that this approach outperforms the direct application of those normalization methods for count data with many zeroes.
+Correct normalization of scRNA-seq data is essential as it determines the validity of all downstream quantitative analyses.
+In this article, we describe a deconvolution approach that improves the accuracy of the non-DE (i.e., size factor or TMM) normalization methods.
+Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reduced
+    -- the pooled size/normalization factors are then deconvolved back to those for the individual cells.
+Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of those normalization methods for count data with many zeroes.
 We also show a similar difference in behaviour on several real data sets, where deconvolved normalization yields results that are more biologically relevant.
+These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
 
 \bibliographystyle{unsrt}
 \bibliography{references}
