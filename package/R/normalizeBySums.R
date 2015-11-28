@@ -1,9 +1,3 @@
-# A stub for a normalization function for CPMs.
-
-.normfun <- function(x1, x2) {
-    return(median(x1/x2))
-}
-
 # This function sorts cells by their library sizes, and generates an ordering vector.
 
 .generateSphere <- function(lib.sizes) {
@@ -64,41 +58,43 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
             warned.size <- TRUE
         }
 
-        # Using our summation approach.
-        sphere <- .generateSphere(cur.libs)
+        # Getting rid of zeros.
         ave.cell <- rowMeans(cur.exprs)
+        keep <- ave.cell > .Machine$double.xmin
+        use.ave.cell <- ave.cell[keep]
+        cur.exprs <- cur.exprs[keep,,drop=FALSE]
+        ngenes <- sum(keep)
+
+        # Using our summation approach.
+        sphere <- .generateSphere(cur.libs) - 1L # zero-indexing in C++.
         design <- list()
         output <- list()
-
         for (size in sizes) {
-            all.mat <- matrix(0L, cur.cells, cur.cells)
-            out.nf <- numeric(cur.cells)
-
-            for (it in seq_len(cur.cells)){
-                chosen <- sphere[it:(it+size-1L)] 
-                all.mat[it,chosen] <- 1L
-                cur.combined <- rowSums(cur.exprs[,chosen])
-                out.nf[it] <- .normfun(cur.combined, ave.cell)
-            }
-
-            design <- c(design, list(all.mat))
-            output <- c(output, list(out.nf))
+            out <- .Call("forge_system", ngenes, cur.cells, cur.exprs, sphere, size, use.ave.cell)
+            if (is.character(out)) { stop(out) }
+            design <- c(design, out[1])
+            output <- c(output, out[2])
         }
-
+        
+        # Adding extra equations to guarantee solvability (downweighted).
+        out <- .Call("forge_system", ngenes, cur.cells, cur.exprs, sphere, 1L, use.ave.cell)
+        if (is.character(out)) { stop(out) }
+        design <- c(design, out[1])
+        output <- c(output, out[2])
         design <- do.call(rbind, design)
         output <- unlist(output)
 
-        # Adding extra equations to guarantee solvability (downweighted).
-        weights <- rep(c(1, 0.00001), c(nrow(design), cur.cells))
-        design <- rbind(design, diag(cur.cells))
-        output <- c(output, apply(cur.exprs/ave.cell, 2, median))
+        weights <- rep(c(1, 0.00001), c(nrow(design)-cur.cells, cur.cells))
         root.weights <- sqrt(weights)
+        design <- design * root.weights
+        output <- output * root.weights
 
+        # Weighted least-squares (inverse model for positivity).
         if (positive) { 
-            fitted <- limSolve::lsei(A=design*root.weights, B=output*root.weights, G=diag(cur.cells), H=numeric(cur.cells), type=2)
+            fitted <- limSolve::lsei(A=design, B=output, G=diag(cur.cells), H=numeric(cur.cells), type=2)
             final.nf <- fitted$X
         } else {
-            final.nf <- solve(qr(design * root.weights), output * root.weights)
+            final.nf <- solve(qr(design), output)
             if (any(final.nf < 0)) { 
                 if (!warned.neg) { warning("negative factor estimates, re-run with 'positive=TRUE'") }
                 warned.neg <- TRUE
@@ -115,7 +111,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
     clust.libsize <- unlist(clust.libsize)
     ref.col <- which(rank(clust.libsize, ties.method="first")==as.integer(length(clust.libsize)/2)+1L)
     for (clust in seq_along(indices)) { 
-        clust.nf[[clust]] <- clust.nf[[clust]] * .normfun(clust.profile[[clust]], clust.profile[[ref.col]])
+        clust.nf[[clust]] <- clust.nf[[clust]] * median(clust.profile[[clust]]/clust.profile[[ref.col]])
     }
     clust.nf <- unlist(clust.nf)
     clust.nf[unlist(indices)] <- clust.nf
@@ -125,6 +121,4 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
     final.sf <- final.sf/mean(final.sf[final.sf>0])
     return(final.sf)
 }
-
-
 
