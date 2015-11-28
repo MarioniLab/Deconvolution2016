@@ -5,6 +5,12 @@ prenormSum/test.Rout.save
 prenormSum/benefit.pdf
 prenormSum/simulations/results.pdf
 
+manuscript/betternorm.aux
+manuscript/betternorm.bbl
+manuscript/betternorm.blg
+manuscript/betternorm.log
+manuscript/betternorm.pdf
+
 data/
 results/
 zeisel/*.swp
