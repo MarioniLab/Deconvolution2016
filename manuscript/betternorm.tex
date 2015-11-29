@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{graphicx}
 
 \title{Computing normalization factors for single-cell RNA-seq data: avoiding problems with zero counts}
 \author{Aaron Lun and Karsten Bach}
@@ -105,8 +107,59 @@ Normalization by library size will then scale up the counts for the second libra
 This introduces spurious differences in the counts between libraries for the non-DE genes.
 The likely presence of DE in real data means that library size normalization is often inappropriate.
 
-\subsection{Performance on simulated data with zeroes}
+\subsection{Performance of existing methods on simulated data with zeroes}
+To test the performance of existing methods, simulated scRNA-seq data was generated with a large number of stochastic zeros.
+For gene $i$ in cell $j$, the count $y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\delta_{j}\mu_{i}$.
+The $\delta_{j}$ term represents cell-specific biases (e.g., in capture efficiency) that must be normalized out, 
+    and is sampled for each cell such that $\log_2(\delta_j) \sim \mathcal{N}(0, 0.25)$.
+The $\mu_{i}$ term represents the expected read count for each gene, and is distributed across genes such that $\log_2(\mu_i) \sim \mbox{Uniform}(3, 6)$.
+This recapitulates the spread of abundances for genes in real data.
+The NB dispersion is defined for each gene as 
+\[
+    \varphi_i = 2 + \frac{100}{\mu_i}
+\]
+to represent a decreasing mean-dispersion trend.
+Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq studies,
+    and ensure that a large number of stochastic zeroes are generated.
+In this manner, counts were generated for 10000 genes across 800 cells.
 
+Size factor and TMM normalization were then applied to this data set.
+For size factor normalization, the geometric mean was computed by replacing all zero counts with unity.
+Zero counts were also removed within each library prior to calculation of the size factor.
+For TMM normalization, all undefined M-values were removed prior to trimming and calculation of the normalization factor for each library.
+The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
+Estimated size factors were then compared to the true values $\delta_j$ for all cells.
+
+Figure~\ref{fig:existing_noDE} demonstrates that both methods yield size factors that systematically deviate from the true values.
+Large size factors are underestimated while small size factors are overestimated.
+This is a consequence of removing stochastic zeroes prior to normalization.
+Consider a simple example where a cell with low $\delta_j$ is normalized against a cell with a large $\delta_j$. 
+The former cell is likely to contain more stochastic zeroes, as the mean of the sampling distribution for the counts is lower.
+Removal of the affected genes will shift the median upwards among the remaining non-zero counts, resulting in overestimates of the size factor.
+Similarly, the distribution of M-values will be shifted towards larger values when more zeroes are present in the smaller cell.
+This is because zeroes represent sampled values below some non-zero mean, and would generally correspond to negative M-values.
+Their removal increases the weighted mean and biases the estimate of the TMM normalization factor.
+The converse applies to cells with large $\delta_j$, where a concomitant underestimation is observed in the size factor.
+It should be stressed that the non-DE assumption has not been violated in these simulations as all genes are non-DE (other than the systematic differences due to $\delta_j$).
+Even under such favourable conditions, the existing methods fail to correctly estimate the size factor for each cell.
+
+\begin{figure}[tb]
+\begin{minipage}{0.48\textwidth}
+\includegraphics[width=\textwidth]{size_sim_noDE.pdf}
+\subcaption{}\label{subfig:size_noDE}
+\end{minipage}
+\begin{minipage}{0.48\textwidth}
+\includegraphics[width=\textwidth]{tmm_sim_noDE.pdf}
+\subcaption{}\label{subfig:tmm_noDE}
+\end{minipage}
+\caption{
+    Performance of existing normalization methods on the simulated data with stochastic zeroes.
+    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_noDE}) size factor and (\subref{subfig:tmm_noDE}) TMM normalization,
+        using a log-scale for visibility.
+    The red line represents identity between the two sets of factors.
+}
+\label{fig:existing_noDE}
+\end{figure}
 
 
 \bibliographystyle{unsrt}
