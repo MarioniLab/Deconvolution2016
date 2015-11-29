@@ -47,6 +47,68 @@ Using a variety of simple simulations, we demonstrate that our approach outperfo
 We also show a similar difference in behaviour on several real data sets, where deconvolved normalization yields results that are more biologically relevant.
 These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
 
+\section{Existing normalization methods fail with zero counts}
+
+\subsection{The origin of zero counts in scRNA-seq data}
+The high frequency of zeroes in scRNA-seq data is driven by both biological and technical aspects.
+Gene expression is highly variable across cells due to cell-to-cell heterogeneity and phenomena like transcriptional bursting \cite{marinov2014singlecell}.
+Such variability is likely to result in zero counts for the lowly expressed genes.
+It is also technically difficult to process low quantities of input RNA into sequenceable libraries.
+This results in high dropout rates whereby low-abundance transcripts are not captured during library preparation \cite{brennecke2013accounting}.
+
+It is important to distinguish between stochastic and systematic zeroes.
+Systematic zeroes refer to genes that are constitutively silent in a cell (sub)population, such that the count must be zero for all cells in that population.
+These are generally not problematic as they contain no information and can be removed prior to normalization.
+Stochastic zeroes refer to genes that are actively expressed but obtain counts of zero in some cells due to sampling stochasticity.
+It is less clear how to deal with these genes, as they contain information about the relative differences between cells.
+Removing them prior to normalization may introduce biases.
+
+\subsection{A brief description of existing non-spike-in methods}
+Here, we only consider those normalization methods not based on spike-in data.
+This is motivated by the desire to obtain a general method that can be applied in all data sets.
+In particular, we will review three approaches that are commonly used for RNA-seq data -- size factor, TMM and library size normalization.
+
+Size factor normalization was originally introduced as part of the DESeq package for differential expression \cite{anders2010differential}.
+It first constructs an ``average'' reference library, in which the ``count'' for each gene is defined as the geometric mean of the counts for that gene across all real libraries.
+Each real library is then normalized against this average.
+Specifically, for each gene, it computes the ratio of the count in each library to that in the average library.
+The size factor for each library is defined as the median of this ratio across all genes.
+This value represents the extent to which the counts in that library should be downscaled, 
+    in order to eliminate any systematic differences in expression between libraries for the majority of (assumed) non-DE genes.
+
+TMM normalization was introduced as part of the edgeR package for differential expression \cite{robinson2010edgeR}.
+It selects one library to be a reference, and normalizes each other library against the reference.
+Specifically, for each library, M-values (i.e., library size-adjusted log$_2$-ratios in expression) are computed against the reference for all genes.
+The genes with the most extreme M-values are trimmed away.
+High- or low-abundance genes are similarly removed.
+The weighted mean of the remaining M-values is computed, where the weighting is performed according to the asymptotic variance of each M-value.
+This is used to define the normalization factor for each library as $2^x$, where $x$ is the weighted mean for that library.
+The normalization factor represents the downscaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
+Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
+
+Both size factor and TMM normalization assume that most genes are not DE between libraries.
+Any systematic difference in expression across the majority of genes is treated as bias.
+This is duly incorporated into the size/normalization factors and removed upon scaling.
+If the non-DE assumption does not hold, the computed factors will not be accurate.
+In addition, both methods perform poorly in the presence of a large number of zeroes.
+For size factor normalization, the geometric mean is equal to zero for genes with a zero count in any library, such that the ratios for that gene become undefined.
+Conversely, a library with zero counts for many genes may have a size factor of zero, which precludes any sensible scaling.
+For TMM normalization, M-values are undefined when the count in either library is zero.
+In such conditions, both methods typically require \textit{ad hoc} workarounds such as the removal of zero counts within each library.
+
+Finally, library size normalization is another commonly used approach for RNA-seq data.
+This involves scaling the counts such that the library size is the same across libraries.
+While simple, this approach is not robust in the presence of DE genes \cite{robinson2010scaling}.
+One can imagine a scenario where a single gene is strongly upregulated in one library compared to another.
+This increases the size of the first library, as more reads are generated from the upregulated gene.
+Normalization by library size will then scale up the counts for the second library to compensate.
+This introduces spurious differences in the counts between libraries for the non-DE genes.
+The likely presence of DE in real data means that library size normalization is often inappropriate.
+
+\subsection{Performance on simulated data with zeroes}
+
+
+
 \bibliographystyle{unsrt}
 \bibliography{references}
 
