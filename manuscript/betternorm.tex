@@ -169,34 +169,39 @@ Even under such favourable conditions, the existing methods fail to correctly es
 \section{Improving normalization accuracy with deconvolution}
 
 \subsection{Description of the algorithm}
-Define the expectation of the count $y_{ij}$ for a non-DE gene $i$ in cell $j$ as $\mu_{ij} = \theta_j\lambda_i$.
-Assume that we have an arbitrary set of cells $\mathcal{S}_k$.
-Denote the sum of $y_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$.
-The expectation of $s_{ik}$ is
+Define the size-adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}/T_j$, where $T_j$ is the total library size for cell $j$.
+The expectation of $\pi_{ij}$ can then be written as $\theta_j\lambda_i T_j^{-1}$.
+Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
+Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
+The expectation of $s_{ik}$ is equal to 
 \[
-    E(s_{ik}) = \lambda_i \sum_{j \in \mathcal{S}_k} \theta_j \;.
+    E(s_{ik}) = \lambda_i \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
 \]
-Similarly, define $\mathcal{S}_0$ as the set of all cells in the data set, and $s_{i0}$ as the sum of counts across all cells for gene $i$.
-The expectation of the ratio $r_{ik}$ of the count sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ is defined as
+Similarly, define $\mathcal{S}_0$ as the set of all cells in the data set, and $s_{i0}$ as the sum of expression values across all cells for gene $i$.
+The expectation of the ratio $r_{ik}$ of the sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ is defined as
 \begin{equation}
-    E(r_{ik}) \approx \frac{E(s_{ik})}{E(s_{i0})} = \frac{\sum_{\mathcal{S}_k} \theta_j}{\sum_{\mathcal{S}_0} \theta_j} = \frac{\sum_{\mathcal{S}_k} \theta_j}{C}
+    E(r_{ik}) \approx \frac{E(s_{ik})}{E(s_{i0})} 
+    = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{\sum_{\mathcal{S}_0} \theta_j T_j^{-1}} 
+    = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{C}
     \label{eqn:linear_single}
 \end{equation}
 where $C$ is a constant that does not depend on the gene, cell or set $\mathcal{S}_k$.
-The above approximation is valid if the variance of the count sums is low, which should be the case for large sets 
-    -- variability relative to the mean should decrease due to the law of large numbers.
-This expectation is estimated by taking any robust average (e.g., median) of $r_{ik}$ across $i$, where robustness protects against DE genes with extreme ratios.
+The above approximation is valid if the variance of the sums is low, which should be the case for large sets 
+    -- the variability relative to the mean should decrease due to the law of large numbers.
+This expectation is estimated by taking any robust average (e.g., median) of $r_{ik}$ across $i$.
+Robustness protects the average against DE genes with extreme ratios.
 
 The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates for $\theta_j$ for each cell.
 A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
-    by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j$ as unknown parameters to be estimated.
+by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
 Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{ik}$ will generate a system of linear equations, 
-    in which the $\theta_j$ for each cell is represented at least once.
-This system can then be solved to obtain estimates of $\theta_j$ for all cells.
+    in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
+This system can then be solved to obtain estimates of $\theta_j T_j^{-1}$ for all cells.
+Multiplication by $T_j$ for each cell will then yield an estimate of $\theta_j$.
 This approach may seem somewhat circuitous, given that $\theta_j$ could be estimated directly from the counts for each cell by itself.
 However, summation avoids zeros and near-zero counts that are present in the single-cell data.
 These counts are problematic as they interfere with the calculation of median ratios and estimation of $\theta_j$.
-Ratios computed from count sums are more stable, and this stability will propagate back to the $\theta_j$ estimates when the linear system is solved.
+Ratios computed from pooled expression profiles are more stable, and this stability will propagate back to the $\theta_j$ estimates when the linear system is solved.
 
 The linear system can be solved using standard methods such as those based on the QR decomposition.
 However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
@@ -218,6 +223,11 @@ This condition generally requires a proportion of genes to be constantly express
     -- otherwise, all genes would be DE against the average in at least one pseudo-cell -- 
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
 The assumption here is similar to that required for size factor normalization where an average reference is also used.
+
+Note that counts could be summed rather than size-adjusted expression values.
+This means that the solution of the linear system will directly yield estimates of $\theta_j$.
+However, we use size-adjusted values to ensure that the sum is not dominated by a small number of very large libraries.
+Information from each cell will then be weighted equally when computing the median ratio for each set, regardless of library size.
 
 \subsection{Selecting cells to sum}
 A key step of this approach lies in how to select cells for each set $\mathcal{S}_{ik}$.
@@ -316,6 +326,7 @@ It is worth noting that the partition between subpopulations is clearer for the 
 This is due to the presence of stochastic zeroes, which are responsible for the systematic over- and under-estimation of small and large $\theta_j$ in the existing methods.
 As a result, the estimates for different subpopulations are squeezed together in Figures~\ref{subfig:size_DE} and \ref{subfig:tmm_DE}.
 The deconvolution method avoids these problems, leading to a sharper distinction between subpopulations in Figure~\ref{subfig:sum_DE}. 
+Obviously, however, the greater issue of inaccuracy in the presence of DE genes is not resolved by deconvolution.
 
 \subsection{Improving accuracy with clustering prior to normalization}
 
