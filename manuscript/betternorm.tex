@@ -243,14 +243,28 @@ This is motivated by the fact that different cell types tend to have systematic 
     e.g., due to type-specific differences in total RNA or capture efficiency.
 First, cells are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
 The cells are then arranged in a ring, with odd cells on the left and even cells on the right.
-Conceptually, one can imagine starting at the 12 o'clock position on the ring, at the largest libraries; moving clockwise through the even cells for decreasing library size;
-    reaching the smallest libraries at 6 o'clock; and then, continuing to move clockwise, now through the odd cells, for increasing library size.
+Conceptually, one can start at the 12 o'clock position on the ring, for the largest libraries; moving clockwise through the even cells with decreasing library size;
+reaching the smallest libraries at 6 o'clock; and then, continuing to move clockwise through the odd cells with increasing library size (Figure~\ref{fig:library_ring}).
 For summation, a sliding window is moved cell-by-cell across this ring.
 Each window contains the same number of cells, all of which are of a similar library size.
 These cells are used to define a single instance of $\mathcal{S}_{k}$.
 Thus, each window defines a separate equation in the linear system.
-The use of a ring means that the window is still fully defined at the smallest and largest libraries.
+The use of a ring means that the window is defined at the smallest and largest libraries.
 In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
+
+\begin{figure}[bt]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{pics/library_ring.pdf}
+    \end{center}
+    \caption{
+        Ring arrangement of cells ordered by library size.
+        Each circle represents a cell where the size of the circle corresponds to the library size of that cell.
+        Even- and odd-ranking cells lie on opposite sides, with the largest and smallest libraries at the top and bottom, respectively.
+        Cells lying in a window of length 4 are highlighted in red.
+        Different instances of the window are obtained by sliding the window across the ring.
+    }
+    \label{fig:library_ring}
+\end{figure}
 
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_j$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
