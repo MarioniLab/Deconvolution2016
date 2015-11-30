@@ -109,14 +109,14 @@ The likely presence of DE in real data means that library size normalization is 
 
 \subsection{Performance of existing methods on simulated data with zeroes}
 To test the performance of existing methods, simulated scRNA-seq data was generated with a large number of stochastic zeros.
-For gene $i$ in cell $j$, the count $y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\delta_{j}\mu_{i}$.
-The $\delta_{j}$ term represents cell-specific biases (e.g., in capture efficiency) that must be normalized out, 
-    and is sampled for each cell such that $\log_2(\delta_j) \sim \mathcal{N}(0, 0.25)$.
-The $\mu_{i}$ term represents the expected read count for each gene, and is distributed across genes such that $\log_2(\mu_i) \sim \mbox{Uniform}(3, 6)$.
-This recapitulates the spread of abundances for genes in real data.
+For gene $i$ in cell $j$, the count $y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\theta_{j}\lambda_{i}$.
+The $\theta_{j}$ term represents cell-specific biases (e.g., in capture efficiency) that must be normalized out, 
+    and is sampled for each cell such that $\log_2(\theta_j) \sim \mathcal{N}(0, 0.25)$.
+The $\lambda_{i}$ term denotes the expected number of transcripts for each gene, and is distributed across genes such that $\log_2(\lambda_i) \sim \mbox{Uniform}(3, 6)$.
+This recapitulates the spread of abundances in real data.
 The NB dispersion is defined for each gene as 
 \[
-    \varphi_i = 2 + \frac{100}{\mu_i}
+    \varphi_i = 2 + \frac{100}{\lambda_i}
 \]
 to represent a decreasing mean-dispersion trend.
 Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq studies,
@@ -128,43 +128,149 @@ For size factor normalization, the geometric mean was computed by replacing all 
 Zero counts were also removed within each library prior to calculation of the size factor.
 For TMM normalization, all undefined M-values were removed prior to trimming and calculation of the normalization factor for each library.
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
-Estimated size factors were then compared to the true values $\delta_j$ for all cells.
+Estimated size factors were then compared to the true values $\theta_j$ for all cells.
 
 Figure~\ref{fig:existing_noDE} demonstrates that both methods yield size factors that systematically deviate from the true values.
 Large size factors are underestimated while small size factors are overestimated.
 This is a consequence of removing stochastic zeroes prior to normalization.
-Consider a simple example where a cell with low $\delta_j$ is normalized against a cell with a large $\delta_j$. 
+Consider a simple example where a cell with low $\theta_j$ is normalized against a cell with a large $\theta_j$. 
 The former cell is likely to contain more stochastic zeroes, as the mean of the sampling distribution for the counts is lower.
 Removal of the affected genes will shift the median upwards among the remaining non-zero counts, resulting in overestimates of the size factor.
 Similarly, the distribution of M-values will be shifted towards larger values when more zeroes are present in the smaller cell.
 This is because zeroes represent sampled values below some non-zero mean, and would generally correspond to negative M-values.
 Their removal increases the weighted mean and biases the estimate of the TMM normalization factor.
-The converse applies to cells with large $\delta_j$, where a concomitant underestimation is observed in the size factor.
-It should be stressed that the non-DE assumption has not been violated in these simulations as all genes are non-DE (other than the systematic differences due to $\delta_j$).
+The converse applies to cells with large $\theta_j$, where a concomitant underestimation is observed in the size factor.
+It should be stressed that the non-DE assumption has not been violated in these simulations as all genes are non-DE between cells (other than the systematic biases due to $\theta_j$).
 Even under such favourable conditions, the existing methods fail to correctly estimate the size factor for each cell.
 
 \begin{figure}[tb]
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.33\textwidth}
 \includegraphics[width=\textwidth]{size_sim_noDE.pdf}
 \subcaption{}\label{subfig:size_noDE}
 \end{minipage}
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.33\textwidth}
 \includegraphics[width=\textwidth]{tmm_sim_noDE.pdf}
 \subcaption{}\label{subfig:tmm_noDE}
 \end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth]{sum_sim_noDE.pdf}
+\subcaption{}\label{subfig:sum_noDE}
+\end{minipage}
 \caption{
     Performance of existing normalization methods on the simulated data with stochastic zeroes.
-    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_noDE}) size factor and (\subref{subfig:tmm_noDE}) TMM normalization,
-        using a log-scale for visibility.
-    The red line represents identity between the two sets of factors.
+    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_noDE}) size factor and (\subref{subfig:tmm_noDE}) TMM normalization.
+    Estimates are also shown for our deconvolution approach (\subref{subfig:sum_noDE}).
+    Axes are shown on a log-scale for visibility.
+    The red line represents equality between the estimated and true factors.
 }
 \label{fig:existing_noDE}
 \end{figure}
 
+\section{Improving normalization accuracy with deconvolution}
+
+\subsection{Description of the algorithm}
+Define the expectation of the count $y_{ij}$ for a non-DE gene $i$ in cell $j$ as $\mu_{ij} = \theta_j\lambda_i$.
+Assume that we have an arbitrary set of cells $\mathcal{S}_k$.
+Denote the sum of $y_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$.
+The expectation of $s_{ik}$ is
+\[
+    E(s_{ik}) = \lambda_i \sum_{j \in \mathcal{S}_k} \theta_j \;.
+\]
+Similarly, define $\mathcal{S}_0$ as the set of all cells in the data set, and $s_{i0}$ as the sum of counts across all cells for gene $i$.
+The expectation of the ratio $r_{ik}$ of the count sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ is defined as
+\begin{equation}
+    E(r_{ik}) \approx \frac{E(s_{ik})}{E(s_{i0})} = \frac{\sum_{\mathcal{S}_k} \theta_j}{\sum_{\mathcal{S}_0} \theta_j} = \frac{\sum_{\mathcal{S}_k} \theta_j}{C}
+    \label{eqn:linear_single}
+\end{equation}
+where $C$ is a constant that does not depend on the gene, cell or set $\mathcal{S}_k$.
+The above approximation is valid if the variance of the count sums is low, which should be the case for large sets 
+    -- variability relative to the mean should decrease due to the law of large numbers.
+This expectation is estimated by taking any robust average (e.g., median) of $r_{ik}$ across $i$, where robustness protects against DE genes with extreme ratios.
+
+The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates for $\theta_j$ for each cell.
+A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
+    by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j$ as unknown parameters to be estimated.
+Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{ik}$ will generate a system of linear equations, 
+    in which the $\theta_j$ for each cell is represented at least once.
+This system can then be solved to obtain estimates of $\theta_j$ for all cells.
+This approach may seem somewhat circuitous, given that $\theta_j$ could be estimated directly from the counts for each cell by itself.
+However, summation avoids zeros and near-zero counts that are present in the single-cell data.
+These counts are problematic as they interfere with the calculation of median ratios and estimation of $\theta_j$.
+Ratios computed from count sums are more stable, and this stability will propagate back to the $\theta_j$ estimates when the linear system is solved.
+
+The linear system can be solved using standard methods such as those based on the QR decomposition.
+However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
+Such values are obviously nonsensical as counts cannot be scaled to negative values.
+The most obvious situation in which this could occur involves samples with very small library sizes relative to the other cells, 
+    such that the true value of $\theta_j$ is already close to zero.
+Errors in estimation may then be sufficient to push the estimated $\theta_j$ below zero.
+In general, this scenario seems somewhat pathological, as samples with abnormally small library sizes should be removed prior to analysis.
+Nonetheless, some protection is provided by using linear inverse models \cite{soetaert2009limsolve} to constrain the estimates to non-negative values.
+This will not provide sensible estimates for the offending cells -- these are likely to be set to zero, and should be removed prior to further processing --
+    but will ensure that the estimates for other cells are not distorted by negative values elsewhere in the system.
+    
+This approach makes some moderately strong assumptions regarding the nature of DE across the data set.
+Consider the summed cells in $\mathcal{S}_k$ and $\mathcal{S}_0$ as a pseudo-cell $k$ and an average reference, respectively.
+The use of the median is only valid when less than 50\% of genes are DE in any direction in the pseudo-cell compared to the reference,
+    i.e., less than 50\% of genes can be upregulated and less than 50\% of genes can be downregulated.
+If more DE genes are present, the median will not represent a robust average across non-DE genes.
+This condition generally requires a proportion of genes to be constantly expressed across all cells in the data set 
+    -- otherwise, all genes would be DE against the average in at least one pseudo-cell -- 
+    and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
+The assumption here is similar to that required for size factor normalization where an average reference is also used.
+
+\subsection{Selecting cells to sum}
+A key step of this approach lies in how to select cells for each set $\mathcal{S}_{ik}$.
+Ideally, one would sum cells with similar expression profiles.
+This ensures that the same set of genes are DE against the average for all cells in the set,
+    which minimizes the total amount of DE genes in the set and reduces the risk of violating the non-DE assumption.
+However, there may not be any prior knowledge regarding the relative similarity of different cells.
+This means that dimensionality reduction and clustering would be required to empirically identify groups of similar cells.
+Such methods are not straightforward and will be addressed later.
+
+The simpler solution is to use the library size as a rough proxy for cell similarity.
+This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, 
+    e.g., due to type-specific differences in total RNA or capture efficiency.
+First, cells are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
+The cells are then arranged in a ring, with odd cells on the left and even cells on the right.
+Conceptually, one can imagine starting at the 12 o'clock position on the ring, at the largest libraries; moving clockwise through the even cells for decreasing library size;
+    reaching the smallest libraries at 6 o'clock; and then, continuing to move clockwise, now through the odd cells, for increasing library size.
+For summation, a sliding window is moved cell-by-cell across this ring.
+Each window contains the same number of cells, all of which are of a similar library size.
+These cells are used to define a single instance of $\mathcal{S}_{k}$.
+Thus, each window defines a separate equation in the linear system.
+The use of a ring means that the window is still fully defined at the smallest and largest libraries.
+In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
+
+The total number of equations in the linear system is equal to the number of cells.
+The $\theta_j$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
+By using different values of $w$, additional equations can be added to improve the precision of the estimates. 
+Specifically, values of $w$ are set to 20, 40, 60, 80 and 100.
+These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
+This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
+
+An additional set of equations is added to ensure that the system is solvable.
+In each equation, the $\theta_j$ for each cell is equated to the size factor estimated directly from its single-cell counts.
+These equations are assigned very low weights compared to the other equations involving summed cells, with weights of $10^{-6}$ and unity respectively.
+A weighted least-squares approach is then applied to solve the linear system.
+In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
+This ensures that a single solution can be obtained for all $\theta_j$.
+Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
+This means that the estimated values are driven primarily by the equations for summed cells.
+
+\subsection{Performance of the deconvolution approach}
+We will refer to the approach described above as the deconvolution method, as it deconvolves the size factors for each cell from the size factors of the sum.
+Application of the deconvolution method to the simulated data yields accurate estimates of the size factors (Figure~\ref{subfig:sum_noDE}).
+This is consistent with the reduced number of zero counts in the summed counts for each set of cells.
+The median ratio for each set is more accurately computed, which improves the accuracy of the size factor estimates for the individual cells upon deconvolution.
+Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
+
+\section{Robustness to violations of the non-DE assumption}
+
+\section{Something something real data}
 
 \bibliographystyle{unsrt}
 \bibliography{references}
 
-
-
 \end{document}
+
