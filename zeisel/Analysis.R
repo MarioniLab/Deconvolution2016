@@ -158,8 +158,6 @@ szf_HE <- estimateSizeFactorsForMatrix(countsHE,geoMeans = geoMeans_HE)
 
 #Sf For Aarons method
 szf_al <- normalizeBySums(countsHE)
-szf_al_tm <- normalizeBySums(countsHE, mode = "TMM")
-szf_al_zf <- normalizeBySums(countsHE, mode = "zerofree")
 
 # ---- SF-Difference ----
 sfdiff <- sapply(names(sf), function(x) szf_HE[sumgroups[[2]][[x]]] - sf[x])
@@ -170,7 +168,7 @@ boxplot(sfdiff,main="Summing after Hclust (k=10)")
 boxplot(sfdiff_deep,main="Summing after Hclust (k=58)")
 boxplot(sfdiff_kmns,main="Summing after Kmeans (k=300)")
 
-all_sizefactors <- data.frame(szf_HE,szf_al,szf_al_tm,szf_al_zf,szf_kmns)
+all_sizefactors <- data.frame(szf_HE,szf_al,szf_kmns)
 boxplot(all_sizefactors,main="Distribution of all SF")
 pairs(all_sizefactors,cex=0.4,main="Pairwise Comparison of SF")
 
@@ -180,16 +178,12 @@ countsHENorm_sum <- as.data.frame(t(t(countsHE) /szf[colnames(countsHE)]))
 countsHENorm_sum_deep <- as.data.frame(t(t(countsHE) /szf_deep[colnames(countsHE)]))
 countsHENorm_sum_kmns <- as.data.frame(t(t(countsHE) /szf_kmns[colnames(countsHE)]))
 countsHENorm_al <- as.data.frame(t(t(countsHE) / szf_al))
-countsHENorm_al_tm <- as.data.frame(t(t(countsHE) / szf_al_tm))
-# countsHENorm_al_zf <- as.data.frame(t(t(countsHE) / szf_al_zf))
 
 featuresNorm <- featureCalc(countsHENorm, htseq = FALSE, exprmin = 1)
 featuresNorm_sum <- featureCalc(countsHENorm_sum, htseq = FALSE, exprmin = 1)
 featuresNorm_sum_deep <- featureCalc(countsHENorm_sum_deep, htseq = FALSE, exprmin = 1)
 featuresNorm_sum_kmns <- featureCalc(countsHENorm_sum_kmns, htseq = FALSE, exprmin = 1)
 featuresNorm_al <- featureCalc(countsHENorm_al, htseq = FALSE, exprmin = 1)
-featuresNorm_al_tm <- featureCalc(countsHENorm_al_tm, htseq = FALSE, exprmin = 1)
-# featuresNorm_al_zf <- featureCalc(countsHENorm_al_zf, htseq = FALSE, exprmin = 1)
 
 # ---- Evaluate-Noise ----
 par(mfrow=c(3,2))
@@ -214,12 +208,9 @@ curve((sqrt(x)/x)^2,from=0.001,to=1000,add = T, col = "red")
 
 
 spike_colNorm_al <- as.numeric(featuresNorm_al$spike) + 1
-plot(featuresNorm_al$mean,featuresNorm_al$cv2,log="xy",cex=0.3,col=spike_colNorm_al,pch=19,main="Summed method base")
+plot(featuresNorm_al$mean,featuresNorm_al$cv2,log="xy",cex=0.3,col=spike_colNorm_al,pch=19,main="Summed method")
 curve((sqrt(x)/x)^2,from=0.001,to=1000,add = T, col = "red")
-
-spike_colNorm_al_tm <- as.numeric(featuresNorm_al$spike) + 1
-plot(featuresNorm_al_tm$mean,featuresNorm_al$cv2,log="xy",cex=0.3,col=spike_colNorm_al,pch=19,main="Summed method TMM")
-curve((sqrt(x)/x)^2,from=0.001,to=1000,add = T, col = "red")
+dev.off()
 
 dm <- DM(meanGenes=featuresHE$mean,CV2Genes=featuresHE$cv2)
 dmNorm <- DM(meanGenes=featuresNorm$mean,CV2Genes=featuresNorm$cv2)
@@ -227,17 +218,15 @@ dmNorm_sum <- DM(meanGenes=featuresNorm_sum$mean,CV2Genes=featuresNorm_sum$cv2)
 dmNorm_sum_deep <- DM(meanGenes=featuresNorm_sum_deep$mean,CV2Genes=featuresNorm_sum_deep$cv2)
 dmNorm_sum_kmns <- DM(meanGenes=featuresNorm_sum_kmns$mean,CV2Genes=featuresNorm_sum_kmns$cv2)
 dmNorm_al <- DM(meanGenes=featuresNorm_al$mean,CV2Genes=featuresNorm_al$cv2)
-dmNorm_al_tm <- DM(meanGenes=featuresNorm_al_tm$mean,CV2Genes=featuresNorm_al_tm$cv2)
 
-dmERCC <- dmNorm[grepl("ERCC",rownames(countsHE))]
+dmERCC <- dm[grepl("ERCC",rownames(countsHE))]
+dmERCC_norm <- dmNorm[grepl("ERCC",rownames(countsHE))]
 dmERCC_sum <- dmNorm_sum[grepl("ERCC",rownames(countsHE))]
 dmERCC_sum_deep <- dmNorm_sum_deep[grepl("ERCC",rownames(countsHE))]
 dmERCC_sum_kmns <- dmNorm_sum_kmns[grepl("ERCC",rownames(countsHE))]
 dmERCC_al <- dmNorm_al[grepl("ERCC",rownames(countsHE))]
-dmERCC_al_tm <- dmNorm_al_tm[grepl("ERCC",rownames(countsHE))]
-par(mfrow=c(1,1))
-boxplot(data.frame(dmERCC,dmERCC_sum,dmERCC_sum_deep,dmERCC_sum_kmns,dmERCC_al,dmERCC_al_tm),main="Boxplot of DM of ERCCs")
 
+boxplot(data.frame(dmERCC,dmERCC_norm,dmERCC_sum,dmERCC_sum_deep,dmERCC_sum_kmns,dmERCC_al),main="Boxplot of DM of ERCCs")
 # ---- SystematicClusterDifference ----
 
 ## First Plot a Boxplot of the numbers of Zeros per Cluster
@@ -245,7 +234,7 @@ nzeros <- data.frame(t(apply(countsHE,2, function(x) sum(x == 0))))
 rownames(nzeros) <- "NZeros"
 plotcutTLE<- drawBoxplot(nzeros,cutTLE,"NZeros")
 plotcutTLE_deep<- drawBoxplot(nzeros,cutTLE_deep,"NZeros")
-plotkmns<- drawBoxplot(nzeros,kmns$cluster,"NZeros")
+plot_kmns<- drawBoxplot(nzeros,kmns$cluster,"NZeros")
 
 plot(plotcutTLE)
 plot(plotcutTLE_deep)
@@ -312,6 +301,7 @@ plot(colSums(countsHE[featuresHE$spike,]),colSums(countsHE[!featuresHE$spike,])/
 ##Order of Variability
 plot(order(dm),order(dmNorm),col=grepl("ERCC",rownames(countsHE)) + 1,cex=0.5,pch=19)
 plot(order(dm),order(dmNorm_al),col=grepl("ERCC",rownames(countsHE)) + 1,cex=0.5,pch=19)
+plot(order(dmNorm),order(dmNorm_al),col=grepl("ERCC",rownames(countsHE)) + 1,cex=0.5,pch=19)
 
 featuresHE_Ord<- featuresHE[order(-dm),]
 featuresNorm_Ord<- featuresNorm[order(-dmNorm),]
@@ -329,3 +319,22 @@ venn.diagram(list("Non-Norm" = venHE,"Sizefacotrs" = venNorm, "Summation" = venN
              alpha= c(0.5,0.5,0.5), cex = 1 , cat.fontface = 4, fontfamily = 3,imagetype="png",
              filename = "VenDiagram2.png")
 
+# ---- Diferential-Expression ----
+
+sbst <- countsHE[,grepl("microglia|oligodendrocytes",cells$level1class)]
+cellssbst <- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
+cellssbst$sizeFactor <- szf_HE[grepl("microglia|oligodendrocytes",cells$level1class)]
+
+cellssbst_al <- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
+cellssbst_al$sizeFactor <- szf_al[grepl("microglia|oligodendrocytes",cells$level1class)]
+
+
+## Load into DESeq2
+dds_sbst <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst, design =~ level1class)
+dds_sbst <- estimateDispersions(dds_sbst)
+dds_sbst <- nbinomWaldTest(dds_sbst)
+
+
+dds_sbst_al <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst_al, design =~ level1class)
+dds_sbst_al <- estimateDispersions(dds_sbst_al)
+dds_sbst_al <- nbinomWaldTest(dds_sbst_al)
