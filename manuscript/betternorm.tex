@@ -121,7 +121,7 @@ The NB dispersion is defined for each gene as
 to represent a decreasing mean-dispersion trend.
 Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq studies,
     and ensure that a large number of stochastic zeroes are generated.
-In this manner, counts were generated for 10000 genes across 800 cells.
+In this manner, counts were generated for 10000 genes across 600 cells.
 
 Size factor and TMM normalization were then applied to this data set.
 For size factor normalization, the geometric mean was computed by replacing all zero counts with unity.
@@ -130,7 +130,7 @@ For TMM normalization, all undefined M-values were removed prior to trimming and
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
 Estimated size factors were then compared to the true values $\theta_j$ for all cells.
 
-Figure~\ref{fig:existing_noDE} demonstrates that both methods yield size factors that systematically deviate from the true values.
+Figure~\ref{fig:sim_noDE} demonstrates that both methods yield size factors that systematically deviate from the true values.
 Large size factors are underestimated while small size factors are overestimated.
 This is a consequence of removing stochastic zeroes prior to normalization.
 Consider a simple example where a cell with low $\theta_j$ is normalized against a cell with a large $\theta_j$. 
@@ -163,7 +163,7 @@ Even under such favourable conditions, the existing methods fail to correctly es
     Axes are shown on a log-scale for visibility.
     The red line represents equality between the estimated and true factors.
 }
-\label{fig:existing_noDE}
+\label{fig:sim_noDE}
 \end{figure}
 
 \section{Improving normalization accuracy with deconvolution}
@@ -266,6 +266,58 @@ The median ratio for each set is more accurately computed, which improves the ac
 Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
 
 \section{Robustness to violations of the non-DE assumption}
+
+\subsection{All methods fail without a non-DE majority}
+The performance of each method was evaluated on simulated data with DE genes.
+In the simulation design described above, the 600 cells were partitioned into three subpopulations of 200 cells.
+In subpopulation $s=1$, 3000 genes were randomly chosen and the expected number of transcripts $\lambda_{is}$ for gene $i$ was set to $2\lambda_{i}$.
+This was repeated with a different set of 3000 genes for subpopulation $s=2$ with $\lambda_{is}=4\lambda_i$; and again in the last subpopulation $s=3$, with $\lambda_{is}=6\lambda_i$.
+Each set of upregulated genes represents the unique expression signature for the corresponding subpopulation.
+The value of $\theta_j$ for each cell was sampled as previously described, independently of the subpopulation of that cell.
+The count for each gene in each cell was then sampled from a NB distribution with a mean of $\theta_j\lambda_{is}$ for all signature genes and $\theta_j\lambda_i$ otherwise.
+
+% The use of a different fold-increase for each subpopulation is necessary, otherwise the average expression profile is flat, which is unlikely for real data.
+
+All methods failed to accurately estimate the true $\theta_j$ in this simulation (Figure~\ref{fig:sim_DE}).
+This is consistent with the violation of the non-DE assumption.
+Across the three subpopulations, there are 9000 genes involved in subpopulation-specific signatures, i.e., 90\% of all genes exhibit DE within this data set.
+An assumption of a non-DE majority of genes is clearly invalid in this scenario.
+Any systematic differences in expression between cells of different subpopulations will now include genuine DE in addition to cell-specific biases.
+Subsequently, the magnitude of DE will be incorporated in the size factors computed from each method, such that they are no longer accurate estimates of $\theta_j$.
+The estimates also split into two distinct groups within each plot of Figure~\ref{fig:sim_DE}.
+The lower group corresponds to the first subpopulation which has the weakest expression signature in this simulation (2-fold upregulation).
+Size factors for cells in this subpopulation are underestimated as strong DE in the signature genes of other subpopulations drags down the median ratio/trimmed mean.
+
+\begin{figure}[tb]
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth]{size_sim_DE.pdf}
+\subcaption{}\label{subfig:size_DE}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth]{tmm_sim_DE.pdf}
+\subcaption{}\label{subfig:tmm_DE}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth]{sum_sim_DE.pdf}
+\subcaption{}\label{subfig:sum_DE}
+\end{minipage}
+\caption{
+    Performance of existing normalization methods on simulated data with subpopulation-specific DE genes and stochastic zeroes.
+    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_noDE}) size factor and (\subref{subfig:tmm_noDE}) TMM normalization.
+    Estimates are also shown for our deconvolution approach (\subref{subfig:sum_noDE}).
+    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+    Axes are shown on a log-scale for visibility.
+    The red line represents equality between the estimated and true factors.
+}
+\label{fig:sim_DE}
+\end{figure}
+
+It is worth noting that the partition between subpopulations is clearer for the deconvolution method compared to the existing methods.
+This is due to the presence of stochastic zeroes, which are responsible for the systematic over- and under-estimation of small and large $\theta_j$ in the existing methods.
+As a result, the estimates for different subpopulations are squeezed together in Figures~\ref{subfig:size_DE} and \ref{subfig:tmm_DE}.
+The deconvolution method avoids these problems, leading to a sharper distinction between subpopulations in Figure~\ref{subfig:sum_DE}. 
+
+\subsection{Improving accuracy with clustering prior to normalization}
 
 \section{Something something real data}
 

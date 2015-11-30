@@ -14,15 +14,24 @@ nlibs <- popsize * subpops
 output.dir <- "results"
 dir.create(output.dir, showWarning=FALSE)
 
-make.plot <- function(sf, truth, name) {
+make.plot <- function(sf, truth, name, clusters=NULL) {
     resids <- log2(sf) - log2(truth)
     fitted <- lm(resids ~ 1, na.action=na.exclude)
     all.range <- range(truth)
+   
+    if (is.null(clusters)) { 
+        col <- rgb(0,0,0,0.5)
+    } else {
+        col <- character(length(sf))
+        col[clusters==1L] <- rgb(0,0,0,0.5)
+        col[clusters==2L] <- rgb(0,0,1,0.5)
+        col[clusters==3L] <- rgb(1,0.5,0,0.5)
+    }
 
     pdf(file.path(output.dir, paste0(name, ".pdf")))
     plot(truth, truth * 2^residuals(fitted), xlim=all.range, ylim=all.range, 
          ylab="Estimated factors", xlab="True factors", log="xy", pch=16, 
-         col=rgb(0,0,0,0.5), cex.axis=1.2, cex.lab=1.4)
+         col=col, cex.axis=1.2, cex.lab=1.4)
     abline(0, 1, col="red")
     dev.off()
 }
@@ -51,7 +60,7 @@ for (scenario in 1:3) {
         for (x in seq_len(subpops)) { 
             curgene <- last.gene + seq_len(nde)
             curcell <- last.cell + seq_len(popsize)
-            effective.means[curgene,curcell] <- effective.means[curgene,curcell] * (x+2) # unique FC per group.
+            effective.means[curgene,curcell] <- effective.means[curgene,curcell] * (x*2) # unique FC per group.
             last.gene <- last.gene + nde
             last.cell <- last.cell + popsize
         }
@@ -60,34 +69,34 @@ for (scenario in 1:3) {
 
     # TMM with raw counts:
     tmm.sf <- calcNormFactors(counts) * colSums(counts)
-    make.plot(tmm.sf, true.facs, paste0("TMM_", scenario))
+    make.plot(tmm.sf, true.facs, paste0("TMM_", scenario), clusters=clusters)
 
     # TMM with averaged counts:
     combined <- cbind(rowSums(counts), counts)
     tmm2.sf <- calcNormFactors(combined) * colSums(combined)
     tmm2.sf <- tmm2.sf[-1]
-    make.plot(tmm2.sf, true.facs, paste0("TMMave_", scenario))
+    make.plot(tmm2.sf, true.facs, paste0("TMMave_", scenario), clusters=clusters)
 
     # Size factors with raw counts (must remove zeros for both geometric mean and for each library):
     logvals <- log(counts)
     logvals[is.infinite(logvals)] <- 0
     gm <- exp(rowMeans(logvals))
     size.sf <- apply(counts, 2, function(u) median((u/gm)[u > 0]))
-    make.plot(size.sf, true.facs, paste0("size_", scenario))
+    make.plot(size.sf, true.facs, paste0("size_", scenario), clusters=clusters)
 
     # Size factors with averaged counts (must remove zeros in each library):
     averaged <- rowMeans(counts)
     size2.sf <- apply(counts, 2, function(u) median((u/averaged)[u > 0]))
-    make.plot(size.sf, true.facs, paste0("sizeAM_", scenario))
+    make.plot(size.sf, true.facs, paste0("sizeAM_", scenario), clusters=clusters)
 
     # Size factors with summation:
     final.sf <- normalizeBySums(counts, clusters=NULL)
-    make.plot(final.sf, true.facs, paste0("sum_", scenario))
+    make.plot(final.sf, true.facs, paste0("sum_", scenario), clusters=clusters)
 
     # Size factors with clustering prior to summation:
     if (scenario > 1L) {
         final2.sf <- normalizeBySums(counts, clusters=clusters)
-        make.plot(final2.sf, true.facs, paste0("sumClust_", scenario))
+        make.plot(final2.sf, true.facs, paste0("sumClust_", scenario), clusters=clusters)
     }
 }
 
