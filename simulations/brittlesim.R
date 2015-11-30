@@ -29,7 +29,7 @@ make.plot <- function(sf, truth, name) {
 
 ###########################################################################
 
-for (scenario in 1:5) { 
+for (scenario in 1:3) { 
     true.facs <- 2^rnorm(nlibs, sd=0.5)
     true.means <- 2^runif(ngenes, 3, 6)
     effective.means <- outer(true.means, true.facs, "*")
@@ -41,14 +41,8 @@ for (scenario in 1:5) {
         # Each subpopulation has its own DE set, which is upregulated to a different extent.
         if (scenario==2L) {
             nde <- 1000
-            clusters <- NULL
-        } else if (scenario==3L) {
-            nde <- 3000
-            clusters <- NULL
-        } else if (scenario==4L) { 
-            nde <- 1000
             clusters <- rep(seq_len(subpops), each=popsize)
-        } else if (scenario==5L) { 
+        } else if (scenario==3L) { 
             nde <- 3000
             clusters <- rep(seq_len(subpops), each=popsize)
         }
@@ -87,7 +81,13 @@ for (scenario in 1:5) {
     make.plot(size.sf, true.facs, paste0("sizeAM_", scenario))
 
     # Size factors with summation:
-    final.sf <- normalizeBySums(counts, clusters=clusters)
+    final.sf <- normalizeBySums(counts, clusters=NULL)
     make.plot(final.sf, true.facs, paste0("sum_", scenario))
+
+    # Size factors with clustering prior to summation:
+    if (scenario > 1L) {
+        final2.sf <- normalizeBySums(counts, clusters=clusters)
+        make.plot(final2.sf, true.facs, paste0("sumClust_", scenario))
+    }
 }
 
