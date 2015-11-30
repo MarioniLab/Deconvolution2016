@@ -4,7 +4,7 @@ Date: 2015/11/28
 Title: Aaron and Karsten's normalization package for scRNA-seq data
 Author: Aaron Lun <aaron.lun@cruk.cam.ac.uk>, Karsten Bach <kbach@ebi.ac.uk>
 Maintainer: Aaron Lun <aaron.lun@cruk.cam.ac.uk>
-Depends: R (>= 3.3.0)
+Depends: R (>= 3.2.2)
 Imports:
 Suggests: 
 biocViews: Normalization, Sequencing, RNASeq
