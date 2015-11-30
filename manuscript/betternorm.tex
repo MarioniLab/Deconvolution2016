@@ -3,6 +3,9 @@
 \usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
+\urlstyle{same}
 
 \title{Computing normalization factors for single-cell RNA-seq data: avoiding problems with zero counts}
 \author{Aaron Lun and Karsten Bach}
@@ -128,7 +131,8 @@ For size factor normalization, the geometric mean was computed by replacing all 
 Zero counts were also removed within each library prior to calculation of the size factor.
 For TMM normalization, all undefined M-values were removed prior to trimming and calculation of the normalization factor for each library.
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
-Estimated size factors were then compared to the true values $\theta_j$ for all cells.
+The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove cell-specific biases.
+Estimated size factors were then compared to the true values for all cells.
 
 Figure~\ref{fig:sim_noDE} demonstrates that both methods yield size factors that systematically deviate from the true values.
 Large size factors are underestimated while small size factors are overestimated.
@@ -178,7 +182,10 @@ The expectation of $s_{ik}$ is equal to
     E(s_{ik}) = \lambda_i \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
 \]
 Similarly, define $\mathcal{S}_0$ as the set of all cells in the data set, and $s_{i0}$ as the sum of expression values across all cells for gene $i$.
-The expectation of the ratio $r_{ik}$ of the sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ is defined as
+The values of $s_{i0}$ represent the expression profile for a reference pseudo-cell across the entire data set.
+Each real cell is then normalized against this reference.
+Consider the ratio $r_{ik}$ of the sums between $\mathcal{S}_k$ and $\mathcal{S}_0$ for a non-DE gene $i$.
+The expectation of $r_{ik}$ is equivalent to a size factor and is written as
 \begin{equation}
     E(r_{ik}) \approx \frac{E(s_{ik})}{E(s_{i0})} 
     = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{\sum_{\mathcal{S}_0} \theta_j T_j^{-1}} 
@@ -343,6 +350,58 @@ The deconvolution method avoids these problems, leading to a sharper distinction
 Obviously, however, the greater issue of inaccuracy in the presence of DE genes is not resolved by deconvolution.
 
 \subsection{Improving accuracy with clustering prior to normalization}
+To reduce the strength of the non-DE assumption, cells can be clustered based on their expression profiles.
+The deconvolution method is then applied to the cells in each cluster separately.
+This normalizes each cell to a cluster-specific reference pseudo-cell, yielding a cluster-specific size factor of $f_{j}'$ for cell $j$ in cluster $c$.
+To allow the size factors to be comparable between clusters, the reference pseudo-cells for each cluster are normalized against each other.
+This is done by selecting a single ``baseline'' pseudo-cell against which all other pseudo-cells are normalized.
+Specifically, the median ratio $f_c$ of the expression values is computed for the pseudo-cell of each cluster $c$ against the baseline pseudo-cell
+    (obviously, the cluster chosen as the baseline will have $f_c=1$).
+The overall size factor for cell $j$ in cluster $c$ is subsequently defined as $f_j = f_{j}'f_c$.
+
+The use of within-cluster normalization reduces the number of DE genes, as all cells in each cluster have similar expression profiles.
+This avoids inaccurate estimation of the size factors due to violations of the non-DE assumption.
+Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
+This reduces the strength of the non-DE assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
+For example, in the previous simulation with DE genes, only 60\% of genes are DE between any two subpopulations.
+Specifically, 30\% are upregulated and 30\% are downregulated between subpopulations, which is well below the 50\% threshold for valid use of the median ratio.
+Indeed, deconvolution with clustering yields accurate size factor estimates (Figure~\ref{fig:sim_cluster_DE}).
+
+\begin{figure}[bt]
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{sumClust_sim_DE.pdf}
+    \end{center}
+    \caption{
+        Size factor estimates from the deconvolution method after clustering cells into subpopulations, 
+            plotted against the true values in the simulation with subpopulation-specific DE genes.
+        Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+        Axes are shown on a log-scale for visibility.
+        The red line represents equality between the estimated and true factors.
+    }
+    \label{fig:sim_cluster_DE}
+\end{figure}
+
+One potential criticism of this approach is that it relies on clustering information.
+Cluster-specific normalization might introduce artificial differences between cells in different clusters, 
+    such that the statistical rigour of downstream analyses (e.g., to detect DE between clusters) would be compromised.
+Such problems are avoided by normalization between pseudo-cells to ensure that cells are comparable between clusters.
+Recall that systematic differences between cells are removed within each cluster with the deconvolution method, 
+    followed by the removal of systematic differences between clusters as described.
+The end result of this two-step strategy is that all systematic differences between cells are removed.
+This is equivalent to the outcome of a hypothetical one-step method that does not use cluster information (and is robust to DE and stochastic zeroes, unlike existing methods).
+Moreover, normalization accuracy in Figure~\ref{fig:sim_cluster_DE} is unaffected by the use of cell clustering prior to deconvolution.
+This suggests that the two-step strategy is statistically valid.
+
+Any clustering technique can be used to group cells with similar expression profiles prior to application of the deconvolution method.
+We favour a correlation-based approach where a distance matrix is constructed as $1-\rho_{xy}$,
+    where $\rho_{xy}$ denotes Spearman's rank correlation coefficient between cells $x$ and $y$.
+Hierarchical clustering is then performed on this matrix using Ward's clustering criterion.
+A dynamic tree cut is performed to define clusters of cells using the dynamicTreeCut package v1.62 (\url{https://cran.r-project.org/web/packages/dynamicTreeCut/index.html}).
+This is performed so that each cluster contains at least 200 cells, ensuring that there are enough cells in each cluster to apply the deconvolution method.
+Correlaton-based methods are attractive as they are insensitive to global scaling of the expression values in each cell.
+This means that they are not dependent on normalized expression values, which avoids a circular dependence between normalization and clustering.
+The baseline pseudo-cell is chosen from the cluster where the mean library size per cell is closest to the median of the mean per cell for all clusters.
+This uses the library size as a proxy for cell similarity, such that the baseline is likely to have the least DE when compared to every other cluster.
 
 \section{Something something real data}
 
