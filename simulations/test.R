@@ -1,6 +1,6 @@
 # Defining functions.
 
-source("sum_code.R")
+require(AK47)
 
 fitNorm <- function(nf, truth) {
     resids <- log2(nf) - log2(truth)

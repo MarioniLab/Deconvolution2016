@@ -1,8 +1,15 @@
-prenormSum/justification/explanation.aux
-prenormSum/justification/explanation.log
-prenormSum/justification/explanation.pdf
-prenormSum/test.Rout.save
-prenormSum/benefit.pdf
+simulations/justification/explanation.aux
+simulations/justification/explanation.log
+simulations/justification/explanation.pdf
+simulations/test.Rout.save
+simulations/benefit.pdf
+simulations/results
+
+manuscript/betternorm.aux
+manuscript/betternorm.bbl
+manuscript/betternorm.blg
+manuscript/betternorm.log
+manuscript/betternorm.pdf
 
 data/
 results/
