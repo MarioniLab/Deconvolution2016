@@ -111,7 +111,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
     clust.libsize <- unlist(clust.libsize)
     ref.col <- which(rank(clust.libsize, ties.method="first")==as.integer(length(clust.libsize)/2)+1L)
     for (clust in seq_along(indices)) { 
-        clust.nf[[clust]] <- clust.nf[[clust]] * median(clust.profile[[clust]]/clust.profile[[ref.col]])
+        clust.nf[[clust]] <- clust.nf[[clust]] * median(clust.profile[[clust]]/clust.profile[[ref.col]], na.rm=TRUE)
     }
     clust.nf <- unlist(clust.nf)
     clust.nf[unlist(indices)] <- clust.nf
