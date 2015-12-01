@@ -17,7 +17,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
 #
 # written by Aaron Lun
 # created 23 November 2015
-# last modified 28 November 2015
+# last modified 1 December 2015
 {
     ncells <- ncol(counts)
     if (!is.null(clusters)) {
@@ -52,7 +52,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
 
         # Checking cluster sizes
         if (any(sizes > cur.cells)) { 
-            stop("not enough cells in each clsuter for specified 'sizes'") 
+            stop("not enough cells in each cluster for specified 'sizes'") 
         } else if (any(sizes*2L > cur.cells)) {
             if (!warned.size) { warning("number of cells in each cluster should be at least twice that of the largest 'sizes'") }
             warned.size <- TRUE
