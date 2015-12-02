@@ -301,6 +301,13 @@ The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for t
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
 The overall size factor for cell $j$ in cluster $c$ is subsequently defined as $f_j = f_{j}'\tau_{\mathcal{C}}$.
 
+% This is justified by considering normalization factors; you multiply the normalization factor within clusters with that between clusters to get the overall factor 
+% (independent of library size), then you multiply by the library size to get the size factors. 
+% The same applies here, except that you multiply by library size first to get the within-cluster size factors, then you multiply between clusters.
+% Or, in other words, the within-cluster size factors capture library size differences and additional within-cluster differences;
+% you only need to multiply by additional between-cluster differences to get the overall size factors 
+% (i.e., you don't need to compute the size factors between clusters, only the normalization factors).
+
 The use of within-cluster normalization reduces the number of DE genes, as all cells in each cluster have similar expression profiles.
 This avoids inaccurate estimation of the size factors due to violations of the non-DE assumption.
 Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
