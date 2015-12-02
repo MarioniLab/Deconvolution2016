@@ -316,9 +316,10 @@ For example, in the simulation with varying magnitude of DE, only 60\% of genes 
 
 Any clustering technique can be used to group cells with similar expression profiles.
 We favour a correlation-based approach using $1-\rho_{xy}$ as the distance, where $\rho_{xy}$ denotes Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
+In this manner, a distance matrix is constructed between all pairs of cells.
 Hierarchical clustering is then performed on this matrix using Ward's clustering criterion.
 A dynamic tree cut is used to define clusters of cells using the dynamicTreeCut package v1.62 (\url{https://cran.r-project.org/web/packages/dynamicTreeCut/index.html}).
-This is done so that each cluster contains a minimum number of cells required for stable deconvolution.
+This is done so that each cluster contains a minimum number of cells (200 by default) required for stable deconvolution.
 Correlation-based methods are attractive as they are insensitive to global scaling of the expression values in each cell.
 Prior normalization is not required, which avoids a circular dependence between normalization and clustering.
 
