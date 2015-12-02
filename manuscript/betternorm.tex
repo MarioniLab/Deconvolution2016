@@ -329,6 +329,13 @@ This uses the mean library size as a rough proxy for cell similarity.
 The baseline cluster is likely to be least dissimilar to every other cluster, which reduces the amount of DE genes during pairwise normalization.
 More intelligent choices of the baseline can be used if the similarities between clusters are known, e.g., from visualization after dimensionality reduction.
 
+Systematic zeroes within a cluster are also removed prior to deconvolution in that cluster.
+This refers to genes that only have zero counts across all cells in the cluster.
+Such genes provide no information for normalizing between cells in the same cluster, and their removal will not affect the cluster-specific size factor estimates.
+However, these genes are retained during rescaling of the size factors between clusters.
+This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
+Removal of such genes will distort the median ratio between pseudo-cells and lead to biased size factor estimates, as described previously for the existing methods.
+
 \subsection{Selecting cell pools to sum}
 The pool of cells in each set $\mathcal{S}_{ik}$ consists of cells with similar library sizes.
 Cells in a given cluster are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
