@@ -127,7 +127,7 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
     # Returning centered size factors, rather than normalization factors.
     final.sf <- rep(NA_integer_, ncells)
     final.sf[unlist(indices)] <- clust.nf
-    final.sf <- clust.nf * lib.sizes
+    final.sf <- final.sf * lib.sizes
     
     is.pos <- final.sf > 0 & !is.na(final.sf)
     gm <- exp(mean(log(final.sf[is.pos])))
