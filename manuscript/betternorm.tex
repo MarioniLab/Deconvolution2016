@@ -357,9 +357,10 @@ Note that this pooling strategy is performed on cells within a single cluster at
 It complements the use of clustering by protecting against any residual DE within each cluster.
 This is especially true for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
 
-% Actually doesn't matter whether or not the cells have similar expression profiles;
-% DE anywhere in the data set will contaminate the average reference and break it.
-% Of course, if you have 
+% In small samples, it mightn't matter whether or not the cells have similar expression profiles;
+% DE anywhere in the data set will contaminate the average reference anyway, so the amount of DE in each cell pool relative to the pseudo-cell would be the same.
+% However, if the cluster is large enough, minor DE will average out in the pseudo-cell.
+% Then we definitely can see an advantage from summing similar cells at a time in each cell pool. 
 
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
