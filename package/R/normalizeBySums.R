@@ -9,7 +9,7 @@
     c(out, out)
 }
 
-normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL, positive=FALSE) 
+normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL, ref.clust=NULL, positive=FALSE) 
 # This contains the function that performs normalization on the summed counts.
 # It also provides support for normalization within clusters, and then between
 # clusters to make things comparable. It can also switch to linear inverse models
@@ -24,7 +24,8 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
         if (ncells!=length(clusters)) { 
             stop("'counts' ncols is not equal to 'clusters' length")
         }
-        indices <- split(seq_len(ncells), clusters)
+        is.okay <- !is.na(clusters)
+        indices <- split(which(is.okay), clusters[is.okay])
     } else {
         indices <- list(seq_len(ncells))
     }
@@ -107,18 +108,30 @@ normalizeBySums <- function(counts, sizes=c(20, 40, 60, 80, 100), clusters=NULL,
         clust.libsize[[clust]] <- mean(cur.libs)
     }
 
-    # Adjusting size factors between clusters (using the cluster with the median per-cell library size as the reference).
-    clust.libsize <- unlist(clust.libsize)
-    ref.col <- which(rank(clust.libsize, ties.method="first")==as.integer(length(clust.libsize)/2)+1L)
+    # Adjusting size factors between clusters (using the cluster with the
+    # median per-cell library size as the reference, if not specified).
+    if (is.null(ref.clust)) {
+        clust.libsize <- unlist(clust.libsize)
+        ref.col <- which(rank(clust.libsize, ties.method="first")==as.integer(length(clust.libsize)/2)+1L)
+    } else {
+        ref.col <- which(names(indices)==ref.clust)
+        if (length(ref.col)==0L) { 
+            stop("'ref.clust' value not in 'clusters'")
+        }
+    }
     for (clust in seq_along(indices)) { 
         clust.nf[[clust]] <- clust.nf[[clust]] * median(clust.profile[[clust]]/clust.profile[[ref.col]], na.rm=TRUE)
     }
     clust.nf <- unlist(clust.nf)
-    clust.nf[unlist(indices)] <- clust.nf
 
-    # Returning size factors, rather than normalization factors.
+    # Returning centered size factors, rather than normalization factors.
+    final.sf <- rep(NA_integer_, ncells)
+    final.sf[unlist(indices)] <- clust.nf
     final.sf <- clust.nf * lib.sizes
-    final.sf <- final.sf/mean(final.sf[final.sf>0])
+    
+    is.pos <- final.sf > 0 & !is.na(final.sf)
+    gm <- exp(mean(log(final.sf[is.pos])))
+    final.sf <- final.sf/gm
     return(final.sf)
 }
 
