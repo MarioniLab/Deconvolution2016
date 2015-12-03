@@ -471,15 +471,15 @@ This is consistent with the simulation results where the stochastic zeroes cause
 Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
 This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data and cannot simply be ignored.
 The deconvolution method reduces the number of zero counts by summing across cells.
-This avoids the bias towards unity in the simulations and results in a wider spread of size factor estimates in Figure~\ref{fig:real_spread}.
+This avoids the bias towards unity in the simulations and increases the range of the estimates in the brain and inDrop data.
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure1a.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_NormFactors.pdf}
         \subcaption{}\label{subfig:spread_brain}
     \end{minipage}
     \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure1b.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_NormFactors.pdf}
         \subcaption{}\label{subfig:spread_indrop}
     \end{minipage}
     \caption{
@@ -491,37 +491,33 @@ This avoids the bias towards unity in the simulations and results in a wider spr
     \label{fig:real_spread}   
 \end{figure}
 
-The size factor estimates are mostly correlated between the different methods on real data (Figure~\ref{fig:real_comp}).
-This indicates that all methods reach similar qualitative conclusions, i.e., cells with larger $\theta_j$ also have larger size factor estimates.
-However, the quantitative aspect is substantially different between methods.
-Deconvolution yields a wider range of estimates compared to size factor normalization, consistent with the simulation results.
-Differences are also present between the estimates from deconvolution and those from library size normalization in Figure~\ref{subfig:comp_lib_brain}.
-This is attributable to the likely presence of DE genes between cell types across the brain data set, which is sufficient to confound library size normalization.
+The size factor estimate from deconvolution is a monotonic increasing function of that from the other methods (Figure~\ref{fig:real_comp}).
+This suggests that the methods are qualitatively similar, in that the rankings of size factors are in rough agreement across methods.
+However, the quantitative behaviour of each method is substantially different.
+Deconvolution yields a wider range of estimates compared to size factor and TMM normalization, consistent with the simulation results.
+Differences are also present between the estimates from deconvolution and those from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
+This is attributable to the likely presence of DE genes between cell types, which will confound library size normalization.
 In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
-The two methods are more similar for the inDrop data set (Figure~\ref{subfig:comp_lib_indrop}) where less DE is expected within the same cell type.
+The two methods are more similar for the inDrop data where less DE is expected within the same cell type.
 
 \begin{figure}[btp]
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2a.png}
-        \subcaption{}\label{subfig:comp_sf_brain}
+    \begin{minipage}{0.33\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_SFvDeconv.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_SFvDeconv.png}
+        \subcaption{}\label{subfig:comp_sf}
     \end{minipage}
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2c.png}
-        \subcaption{}\label{subfig:comp_sf_indrop}
-    \end{minipage} \\
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2b.png}
-        \subcaption{}\label{subfig:comp_lib_brain}
+    \begin{minipage}{0.33\textwidth}
+        \subcaption{}\label{subfig:comp_tmm}
     \end{minipage}
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2d.png}
-        \subcaption{}\label{subfig:comp_lib_indrop}
+    \begin{minipage}{0.33\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_LibvDeconv.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_LibvDeconv.png}
+        \subcaption{}\label{subfig:comp_lib}
     \end{minipage}
     \caption{
-        Comparisons between the estimated size factors from the deconvolution method to those from size factor (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_sf_indrop})
-            or library size normalization (\subref{subfig:comp_lib_brain}, \subref{subfig:comp_lib_indrop}).
-        This is shown for the brain (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_lib_brain}) and inDrop data sets 
-            (\subref{subfig:comp_sf_indrop}, \subref{subfig:comp_lib_indrop}).    
+        Comparisons between the estimated size factors from the deconvolution method to those from (\subref{subfig:comp_sf}) size factor,  (\subref{subfig:comp_tmm}) TMM
+            or (\subref{subfig:comp_lib}) library size normalization.
+        This is shown for the brain (top) and inDrop data sets (bottom).
         Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
     }
     \label{fig:real_comp}  
@@ -552,22 +548,22 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
 
 \begin{figure}[btp]
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3a.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/SFvERCC.png}
 %        \includegraphics[width=\textwidth]{
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3b.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/TMMvERCC.png}
         \subcaption{}\label{subfig:spike_lib}
     \end{minipage} 
     \begin{minipage}{0.33\textwidth}
 %        \includegraphics[width=\textwidth]{
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3c.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/DeconvERCC.png}
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
     \caption{
         Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) size factor,
-            (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method in the brain data set.
+            (\subref{subfig:spike_lib}) TMM normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.
         Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
     }
     \label{fig:real_spike}  
