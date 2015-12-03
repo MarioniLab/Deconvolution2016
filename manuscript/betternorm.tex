@@ -475,16 +475,18 @@ This avoids the bias towards unity in the simulations and results in a wider spr
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
-%        \includegraphics[width=\textwidth]{
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure1a.pdf}
         \subcaption{}\label{subfig:spread_brain}
     \end{minipage}
     \begin{minipage}{0.48\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure1b.pdf}
         \subcaption{}\label{subfig:spread_indrop}
     \end{minipage}
     \caption{
         Boxplots of the estimated size factors across all cells in the (\subref{subfig:spread_brain}) brain or (\subref{subfig:spread_indrop}) inDrop data,
             for all normalization methods.
         Axes are on a log-scale, and dots represent outlier cells with extreme size factors.
+        To simplify comparisons between methods, each set of size factors was scaled to have a median of unity.
     }
     \label{fig:real_spread}   
 \end{figure}
@@ -499,19 +501,21 @@ In contrast, deconvolution uses a median-based approach that is robust to extrem
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
-%        \includegraphics[width=\textwidth]{
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2a.png}
         \subcaption{}\label{subfig:comp_sf_brain}
     \end{minipage}
     \begin{minipage}{0.48\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2c.png}
         \subcaption{}\label{subfig:comp_sf_indrop}
     \end{minipage} \\
     \begin{minipage}{0.48\textwidth}
-%        \includegraphics[width=\textwidth]{
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2b.png}
         \subcaption{}\label{subfig:comp_lib_brain}
     \end{minipage}
     \begin{minipage}{0.48\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure2d.png}
         \subcaption{}\label{subfig:comp_lib_indrop}
-    \end{minipage} \\
+    \end{minipage}
     \caption{
         Comparisons between the estimated size factors from the deconvolution method to those from size factor (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_sf_indrop})
             or library size normalization (\subref{subfig:comp_lib_brain}, \subref{subfig:comp_lib_indrop}).
