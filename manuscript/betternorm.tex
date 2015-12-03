@@ -491,13 +491,14 @@ This avoids the bias towards unity in the simulations and results in a wider spr
     \label{fig:real_spread}   
 \end{figure}
 
-A comparison between the size factors for different methods indicates that the estimates are mostly proportional between methods (Figure~\ref{fig:real_comp}).
-This indicates that the different methods reach similar qualitative conclusions, i.e., cells with larger $\theta_j$ also have larger size factor estimates.
+The size factor estimates are mostly correlated between the different methods on real data (Figure~\ref{fig:real_comp}).
+This indicates that all methods reach similar qualitative conclusions, i.e., cells with larger $\theta_j$ also have larger size factor estimates.
 However, the quantitative aspect is substantially different between methods.
 Deconvolution yields a wider range of estimates compared to size factor normalization, consistent with the simulation results.
-Differences are also present between the estimates from deconvolution and those from library size normalization.
-This is attributable to the likely presence of DE genes across the data set, which is sufficient to confound library size normalization.
+Differences are also present between the estimates from deconvolution and those from library size normalization in Figure~\ref{subfig:comp_lib_brain}.
+This is attributable to the likely presence of DE genes between cell types across the brain data set, which is sufficient to confound library size normalization.
 In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
+The two methods are more similar for the inDrop data set (Figure~\ref{subfig:comp_lib_indrop}) where less DE is expected within the same cell type.
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
@@ -551,14 +552,17 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
 
 \begin{figure}[btp]
     \begin{minipage}{0.33\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3a.png}
 %        \includegraphics[width=\textwidth]{
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3b.png}
         \subcaption{}\label{subfig:spike_lib}
     \end{minipage} 
     \begin{minipage}{0.33\textwidth}
 %        \includegraphics[width=\textwidth]{
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Figure3c.png}
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
     \caption{
