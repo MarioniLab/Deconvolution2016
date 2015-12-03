@@ -210,6 +210,12 @@ Subsequently, the magnitude of DE will be incorporated in the size factors compu
 The estimates also split into three distinct groups in Figure~\ref{fig:existing_sim}, each corresponding to a different subpopulation.
 Size factors tend to be overestimated for subpopulations with more DE, as the increased expression of upregulated genes drags up the median ratio/trimmed mean.
 
+It is worth noting that library size normalization is not affected by stochastic zeroes.
+This is because the library size is stably computed by summing across all genes in each cell.
+This results in improved performance in the simple simulation with no DE (Figure~\ref{subfig:lib_sim}).
+However, as previously discussed, the use of the library size as a size factor assumes that all genes are non-DE in each cell.
+Violations of this assumption lead to substantial estimation errors, which can be seen in the results for the simulations involving any DE.
+
 \section{Improving normalization accuracy with deconvolution}
 
 \subsection{Overview of the deconvolution strategy}
@@ -329,8 +335,8 @@ This uses the mean library size as a rough proxy for cell similarity.
 The baseline cluster is likely to be least dissimilar to every other cluster, which reduces the amount of DE genes during pairwise normalization.
 More intelligent choices of the baseline can be used if the similarities between clusters are known, e.g., from visualization after dimensionality reduction.
 
-Systematic zeroes within a cluster are also removed prior to deconvolution in that cluster.
-This refers to genes that only have zero counts across all cells in the cluster.
+Systematic zeroes within each cluster are also removed prior to deconvolution in that cluster.
+This removes genes that have only zero counts across all cells in the cluster.
 Such genes provide no information for normalizing between cells in the same cluster, and their removal will not affect the cluster-specific size factor estimates.
 However, these genes are retained during rescaling of the size factors between clusters.
 This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
@@ -438,7 +444,83 @@ The end result is that all systematic differences between cells are removed.
 This is equivalent to the outcome of a hypothetical one-step method that does not use cluster information (and is robust to DE and stochastic zeroes, unlike existing methods).
 Moreover, normalization accuracy in Figure~\ref{fig:sim_cluster_DE} is unaffected by the use of clustering prior to deconvolution, which suggests that this approach is valid.
 
-\section{Something something real data}
+\section{Differences in normalization are recapitulated in real data}
+
+\subsection{Overview of the data sets}
+We also examined the behaviour of the deconvolution method in real scRNA-seq data.
+The first data set was taken from a study of the somatosensory cortex and hippocampal region of the mouse brain \cite{zeisel2015brain}.
+Libraries were prepared for over 3000 brain-derived single cells using the Fluidigm C1 system.
+Gene expression was quantified for each cell by counting UMIs after sequencing.
+Counts for all cells were obtained from \url{http://linnarssonlab.org/cortex}.
+The second data set was generated using the inDrop protocol on mouse embryonic stem cells \cite{klein2015droplet}.
+Libraries were prepared for over 10000 cells, and quantification was performed with UMIs.
+Counts were obtained from the NCBI Gene Expression Omnibus with the accession GSE65525.
+
+For both data sets, low-abundance genes were defined as those with an average count below 0.2 across all cells.
+These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further processing.
+The set of External RNA Controls Consortium (ERCC) spike-ins in the brain data set were also removed before any normalization was performed.
+
+\subsection{Deconvolution yields a wider spread of size factors}
+Each normalization method was applied on the counts for all cells in both data sets.
+Compared to size factor and TMM normalization, the deconvolution method yields a wider spread of size factor estimates (Figure~\ref{fig:real_spread}).
+This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for the existing methods.
+Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
+This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data and cannot simply be ignored.
+The deconvolution method reduces the number of zero counts by summing across cells.
+This avoids the bias towards unity in the simulations and results in a wider spread of size factor estimates in Figure~\ref{fig:real_spread}.
+
+\begin{figure}[btp]
+    \begin{minipage}{0.48\textwidth}
+%        \includegraphics[width=\textwidth]{
+        \subcaption{}\label{subfig:spread_brain}
+    \end{minipage}
+    \begin{minipage}{0.48\textwidth}
+        \subcaption{}\label{subfig:spread_indrop}
+    \end{minipage}
+    \caption{
+        Boxplots of the estimated size factors across all cells in the (\subref{subfig:spread_brain}) brain or (\subref{subfig:spread_indrop}) inDrop data,
+            for all normalization methods.
+        Axes are on a log-scale, and dots represent outlier cells with extreme size factors.
+    }
+    \label{fig:real_spread}   
+\end{figure}
+
+A comparison between the size factors for different methods indicates that the estimates are mostly proportional between methods (Figure~\ref{fig:real_comp}).
+This indicates that the different methods reach similar qualitative conclusions, i.e., cells with larger $\theta_j$ also have larger size factor estimates.
+However, the quantitative aspect is substantially different between methods.
+Deconvolution yields a wider range of estimates compared to size factor normalization, consistent with the simulation results.
+Differences are also present between deconvolution and library size normalization.
+This is attributable to the likely presence of DE genes across the data set.
+Any moderate-to-strong DE between cells is sufficient to confound library size normalization.
+
+\begin{figure}[btp]
+    \begin{minipage}{0.48\textwidth}
+%        \includegraphics[width=\textwidth]{
+        \subcaption{}\label{subfig:comp_sf_brain}
+    \end{minipage}
+    \begin{minipage}{0.48\textwidth}
+        \subcaption{}\label{subfig:comp_sf_indrop}
+    \end{minipage} \\
+    \begin{minipage}{0.48\textwidth}
+%        \includegraphics[width=\textwidth]{
+        \subcaption{}\label{subfig:comp_lib_brain}
+    \end{minipage}
+    \begin{minipage}{0.48\textwidth}
+        \subcaption{}\label{subfig:comp_lib_indrop}
+    \end{minipage} \\
+    \caption{
+        Comparisons between the estimated size factors from the deconvolution method to those from size factor (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_sf_indrop})
+            or library size normalization (\subref{subfig:comp_lib_brain}, \subref{subfig:comp_lib_indrop}).
+        This is shown for the brain (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_lib_brain}) and inDrop data sets 
+            (\subref{subfig:comp_sf_indrop}, \subref{subfig:comp_lib_indrop}).    
+        Axes are on a log-scale, and cells are coloured according by their clustering prior to deconvolution.
+    }
+    \label{fig:real_comp}  
+\end{figure}
+
+\subsection{Different normalization schemes change the DE profile}
+
+\subsection{Deconvolution and existing methods are inconsistent with spike-ins}
 
 \bibliographystyle{unsrt}
 \bibliography{references}
