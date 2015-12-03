@@ -15,7 +15,7 @@ manuscript/pics/library_ring.pdf
 
 data/
 results/
-zeisel/*.swp
-zeisel/.RData
-zeisel/*.pdf
-zeisel/*.png
+realdata/*.swp
+realdata/.RData
+realdata/*.pdf
+realdata/*.png
