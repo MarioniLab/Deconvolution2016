@@ -457,8 +457,12 @@ Libraries were prepared for over 10000 cells, and quantification was performed w
 Counts were obtained from the NCBI Gene Expression Omnibus with the accession GSE65525.
 
 For both data sets, low-abundance genes were defined as those with an average count below 0.2 across all cells.
-These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further processing.
-The set of External RNA Controls Consortium (ERCC) spike-ins in the brain data set were also removed before any normalization was performed.
+These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further analysis.
+The set of External RNA Controls Consortium (ERCC) spike-ins in the brain data set were also removed.
+This ensures that normalization is only performed using the counts for the cellular genes.
+For the inDrop data set, counts were only used for cells before withdrawal of leukemia inhibitory factor (LIF), and those 7 days after withdrawal.
+This resulted in a final set consisting of approximately 1700 cells.
+Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 3000 for each cell.
 
 \subsection{Deconvolution yields a wider spread of size factors}
 Each normalization method was applied on the counts for all cells in both data sets.
@@ -489,9 +493,9 @@ A comparison between the size factors for different methods indicates that the e
 This indicates that the different methods reach similar qualitative conclusions, i.e., cells with larger $\theta_j$ also have larger size factor estimates.
 However, the quantitative aspect is substantially different between methods.
 Deconvolution yields a wider range of estimates compared to size factor normalization, consistent with the simulation results.
-Differences are also present between deconvolution and library size normalization.
-This is attributable to the likely presence of DE genes across the data set.
-Any moderate-to-strong DE between cells is sufficient to confound library size normalization.
+Differences are also present between the estimates from deconvolution and those from library size normalization.
+This is attributable to the likely presence of DE genes across the data set, which is sufficient to confound library size normalization.
+In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
@@ -513,7 +517,7 @@ Any moderate-to-strong DE between cells is sufficient to confound library size n
             or library size normalization (\subref{subfig:comp_lib_brain}, \subref{subfig:comp_lib_indrop}).
         This is shown for the brain (\subref{subfig:comp_sf_brain}, \subref{subfig:comp_lib_brain}) and inDrop data sets 
             (\subref{subfig:comp_sf_indrop}, \subref{subfig:comp_lib_indrop}).    
-        Axes are on a log-scale, and cells are coloured according by their clustering prior to deconvolution.
+        Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
     }
     \label{fig:real_comp}  
 \end{figure}
@@ -521,6 +525,57 @@ Any moderate-to-strong DE between cells is sufficient to confound library size n
 \subsection{Different normalization schemes change the DE profile}
 
 \subsection{Deconvolution and existing methods are inconsistent with spike-ins}
+The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
+Briefly, a constant quantity of spike-in RNA is added to each cell and processed with the cellular RNA \cite{stegle2015computational}.
+Upon sequencing and quantification, differences in the coverage of spike-in genes between cells are interpreted as cell-specific biases and removed.
+At its simplest, spike-in normalization uses the total count across the spike-in genes as the size factor for each cell.
+This is similar to library size normalization with the counts for the cellular genes, but is more robust as no DE is expected across cells for a constant spike-in set.
+Problems with stochastic zeroes are avoided, and the assumption of a non-DE majority is not required.
+However, spike-in normalization does assume that the same quantity of spike-in RNA can be added to each cell \cite{robinson2010scaling,marinov2014singlecell}.
+It also assumes that the spike-ins behave similarly to the cellular transcripts \cite{grun2015design}.
+Violations of these assumptions may compromise performance, as observed in some bulk RNA-seq data sets \cite{risso2014normalization}.
+
+Substantial differences are present between the size factors from spike-in normalization and those from deconvolution, size factor and library size normalization. 
+Specifically, there is no qualitative correlation between the sets of size factors from spike-in and the other normalization methods (Figure~\ref{fig:real_spike}).
+This is attributable to the differences in the underlying assumptions of each method.
+If most genes are DE, deconvolution and the existing methods will be incorrect and spike-in normalization will be more accurate.
+Conversely, spike-in normalization will be incorrect if spike-ins are not added precisely or if spike-in and cellular transcripts behave differently during library preparation.
+These results suggest that the validity of each assumption requires some consideration before normalization.
+For example, the similarity of the input cell types can be used to gauge the appropriateness of the non-DE assumption. 
+Here, all cells are derived from the same tissue, so a non-DE majority of genes across cells is not entirely unreasonable.
+Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
+
+\begin{figure}[btp]
+    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth]{
+        \subcaption{}\label{subfig:spike_sf}
+    \end{minipage}
+    \begin{minipage}{0.33\textwidth}
+        \subcaption{}\label{subfig:spike_lib}
+    \end{minipage} 
+    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth]{
+        \subcaption{}\label{subfig:spike_sum}
+    \end{minipage}
+    \caption{
+        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) size factor,
+            (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method in the brain data set.
+        Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
+    }
+    \label{fig:real_spike}  
+\end{figure}
+
+A more philosophical point is that spike-in normalization preserves differences in cell size and total RNA content.
+In contrast, deconvolution and the existing methods will remove such differences, as they affect all genes within each cell and are absorbed into the cell-specific bias.
+Whether or not this is appropriate depends on whether cell size differences are of interest.
+In some scenarios, this may be the case such that spike-ins should be used, e.g., when studying cycling cells with differences in total RNA.
+In other cases, cell size may be a confounding variable that needs to be removed, e.g., when focusing on changes in the expression profile between cells.
+For these data sets, normalization should be performed with the deconvolution method.
+
+% Examination of DE? Maybe not a like-for-like.
+
+\section{Conclusions}
+blah blah blah
 
 \bibliographystyle{unsrt}
 \bibliography{references}
