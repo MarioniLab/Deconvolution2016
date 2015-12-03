@@ -4,6 +4,7 @@
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{multirow}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 \urlstyle{same}
 
@@ -49,7 +50,7 @@ In this article, we describe a deconvolution approach that improves the accuracy
 Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reduced
     -- the pooled size/normalization factors are then deconvolved back to those for the individual cells.
 Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of those normalization methods for count data with many zeroes.
-We also show a similar difference in behaviour on several real data sets, where deconvolved normalization yields results that are more biologically relevant.
+We also show a similar difference in behaviour on several real data sets, where the use of different normalization methods affects the final biological conclusions.
 These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
 
 \section{Existing normalization methods fail with zero counts}
@@ -524,6 +525,54 @@ The two methods are more similar for the inDrop data where less DE is expected w
 \end{figure}
 
 \subsection{Different normalization schemes change the DE profile}
+To gauge the impact of the differences between deconvolution and size factor normalization, 
+    a DE analysis was performed with DESeq2 \cite{love2014moderated} on both data sets with the different size factor estimates.
+For the brain data set, the data was subsetted to contain only microglia and oligodendrocytes.
+A maximum \textit{a posteriori} estimate of the NB dispersion was obtained for each gene, and a generalized linear model was fitted using a one-way layout with the two cell types.
+A Wald test was performed to test for DE between cell types.
+The Benjamini-Hochberg correction was applied to the $p$-values to control the false dicovery rate (FDR) at a threshold of 10\%.
+This process was repeated for the inDrop data to test for DE after LIF withdrawal.
+
+Substantial differences are present in the numbers of DE genes between the different normalization methods (Table~\ref{tab:real_de}).
+In general, deconvolution results in fewer DE genes than size factor and TMM normalization.
+The numbers of DE genes are also more balanced between up- and downregulated genes.
+
+For any existing method, DE genes in one direction that are not detected by deconvolution are replaced by genes in the other direction.
+
+Library size normalization also yields a balanced set of DE genes, but the numbers of DE genes in each direction are still different from those after deconvolution.
+These results indicate that different normalization schemes will have non-negligible effects on the downstream analyses.
+For example, incorrect normalization will introduce spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
+Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
+
+% Indicates that there is a biological effect.
+
+\begin{table}[bt]
+\caption{
+    Number of DE genes detected by DESeq2 at a FDR of 10\% in each data set, using the size factor estimates from different methods for normalization.
+    This is also separated into the number of up- and downregulated genes for each data set.
+    Upregulation refers to increased expression in oligodendrocytes over microglia in the brain data, and to increased expression after LIF withdrawal in the inDrop data.
+    The number of DE genes that are shared between deconvolution and each other method is also shown.
+}
+\begin{center}
+\begin{tabular}{l r r r c r r r}
+\hline
+\multirow{2}{*}{\textit{Method}} & \multicolumn{3}{c}{\textit{Brain}} && \multicolumn{3}{c}{\textit{InDrop}}  \\
+\cline{2-4}
+\cline{6-8}
+& Total & Up & Down && Total & Up & Down \\
+\hline
+Size factor                         & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
+TMM                                 & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
+Library size                        & 3483 & 2000 & 1483 && 3000 & 3000 & 500 \\
+Deconvolution                       & 3492 & 1556 & 1936 && 1000 & 1000 & 1000 \\
+$\quad$ shared with size factor     & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
+$\quad$ shared with TMM             & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
+$\quad$ shared with library size    & 3037 & 1554 & 1483 && 3000 & 3000 & 500 \\
+\hline                                                   
+\end{tabular}
+\end{center}
+\label{tab:real_de}
+\end{table}
 
 \subsection{Deconvolution and existing methods are inconsistent with spike-ins}
 The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
@@ -547,23 +596,25 @@ Here, all cells are derived from the same tissue, so a non-DE majority of genes 
 Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
 
 \begin{figure}[btp]
-    \begin{minipage}{0.33\textwidth}
+    \begin{minipage}{0.48\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/SFvERCC.png}
-%        \includegraphics[width=\textwidth]{
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
-    \begin{minipage}{0.33\textwidth}
+    \begin{minipage}{0.48\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/TMMvERCC.png}
+        \subcaption{}\label{subfig:spike_tmm}
+    \end{minipage} \\ 
+    \begin{minipage}{0.48\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/LibvERCC.png}
         \subcaption{}\label{subfig:spike_lib}
     \end{minipage} 
-    \begin{minipage}{0.33\textwidth}
-%        \includegraphics[width=\textwidth]{
+    \begin{minipage}{0.48\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/DeconvERCC.png}
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
     \caption{
-        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) size factor,
-            (\subref{subfig:spike_lib}) TMM normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.
+        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) size factor, (\subref{subfig:spike_tmm}) TMM,
+            (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
         Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
     }
     \label{fig:real_spike}  
@@ -580,6 +631,8 @@ For these data sets, normalization should be performed with the deconvolution me
 
 \section{Conclusions}
 blah blah blah
+
+% Choice of clustering.
 
 \bibliographystyle{unsrt}
 \bibliography{references}
