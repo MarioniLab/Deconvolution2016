@@ -525,33 +525,27 @@ The two methods are more similar for the inDrop data where less DE is expected w
 \end{figure}
 
 \subsection{Different normalization schemes change the DE profile}
-To gauge the impact of the differences between deconvolution and size factor normalization, 
+To gauge the impact of the differences in the normalization methods,
     a DE analysis was performed with DESeq2 \cite{love2014moderated} on both data sets with the different size factor estimates.
-For the brain data set, the data was subsetted to contain only microglia and oligodendrocytes.
+For the brain data set, the count data was subsetted to contain only cells classified as microglia or oligodendrocytes \cite{zeisel2015brain}.
 A maximum \textit{a posteriori} estimate of the NB dispersion was obtained for each gene, and a generalized linear model was fitted using a one-way layout with the two cell types.
 A Wald test was performed to test for DE between cell types.
 The Benjamini-Hochberg correction was applied to the $p$-values to control the false dicovery rate (FDR) at a threshold of 10\%.
 This process was repeated for the inDrop data to test for DE after LIF withdrawal.
 
-Substantial differences are present in the numbers of DE genes between the different normalization methods (Table~\ref{tab:real_de}).
+Substantial differences are present in the numbers of DE genes between the normalization methods (Table~\ref{tab:real_de}).
 In general, deconvolution results in fewer DE genes than size factor and TMM normalization.
 The numbers of DE genes are also more balanced between up- and downregulated genes.
-
-For any existing method, DE genes in one direction that are not detected by deconvolution are replaced by genes in the other direction.
-
 Library size normalization also yields a balanced set of DE genes, but the numbers of DE genes in each direction are still different from those after deconvolution.
-These results indicate that different normalization schemes will have non-negligible effects on the downstream analyses.
-For example, incorrect normalization will introduce spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
-Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
-
-% Indicates that there is a biological effect.
+The set of DE genes detected in either direction by deconvolution also tends to be a superset or subset of that detected by the existing methods.
+This is consistent with a difference in overall scaling of the average expression values between the different biological conditions, 
+    such that the DE log-fold changes from deconvolution are consistently shifted relative to those from the existing methods.
 
 \begin{table}[bt]
 \caption{
     Number of DE genes detected by DESeq2 at a FDR of 10\% in each data set, using the size factor estimates from different methods for normalization.
     This is also separated into the number of up- and downregulated genes for each data set.
     Upregulation refers to increased expression in oligodendrocytes over microglia in the brain data, and to increased expression after LIF withdrawal in the inDrop data.
-    The number of DE genes that are shared between deconvolution and each other method is also shown.
 }
 \begin{center}
 \begin{tabular}{l r r r c r r r}
@@ -573,6 +567,12 @@ $\quad$ shared with library size    & 3037 & 1554 & 1483 && 3000 & 3000 & 500 \\
 \end{center}
 \label{tab:real_de}
 \end{table}
+
+These results indicate that different normalization schemes will affect downstream analyses.
+For example, incorrect normalization may preserve (or even introduce) spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
+Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
+For these data sets, close to a thousand genes are found or lost when the deconvolution method is used instead of the existing methods.
+We anticipate that this will have some impact on the biological conclusions that can be taken from the DE analysis.
 
 \subsection{Deconvolution and existing methods are inconsistent with spike-ins}
 The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
