@@ -19,9 +19,10 @@ make.plot <- function(sf, truth, name, main="") {
     col <- rep(c(rgb(0,0,0,0.5), rgb(0,0,1,0.5), rgb(1,0.5,0,0.5)), each=popsize)
 
     pdf(file.path(output.dir, paste0(name, ".pdf")))
+    par(mar=c(5.1,5.1,4.1,1.1))
     plot(truth, truth * 2^residuals(fitted), xlim=all.range, ylim=all.range, 
          ylab="Estimated factors", xlab="True factors", log="xy", pch=16, 
-         col=col, cex.axis=1.2, cex.lab=1.4, main=main, cex.main=1.4)
+         col=col, cex.axis=1.5, cex.lab=1.8, main=main, cex.main=1.8)
     abline(0, 1, col="red")
     dev.off()
 }

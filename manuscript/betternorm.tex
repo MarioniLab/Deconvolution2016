@@ -170,24 +170,24 @@ Recall that size factors have a relative interpretation across cells, so overest
 
 \begin{figure}[tbp]
 \begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm  5mm,clip]{results/size_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/size_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/size_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 15mm,clip]{results/size_4.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/size_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/size_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/size_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/size_4.pdf}
 \subcaption{}\label{subfig:size_sim}
 \end{minipage}
 \begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm  5mm,clip]{results/TMM_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/TMM_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/TMM_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 15mm,clip]{results/TMM_4.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/TMM_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/TMM_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/TMM_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/TMM_4.pdf}
 \subcaption{}\label{subfig:tmm_sim}
 \end{minipage}
 \begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm  5mm,clip]{results/lib_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/lib_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 12mm 2mm 15mm,clip]{results/lib_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 15mm,clip]{results/lib_4.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/lib_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/lib_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/lib_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/lib_4.pdf}
 \subcaption{}\label{subfig:lib_sim}
 \end{minipage}
 \caption{
@@ -413,22 +413,24 @@ However, the deconvolution method is still more accurate than the existing metho
        and the deviation from the diagonal is smaller than that for library size normalization.
 
 \begin{figure}[btp]
-\begin{minipage}{0.48\textwidth}
+\begin{center}
+\begin{minipage}{0.33\textwidth}
     \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_1.pdf}
     \subcaption{}\label{subfig:sumclust_1}
 \end{minipage}
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.33\textwidth}
     \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_2.pdf}
     \subcaption{}\label{subfig:sumclust_2}
 \end{minipage}  \\ 
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.33\textwidth}
     \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_3.pdf}
     \subcaption{}\label{subfig:sumclust_3}
 \end{minipage}
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.33\textwidth}
     \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_4.pdf}
     \subcaption{}\label{subfig:sumclust_4}
 \end{minipage}
+\end{center}
     \caption{
         Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes.
         Results are shown for scenarios with (\subref{subfig:sumclust_1}) no DE, (\subref{subfig:sumclust_2}) moderate DE, 
@@ -600,22 +602,24 @@ Here, over half of the cells are classified as neuronal \cite{zeisel2015brain}, 
 Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
 
 \begin{figure}[btp]
-    \begin{minipage}{0.48\textwidth}
+\begin{center}
+    \begin{minipage}{0.33\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/SFvERCC.png}
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
-    \begin{minipage}{0.48\textwidth}
+    \begin{minipage}{0.33\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/TMMvERCC.png}
         \subcaption{}\label{subfig:spike_tmm}
     \end{minipage} \\ 
-    \begin{minipage}{0.48\textwidth}
+    \begin{minipage}{0.33\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/LibvERCC.png}
         \subcaption{}\label{subfig:spike_lib}
     \end{minipage} 
-    \begin{minipage}{0.48\textwidth}
+    \begin{minipage}{0.33\textwidth}
         \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/DeconvERCC.png}
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
+\end{center}
     \caption{
         Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) DESeq, (\subref{subfig:spike_tmm}) TMM,
             (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
