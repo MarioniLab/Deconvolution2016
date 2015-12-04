@@ -482,11 +482,11 @@ This avoids the bias towards unity in the simulations and increases the range of
 
 \begin{figure}[btp]
     \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_NormFactors.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Zeisel_NormFactors.pdf}
         \subcaption{}\label{subfig:spread_brain}
     \end{minipage}
     \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_NormFactors.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Klein_NormFactors.pdf}
         \subcaption{}\label{subfig:spread_indrop}
     \end{minipage}
     \caption{
@@ -542,10 +542,11 @@ A likelihood ratio test was performed to test each gene for DE between cell type
 The Benjamini-Hochberg correction was applied to the $p$-values to control the false dicovery rate (FDR) at a threshold of 5\%.
 This process was repeated for the inDrop data to test for DE after LIF withdrawal.
 
-Substantial differences are present in the numbers of DE genes between the normalization methods (Table~\ref{tab:real_de}).
+Substantial differences are present in the numbers of DE genes between methods (Table~\ref{tab:real_de}).
 In general, deconvolution results in fewer DE genes than DESeq and TMM normalization.
 The numbers of DE genes are also more balanced between up- and downregulated genes.
-Library size normalization also yields a balanced set of DE genes, but the numbers of DE genes in each direction are still different from those after deconvolution.
+The total number of DE genes from library size normalization are more similar to those from deconvolution, 
+    but the numbers of DE genes changing in each direction is still different.
 The set of DE genes detected in either direction by deconvolution also tends to be a superset or subset of that detected by the existing methods.
 This is consistent with a difference in overall scaling of the average expression values between the different biological conditions, 
     such that the DE log-fold changes from deconvolution are consistently shifted relative to those from the existing methods.
@@ -559,29 +560,29 @@ This is consistent with a difference in overall scaling of the average expressio
 \begin{center}
 \begin{tabular}{l r r r c r r r}
 \hline
-\multirow{2}{*}{\textit{Method}} & \multicolumn{3}{c}{\textit{Brain}} && \multicolumn{3}{c}{\textit{InDrop}}  \\
+\multirow{2}{*}{\textit{Method}} & \multicolumn{3}{c}{\textit{Brain}} && \multicolumn{3}{c}{\textit{inDrop}}  \\
 \cline{2-4}
 \cline{6-8}
-& Total & Up & Down && Total & Up & Down \\
+& Total & Down & Up && Total & Down & Up \\
 \hline
-DEseq                               & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
-TMM                                 & 3832 & 691  & 3141 && 3000 & 3000 & 500 \\
-Library size                        & 3483 & 2000 & 1483 && 3000 & 3000 & 500 \\
-Deconvolution                       & 3492 & 1556 & 1936 && 1000 & 1000 & 1000 \\
-$\quad$ shared with DESeq           & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
-$\quad$ shared with TMM             & 2627 & 691  & 1936 && 3000 & 3000 & 500 \\
-$\quad$ shared with library size    & 3037 & 1554 & 1483 && 3000 & 3000 & 500 \\
+DEseq                               & 3910 & 630  & 3280 && 10557 & 7536 & 3021 \\
+TMM                                 & 3848 & 688  & 3160 && 9670  & 5693 & 3977 \\
+Library size                        & 3483 & 2000 & 1483 && 10140 & 4272 & 5868 \\
+Deconvolution                       & 3492 & 1556 & 1936 && 9806  & 4825 & 4981 \\
+$\quad$ shared with DESeq           & 2566 & 630  & 1936 && 7851  & 4825 & 3021 \\
+$\quad$ shared with TMM             & 2644 & 688  & 1936 && 8805  & 4825 & 3977 \\
+$\quad$ shared with library size    & 3037 & 1554 & 1483 && 9250  & 4269 & 4981 \\
 \hline                                                   
 \end{tabular}
 \end{center}
 \label{tab:real_de}
 \end{table}
 
-These results indicate that different normalization schemes will affect downstream analyses.
+These results indicate that different normalization schemes will affect downstream steps like DE analyses.
 For example, incorrect normalization may preserve (or even introduce) spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
 Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
-For these data sets, close to a thousand genes are found or lost when the deconvolution method is used instead of the existing methods.
-We anticipate that this will have some impact on the biological conclusions that can be taken from the DE analysis.
+For these data sets, over a thousand genes are found or lost when the deconvolution method is used instead of the existing methods.
+This is likely to have some impact on the biological conclusions that can be taken from the DE analysis.
 
 \subsection{Deconvolution and existing methods are inconsistent with spike-ins}
 The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
@@ -607,7 +608,7 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
 \begin{figure}[btp]
 \begin{center}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvDESeq.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvSF.pdf}
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
