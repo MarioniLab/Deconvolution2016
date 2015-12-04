@@ -509,18 +509,18 @@ The two methods are more similar for the inDrop data where less DE is expected w
 
 \begin{figure}[btp]
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_SFvDeconv.png}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_SFvDeconv.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_SFvDeconv.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_SFvDeconv.pdf}
         \subcaption{}\label{subfig:comp_sf}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_TMMvDeconv.png}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_TMMvDeconv.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_TMMvDeconv.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_TMMvDeconv.pdf}
     \subcaption{}\label{subfig:comp_tmm}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_LibvDeconv.png}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_LibvDeconv.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_LibvDeconv.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_LibvDeconv.pdf}
         \subcaption{}\label{subfig:comp_lib}
     \end{minipage}
     \caption{
@@ -607,26 +607,27 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
 \begin{figure}[btp]
 \begin{center}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/SFvERCC.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvDESeq.pdf}
         \subcaption{}\label{subfig:spike_sf}
     \end{minipage}
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/TMMvERCC.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvTMM.pdf}
         \subcaption{}\label{subfig:spike_tmm}
     \end{minipage} \\ 
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/LibvERCC.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvLib.pdf}
         \subcaption{}\label{subfig:spike_lib}
     \end{minipage} 
     \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/DeconvERCC.png}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_ERCCvDeconv.pdf}
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
 \end{center}
     \caption{
         Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) DESeq, (\subref{subfig:spike_tmm}) TMM,
             (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
-        Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
+        All sets of size factors were scaled to have a median of unity.
+        Axes are shown on a log-scale.
     }
     \label{fig:real_spike}  
 \end{figure}
