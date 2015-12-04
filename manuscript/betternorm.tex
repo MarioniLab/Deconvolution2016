@@ -534,6 +534,7 @@ The two methods are more similar for the inDrop data where less DE is expected w
 \subsection{Different normalization schemes change the DE profile}
 To gauge the impact of the differences in the normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
 For the brain data set, the count data was subsetted to contain only cells classified as microglia or oligodendrocytes \cite{zeisel2015brain}.
+Normalization factors were computed by dividing each size factor by the corresponding library size for each cell.
 The estimateDisp function was used to estimate a gene-specific NB dispersion for each gene, by shrinking each estimate towards a mean-dispersion trend \cite{chen2014differential}.
 A generalized linear model was fitted for each gene using a one-way layout with the two cell types \cite{mccarthy2012differential}.
 A likelihood ratio test was performed to test each gene for DE between cell types.
