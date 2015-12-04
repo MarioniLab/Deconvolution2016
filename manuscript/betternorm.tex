@@ -196,8 +196,9 @@ Recall that size factors have a relative interpretation across cells, so overest
     The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_sim}) DESeq,
         (\subref{subfig:tmm_sim}) TMM and (\subref{subfig:lib_sim}) library size normalization.
     Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
-    Axes are shown on a log-scale for visibility.
-    The red line represents equality between the estimated and true factors.
+    Axes are shown on a log-scale.
+    For comparison, each set of size factors was scaled such that the same grand mean across cells was the same as that for the true values.
+    The red line represents equality between the rescaled estimates and true factors.
     Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
 }
 \label{fig:existing_sim}
