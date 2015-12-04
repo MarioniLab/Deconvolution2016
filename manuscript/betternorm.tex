@@ -629,12 +629,32 @@ In some scenarios, this may be the case such that spike-ins should be used, e.g.
 In other cases, cell size may be a confounding variable that needs to be removed, e.g., when focusing on changes in the expression profile between cells.
 For these data sets, normalization should be performed with the deconvolution method.
 
-% Examination of DE? Maybe not a like-for-like.
-
 \section{Conclusions}
-blah blah blah
+Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
+This approach provides improved performance for size factor estimation, compared to existing methods on simulated data.
+In particular, it avoids estimation inaccuracy in the presence of stochastic zeroes and is robust to DE in the data set.
+Similar differences in the size factors across methods were also observed in analyses of real data,
+    where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
+This indicates that the choice of normalization method has a substantive impact on the results of downstream analyses.
+Any increase in accuracy from our deconvolution approach is likely to have some beneficial effect on the validity of the biological conclusions.
 
-% Choice of clustering.
+The deconvolution strategy uses a clustering step to arrange similar cells into groups prior to normalization.
+We have described the use of an empirical clustering scheme that uses the correlations in the observed expression profiles between cells.
+However, any grouping of cells can be used as long as there are sufficient cells within each group.
+Cells can be partitioned by known aspects of the experimental design, e.g., treatment condition, plate or chip of origin, batch.
+For example, the inDrop data set could be partitioned into two groups corresponding to cells before and after LIF withdrawal.
+If such information is available, empirical clustering may not be required.
+This reduces computational work and avoids potential errors in grouping.
+
+Another consideration during normalization is the choice between spike-in and other approaches.
+Ideally, this should be driven by biology, i.e., whether cell size is relevant to the study.
+In practice, though, issues such as cost and convenience determine whether spike-ins are added in the experiment.
+This is especially true for the droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
+If spike-ins are not available, normalization must be performed with methods that assume a non-DE majority, e.g., TMM, deconvolution.
+This allows for sensible removal of cell-specific biases without spike-in counts.
+
+We have implemented our deconvolution approach as a R function, with C++ extensions for construction of the linear system.
+It is available as part of the edgeR package in the Bioconductor project \cite{huber2015orchestrating}.
 
 \bibliographystyle{unsrt}
 \bibliography{references}
