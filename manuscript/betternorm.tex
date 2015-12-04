@@ -30,9 +30,9 @@ Two broad classes of normalization approaches are available -- those using spike
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
 Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency between cells.
 Normalization is then performed by scaling the counts to equalize spike-in coverage between cells.
-For the methods using the cellular counts, the common assumption is that most genes are not DE across the sampled cells.
-Counts are then scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
-This is the underlying concept of commonly used methods such as size factor \cite{anders2010differential} and trimmed mean of M-values (TMM) normalization \cite{robinson2010scaling}.
+For the methods using the cellular counts, the assumption is that most genes are not DE across the sampled cells.
+Counts are scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
+This is the underlying concept of commonly used methods such as DESeq \cite{anders2010differential} and trimmed mean of M-values (TMM) normalization \cite{robinson2010scaling}.
 An even simpler approach involves scaling the counts to remove differences in library sizes between cells.
 
 The type of normalization that can be used often depends on the characteristics of the data set.
@@ -40,16 +40,16 @@ In some data sets, spike-in data may not be present -- for example, droplet-base
 This obviously precludes the use of spike-in normalization.
 The methods based on cellular counts can be applied more generally but have their own deficiencies.
 Normalization by library size is insufficient when DE genes are present, as composition biases can introduce spurious differences between cells \cite{robinson2010scaling}.
-Size factor or TMM normalization are more robust to DE but rely on the calculation of ratios of counts between cells.
+DESeq or TMM normalization are more robust to DE but rely on the calculation of ratios of counts between cells.
 This is not straightforward in scRNA-seq data, where the high frequency of drop-out events interferes with stable normalization.
-A large number of zeroes will result in nonsensical size factors or undefined M-values in the TMM method.
+A large number of zeroes will result in nonsensical size factors from DESeq or undefined M-values from TMM.
 One could proceed by removing the offending genes during normalization for each cell, but this may introduce biases if the number of zeroes varies across cells.
 
 Correct normalization of scRNA-seq data is essential as it determines the validity of all downstream quantitative analyses.
-In this article, we describe a deconvolution approach that improves the accuracy of the non-DE (i.e., size factor or TMM) normalization methods.
-Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reduced
-    -- the pooled size/normalization factors are then deconvolved back to those for the individual cells.
-Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of those normalization methods for count data with many zeroes.
+In this article, we describe a deconvolution approach that improves the accuracy of non-DE normalization without using spike-ins.
+Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reducedby summing across cells.
+The pooled size factors are then deconvolved back to those for the individual cells.
+Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of existing normalization methods for count data with many zeroes.
 We also show a similar difference in behaviour on several real data sets, where the use of different normalization methods affects the final biological conclusions.
 These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
 
@@ -71,9 +71,9 @@ These genes may contain information about the relative differences between cells
 \subsection{A brief description of existing non-spike-in methods}
 Here, we only consider those normalization methods not based on spike-in data.
 This is motivated by the desire to obtain a general method that can be applied in all data sets.
-In particular, we will review three approaches that are commonly used for RNA-seq data -- size factor, TMM and library size normalization.
+In particular, we will review three approaches that are commonly used for RNA-seq data -- DESeq, TMM and library size normalization.
 
-Size factor normalization was originally introduced as part of the DESeq package for differential expression \cite{anders2010differential}.
+DESeq normalization was originally introduced as part of the DESeq package for differential expression \cite{anders2010differential}.
 It first constructs an ``average'' reference library, in which the ``count'' for each gene is defined as the geometric mean of the counts for that gene across all real libraries.
 Each real library is then normalized against this average.
 Specifically, for each gene, it computes the ratio of the count in each library to that in the average library.
@@ -91,13 +91,13 @@ This is used to define the normalization factor for each library as $2^x$, where
 The normalization factor represents the downscaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
 
-Both size factor and TMM normalization assume that most genes are not DE between libraries.
+Both DESeq and TMM normalization assume that most genes are not DE between libraries.
 Any systematic difference in expression across the majority of genes is treated as bias.
 This is duly incorporated into the size/normalization factors and removed upon scaling.
 If the non-DE assumption does not hold, the computed factors will not be accurate.
 In addition, both methods perform poorly in the presence of a large number of zeroes.
-For size factor normalization, the geometric mean is equal to zero for genes with a zero count in any library, such that the ratios for that gene become undefined.
-Conversely, a library with zero counts for many genes may have a size factor of zero, which precludes any sensible scaling.
+For DESeq normalization, the geometric mean will be equal to zero for genes with a zero count in any library, such that the ratios for that gene become undefined.
+Conversely, a library with zero counts for a majority of genes may have a size factor of zero, which precludes any sensible scaling.
 For TMM normalization, M-values are undefined when the count in either library is zero.
 In such conditions, both methods typically require \textit{ad hoc} workarounds such as the removal of zero counts within each library.
 
@@ -145,8 +145,8 @@ The simulation was also repeated with $G$ set to 3000, $p_s$ set to 50\% for all
 This represents an alternative scenario where the number of DE genes in either direction is the same but the magnitude of DE is different between subpopulations.
 For all scenarios, simulated data was generated by sampling NB-distributed counts as described.
 
-Size factor, TMM and library size normalization were applied to this data.
-For size factor normalization, the geometric mean was computed by replacing all zero counts with unity.
+DESeq, TMM and library size normalization were applied to this data.
+For DESeq normalization, the geometric mean was computed by replacing all zero counts with unity.
 Zero counts were also removed within each library prior to calculation of the size factor.
 For TMM normalization, all undefined M-values were removed prior to trimming and calculation of the normalization factor for each library.
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
@@ -155,16 +155,16 @@ For library size normalization, the total library size was used directly as the 
 Estimated size factors were then compared to the true values for all cells.
 
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
-For size factor and TMM normalization, large size factors are consistently underestimated while small size factors are overestimated.
+For DESeq and TMM normalization, large size factors are consistently underestimated while small size factors are overestimated.
 This is a consequence of removing stochastic zeroes prior to normalization.
 Cells with low $\theta_j$ are likely to contain more stochastic zeroes, as the mean of the sampling distribution for the counts is lower.
-If these zeroes are removed prior to size factor normalization, the median ratio will be computed from the remaining non-zero counts.
+If these zeroes are removed prior to DESeq normalization, the median ratio will be computed from the remaining non-zero counts.
 This shifts the median upwards and results in overestimation.
 Similarly, the distribution of M-values will be shifted towards positive values upon removal of zeroes.
 This is because stochastic zeroes represent sampled values below some non-zero mean, and would generally correspond to negative M-values.
 Their removal increases the (trimmed) mean of M-values and biases the estimate of the TMM normalization factor.
 The converse applies to cells with large $\theta_j$.
-Size factors have a relative interpretation, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
+Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
 
 \begin{figure}[tbp]
 \begin{minipage}{0.33\textwidth}
@@ -190,7 +190,7 @@ Size factors have a relative interpretation, so overestimation of small $\theta_
 \end{minipage}
 \caption{
     Performance of existing normalization methods on the simulated data with DE genes and stochastic zeroes.
-    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_sim}) size factor,
+    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_sim}) DESeq,
         (\subref{subfig:tmm_sim}) TMM and (\subref{subfig:lib_sim}) library size normalization.
     Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
     Axes are shown on a log-scale for visibility.
@@ -294,7 +294,7 @@ If more DE genes are present, the median will not represent a robust average acr
 This condition generally requires a proportion of genes to be constantly expressed across all cells in the data set 
     -- otherwise, all genes would be DE against the average in at least one pseudo-cell -- 
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
-This is similar to that required for size factor normalization where an average reference is also used.
+This is similar to that required for DESeq normalization where an average reference is also used.
 
 To reduce the strength of the non-DE assumption, cells can be clustered based on their expression profiles.
 The deconvolution method is then applied to the cells in each cluster $\mathcal{C}$ separately,
@@ -407,7 +407,7 @@ The median ratio for each set is more accurately computed, which improves the ac
 Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
 Some inaccuracy is observed in Figure~\ref{subfig:sumclust_3}, where the non-DE assumption is partially violated by large numbers of DE genes between subpopulations.
 However, the deconvolution method is still more accurate than the existing methods in the third row of Figure~\ref{fig:existing_sim}
-    -- unlike size factor or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
+    -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
 \begin{figure}[btp]
@@ -467,7 +467,7 @@ Cells in the intervening time points were not considered as the library sizes we
 
 \subsection{Deconvolution yields a wider spread of size factors}
 Each normalization method was applied on the counts for all cells in both data sets.
-Compared to size factor and TMM normalization, the deconvolution method yields a wider spread of size factor estimates (Figure~\ref{fig:real_spread}).
+Compared to DESeq and TMM normalization, the deconvolution method yields a wider spread of size factor estimates (Figure~\ref{fig:real_spread}).
 This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for the existing methods.
 Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
 This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data and cannot simply be ignored.
@@ -495,7 +495,7 @@ This avoids the bias towards unity in the simulations and increases the range of
 The size factor estimate from deconvolution is a monotonic increasing function of that from the other methods (Figure~\ref{fig:real_comp}).
 This suggests that the methods are qualitatively similar, in that the rankings of size factors are in rough agreement across methods.
 However, the quantitative behaviour of each method is substantially different.
-Deconvolution yields a wider range of estimates compared to size factor and TMM normalization, consistent with the simulation results.
+Deconvolution yields a wider range of estimates compared to DESeq and TMM normalization, consistent with the simulation results.
 Differences are also present between the estimates from deconvolution and those from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
 This is attributable to the likely presence of DE genes between cell types, which will confound library size normalization.
 In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
@@ -518,7 +518,7 @@ The two methods are more similar for the inDrop data where less DE is expected w
         \subcaption{}\label{subfig:comp_lib}
     \end{minipage}
     \caption{
-        Comparisons between the estimated size factors from the deconvolution method to those from (\subref{subfig:comp_sf}) size factor,  (\subref{subfig:comp_tmm}) TMM
+        Comparisons between the estimated size factors from the deconvolution method to those from (\subref{subfig:comp_sf}) DESeq,  (\subref{subfig:comp_tmm}) TMM
             or (\subref{subfig:comp_lib}) library size normalization.
         This is shown for the brain (top) and inDrop data sets (bottom).
         Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
@@ -536,7 +536,7 @@ The Benjamini-Hochberg correction was applied to the $p$-values to control the f
 This process was repeated for the inDrop data to test for DE after LIF withdrawal.
 
 Substantial differences are present in the numbers of DE genes between the normalization methods (Table~\ref{tab:real_de}).
-In general, deconvolution results in fewer DE genes than size factor and TMM normalization.
+In general, deconvolution results in fewer DE genes than DESeq and TMM normalization.
 The numbers of DE genes are also more balanced between up- and downregulated genes.
 Library size normalization also yields a balanced set of DE genes, but the numbers of DE genes in each direction are still different from those after deconvolution.
 The set of DE genes detected in either direction by deconvolution also tends to be a superset or subset of that detected by the existing methods.
@@ -557,11 +557,11 @@ This is consistent with a difference in overall scaling of the average expressio
 \cline{6-8}
 & Total & Up & Down && Total & Up & Down \\
 \hline
-Size factor                         & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
+DEseq                               & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
 TMM                                 & 3910 & 630  & 3280 && 3000 & 3000 & 500 \\
 Library size                        & 3483 & 2000 & 1483 && 3000 & 3000 & 500 \\
 Deconvolution                       & 3492 & 1556 & 1936 && 1000 & 1000 & 1000 \\
-$\quad$ shared with size factor     & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
+$\quad$ shared with DESeq           & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
 $\quad$ shared with TMM             & 2566 & 630  & 1936 && 3000 & 3000 & 500 \\
 $\quad$ shared with library size    & 3037 & 1554 & 1483 && 3000 & 3000 & 500 \\
 \hline                                                   
@@ -587,14 +587,14 @@ However, spike-in normalization does assume that the same quantity of spike-in R
 It also assumes that the spike-ins behave similarly to the cellular transcripts \cite{grun2015design}.
 Violations of these assumptions may compromise performance, as observed in some bulk RNA-seq data sets \cite{risso2014normalization}.
 
-Substantial differences are present between the size factors from spike-in normalization and those from deconvolution, size factor and library size normalization. 
-Specifically, there is no qualitative correlation between the sets of size factors from spike-in and the other normalization methods (Figure~\ref{fig:real_spike}).
+Examination of the data indicates that no correlation -- qualitative or quantitative -- 
+    exists between the sets of size factors from spike-in and the other normalization methods (Figure~\ref{fig:real_spike}).
 This is attributable to the differences in the underlying assumptions of each method.
 If most genes are DE, deconvolution and the existing methods will be incorrect and spike-in normalization will be more accurate.
 Conversely, spike-in normalization will be incorrect if spike-ins are not added precisely or if spike-in and cellular transcripts behave differently during library preparation.
 These results suggest that the validity of each assumption requires some consideration before normalization.
 For example, the similarity of the input cell types can be used to gauge the appropriateness of the non-DE assumption. 
-Here, all cells are derived from the same tissue, so a non-DE majority of genes across cells is not entirely unreasonable.
+Here, over half of the cells are classified as neuronal \cite{zeisel2015brain}, so a non-DE majority of genes is not entirely unreasonable.
 Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
 
 \begin{figure}[btp]
@@ -615,7 +615,7 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
         \subcaption{}\label{subfig:spike_sum}
     \end{minipage}
     \caption{
-        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) size factor, (\subref{subfig:spike_tmm}) TMM,
+        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) DESeq, (\subref{subfig:spike_tmm}) TMM,
             (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
         Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
     }
