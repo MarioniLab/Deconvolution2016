@@ -65,44 +65,65 @@ countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
 
 
 # ---- SF-Difference ----
-scaled_factors<- data.frame("Sizefactor" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "LibrarySize" = libfactor/median(libfactor), "Deconvoluted" = szf_alClust/median(szf_alClust))
-boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor")
-plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="Sizefactor",ylab="Deconvoluted",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy")
+scaled_factors<- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
+boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor",cex.axis=1.5,cex.lab=1.8)
+plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
 
-plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="Librarysize",ylab="Deconvoluted",xlim=c(0.1,8),ylim=c(0.1,8),log="xy")
+plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="Librarysize",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
 
 # ---- Diferential-Expression ----
 
-#Construct colData for both Sets
-colData_szf <- data.frame("Cells" = celltype, "sizeFactor" = szf_HE)
-colData_szf_alClust <- data.frame("Cells" = celltype, "sizeFactor" = szf_alClust)
-colData_lib <- data.frame("Cells" = celltype, "sizeFactor" = libfactor)
-colData_tmm <- data.frame("Cells" = celltype, "sizeFactor" = tmm)
+## Subset Data for EdgeR
+cells <- data.frame("Cells" = celltype)
+
+# Setup EdgeR
+desgn <- model.matrix(~factor(cells$Cells))
+y <- DGEList(countsHE)
+
+#Sizefactors
+y.sf <- y
+y.sf$samples$norm.factors <- szf_HE/y.sf$samples$lib.size
+y.sf <- estimateDisp(y.sf,desgn)
+fit.sf <- glmFit(y.sf,desgn)
+res.sf <- glmLRT(fit.sf)
+
+#TMM
+y.tmm <- y
+y.tmm$samples$norm.factors <- tmm/y.tmm$samples$lib.size
+y.tmm <- estimateDisp(y.tmm,desgn)
+fit.tmm <- glmFit(y.tmm,desgn)
+res.tmm <- glmLRT(fit.tmm)
+
+#Library Size
+y.lib <- y
+y.lib$samples$norm.factors <- 1
+y.lib <- estimateDisp(y.lib,desgn)
+fit.lib <- glmFit(y.lib,desgn)
+res.lib <- glmLRT(fit.lib)
+
+#Deconvoluted
+y.al <- y
+y.al$samples$norm.factors <- szf_alClust/y.al$samples$lib.size
+y.al <- estimateDisp(y.al,desgn)
+fit.al <- glmFit(y.al,desgn)
+res.al <- glmLRT(fit.al)
+
+## Comparison
+
+x.sf <- decideTestsDGE(res.sf)
+x.lib <- decideTestsDGE(res.lib)
+x.tmm <- decideTestsDGE(res.tmm)
+x.al <- decideTestsDGE(res.al)
 
 
-## Load into DESeq2 ! Careful takes a lot of time !
-dds_szf<- DESeqDataSetFromMatrix(countData = countsHE, colData = colData_szf, design = ~ Cells)
-dds_szf <- estimateDispersions(dds_szf)
-dds_szf <- nbinomWaldTest(dds_szf)
-rslt_szf <- results(dds_szf)
-write.csv(as.data.frame(rslt_szf),"Klein_Results_SF.csv")
+out.file <- "Klein_output.txt"
+write.table(file=out.file, data.frame(Method="Size factor", Total=sum(x.sf!=0), Down=sum(x.sf<0), Up=sum(x.sf>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+write.table(file=out.file, data.frame(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="Library size", Total=sum(x.lib!=0), Down=sum(x.lib<0), Up=sum(x.lib>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="Deconvolution", Total=sum(x.al!=0), Down=sum(x.al<0), Up=sum(x.al>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
 
-dds_szf_al <- DESeqDataSetFromMatrix(countData = countsHE, colData =colData_szf_alClust, design = ~ Cells)
-dds_szf_al <- estimateDispersions(dds_szf_al)
-dds_szf_al <- nbinomWaldTest(dds_szf_al)
-rslt_szf_al <- results(dds_szf_al)
-write.csv(as.data.frame(rslt_szf_al),"Klein_Results_Decon.csv")
-
-dds_lib <- DESeqDataSetFromMatrix(countData = countsHE, colData =colData_lib, design = ~ Cells)
-dds_lib <- estimateDispersions(dds_lib)
-dds_lib <- nbinomWaldTest(dds_lib)
-rslt_lib <- results(dds_lib)
-write.csv(as.data.frame(rslt_lib),"Klein_Results_Lib.csv")
-
-dds_tmm <- DESeqDataSetFromMatrix(countData = countsHE, colData =colData_tmm, design = ~ Cells)
-dds_tmm <- estimateDispersions(dds_tmm)
-dds_tmm <- nbinomWaldTest(dds_tmm)
-rslt_tmm <- results(dds_tmm)
-write.csv(as.data.frame(rslt_tmm),"Klein_Results_TMM.csv")
+write.table(file=out.file, data.frame(Method="vs SF", Total=sum(x.sf!=0 & x.al!=0), Down=sum(x.sf<0 & x.al < 0), Up=sum(x.sf>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="vs TMM", Total=sum(x.tmm!=0 & x.al!=0), Down=sum(x.tmm<0 & x.al < 0), Up=sum(x.tmm>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="vs lib", Total=sum(x.lib!=0 & x.al!=0), Down=sum(x.lib<0 & x.al < 0), Up=sum(x.lib>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
