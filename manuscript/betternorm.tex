@@ -101,8 +101,9 @@ Conversely, a library with zero counts for a majority of genes will have a size 
 For TMM normalization, M-values are undefined when the count in either library is zero.
 In such conditions, both methods typically require \textit{ad hoc} workarounds such as the removal of zero counts within each library.
 
-Finally, library size normalization is another commonly used approach for RNA-seq data.
-This involves scaling the counts such that the library size is the same across libraries.
+Finally, library size normalization is another commonly used approach for normalizing RNA-seq data.
+This involves scaling the counts such that the library size is the same across libraries,
+    and is the basis for measures of normalized expression like counts- or transcripts-per-million.
 While simple, this approach is not robust in the presence of DE genes \cite{robinson2010scaling}.
 One can imagine a scenario where a single gene is strongly upregulated in one library compared to another.
 This increases the size of the first library, as more reads are generated from the upregulated gene.
