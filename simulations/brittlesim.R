@@ -81,12 +81,12 @@ for (scenario in 1:4) {
     logvals[is.infinite(logvals)] <- 0
     gm <- exp(rowMeans(logvals))
     size.sf <- apply(counts, 2, function(u) median((u/gm)[u > 0]))
-    make.plot(size.sf, true.facs, paste0("size_", scenario), main="Size factor")
+    make.plot(size.sf, true.facs, paste0("size_", scenario), main="DESeq")
 
     # Size factors with averaged counts (must remove zeros in each library):
     averaged <- rowMeans(counts)
     size2.sf <- apply(counts, 2, function(u) median((u/averaged)[u > 0]))
-    make.plot(size.sf, true.facs, paste0("sizeAM_", scenario), main="Size factor with arithmetic mean")
+    make.plot(size.sf, true.facs, paste0("sizeAM_", scenario), main="DESeq with arithmetic mean")
 
     # Library size
     lib.sf <- colSums(counts)
