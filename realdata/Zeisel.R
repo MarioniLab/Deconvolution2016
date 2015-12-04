@@ -101,22 +101,21 @@ szf_alClust <- normalizeBySums(countsHEnoSpike, clusters = szfCluster)
 
 # ---- SF-Difference ----
 
-scaled_factors <- data.frame("Sizefactor" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "LibrarySize" = libfactor/median(libfactor), "Deconvoluted" = szf_alClust/median(szf_alClust))
+scaled_factors <- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
 #Comparison of SF Distribution
-boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor")
+boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor",cex.axis=1.5,cex.lab=1.8)
 
 #SF vs Deconvoluted
-plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,xlim=c(0.1,6),ylim=c(0.1,6),cex=0.6,pch=19,col="#00000073",xlab="Sizefactor",ylab="Deconvoluted",log="xy")
+plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,xlim=c(0.1,6),ylim=c(0.1,6),cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
 
 #Libfactor vs Deconvoluted
-plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="Librarysize",ylab="Deconvoluted",log="xy")
+plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
 
 #TMM vs Deconvoluted
-plot(scaled_factors$TMM,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvoluted")
+plot(scaled_factors$TMM,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
-
 # ---- Normalize ----
 
 # countsHENorm <- as.data.frame(t(t(countsHEnoSpike) / szf_HE))
@@ -165,60 +164,64 @@ abline(0,1,col="dodgerblue")
 #              filename = "VenDiagram2.png")
 
 # ---- Diferential-Expression ----
-
-sbst <- countsHEnoSpike[,grepl("microglia|oligodendrocytes",cells$level1class)]
+## Subset Data for EdgeR
+countssbst <- countsHEnoSpike[,grepl("microglia|oligodendrocytes",cells$level1class)]
 cellssbst <- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
-cellssbst$sizeFactor <- szf_HE[grepl("microglia|oligodendrocytes",cells$level1class)]
 
-cellssbst_al <- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
-cellssbst_al$sizeFactor <- szf_alClust[grepl("microglia|oligodendrocytes",cells$level1class)]
+szf_sbst<- szf_HE[grepl("microglia|oligodendrocytes",cells$level1class)]
 
-cellssbst_tmm <- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
-cellssbst_tmm$sizeFactor <- tmm[grepl("microglia|oligodendrocytes",cells$level1class)]
+szf_sbst_al<- szf_alClust[grepl("microglia|oligodendrocytes",cells$level1class)]
 
-cellssbst_lib<- cells[grepl("microglia|oligodendrocytes",cells$level1class),]
-cellssbst_lib$sizeFactor <- libfactor[grepl("microglia|oligodendrocytes",cells$level1class)]
+tmm_sbst<- tmm[grepl("microglia|oligodendrocytes",cells$level1class)]
 
-#DESeq for SF
-dds_sbst <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst, design =~ level1class)
-dds_sbst <- estimateDispersions(dds_sbst)
-dds_sbst <- nbinomWaldTest(dds_sbst)
-rslt_sbst <- results(dds_sbst)
-write.csv(as.data.frame(rslt_sbst),"Zeisel_Result_SF.csv")
+lib_sbst <- libfactor[grepl("microglia|oligodendrocytes",cells$level1class)]
 
-#DESeq for Deconvoluted
-dds_sbst_al <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst_al, design =~ level1class)
-dds_sbst_al <- estimateDispersions(dds_sbst_al)
-dds_sbst_al <- nbinomWaldTest(dds_sbst_al)
-rslt_sbst_al <- results(dds_sbst_al)
-write.csv(as.data.frame(rslt_sbst_al),"Zeisel_Result_Deconv.csv")
+# Setup EdgeR
+desgn <- model.matrix(~factor(cellssbst$level1class))
+y <- DGEList(countssbst)
 
-#DESeq for TMM
-dds_sbst_tmm <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst_tmm, design =~ level1class)
-dds_sbst_tmm <- estimateDispersions(dds_sbst_tmm)
-dds_sbst_tmm <- nbinomWaldTest(dds_sbst_tmm)
-rslt_sbst_tmm <- results(dds_sbst_tmm)
-write.csv(as.data.frame(rslt_sbst_tmm),"Zeisel_Result_TMM.csv")
+#Sizefactors
+y.sf <- y
+y.sf$samples$norm.factors <- szf_sbst/y.sf$samples$lib.size
+y.sf <- estimateDisp(y.sf,desgn)
+fit.sf <- glmFit(y.sf,desgn)
+res.sf <- glmLRT(fit.sf)
 
-#DESeq for Libfactor
-dds_sbst_lib <- DESeqDataSetFromMatrix(countData = sbst, colData =cellssbst_lib, design =~ level1class)
-dds_sbst_lib <- estimateDispersions(dds_sbst_lib)
-dds_sbst_lib <- nbinomWaldTest(dds_sbst_lib)
-rslt_sbst_lib <- results(dds_sbst_lib)
-write.csv(as.data.frame(rslt_sbst_lib),"Zeisel_Result_Lib.csv")
+#TMM
+y.tmm <- y
+y.tmm$samples$norm.factors <- tmm_sbst/y.tmm$samples$lib.size
+y.tmm <- estimateDisp(y.tmm,desgn)
+fit.tmm <- glmFit(y.tmm,desgn)
+res.tmm <- glmLRT(fit.tmm)
 
-# up_sbst <- rownames(rslt_sbst)[rslt_sbst$log2FoldChange > 0 & rslt_sbst$padj < 0.1]
-# up_sbst_al <- rownames(rslt_sbst_al)[rslt_sbst_al$log2FoldChange > 0 & rslt_sbst_al$padj < 0.1]
-# 
-# down_sbst <- rownames(rslt_sbst)[rslt_sbst$log2FoldChange < 0 & rslt_sbst$padj < 0.1]
-# down_sbst_al <- rownames(rslt_sbst_al)[rslt_sbst_al$log2FoldChange < 0 & rslt_sbst$padj < 0.1]
-# 
-# int_up <- intersect(up_sbst,up_sbst_al)
-# int_down <- intersect(down_sbst, down_sbst_al)
-# 
-# int_up_down <- intersect(up_sbst,down_sbst_al)
-# int_down_up <- intersect(down_sbst,up_sbst_al)
-# 
-# barplot(c(length(up_sbst),length(up_sbst_al),length(int_up),length(down_sbst),length(down_sbst_al),length(int_down),length(int_up_down),length(int_down_up)),width=0.5,names.arg=c("SF","SF_AS","Overlap","SF","SF_AS","Overlap","Overlap","Overlap"),col=c("#FB6A4A","#FB6A4A","#EF3B2C","#6BAED6","#6BAED6","#2171B5","seagreen2","tomato2"),cex.names=0.7,space=c(0.1,0.1,0.1,0.5,0.1,0.1,0.5,0.1),main="Oligodendrocyte v. Microglia")
-# legend("topright",fill=c("#FB6A4A","#6BAED6","seagreen2","tomato2"),legend=c("Upregulated","Downregulated","Down after Sum","Up after Sum"))
+#Library Size
+y.lib <- y
+y.lib$samples$norm.factors <- 1
+y.lib <- estimateDisp(y.lib,desgn)
+fit.lib <- glmFit(y.lib,desgn)
+res.lib <- glmLRT(fit.lib)
 
+#Deconvoluted
+y.al <- y
+y.al$samples$norm.factors <- szf_sbst_al/y.al$samples$lib.size
+y.al <- estimateDisp(y.al,desgn)
+fit.al <- glmFit(y.al,desgn)
+res.al <- glmLRT(fit.al)
+
+## Comparison
+
+x.sf <- decideTestsDGE(res.sf)
+x.lib <- decideTestsDGE(res.lib)
+x.tmm <- decideTestsDGE(res.tmm)
+x.al <- decideTestsDGE(res.al)
+
+
+out.file <- "Zeisel_output.txt"
+write.table(file=out.file, data.frame(Method="Size factor", Total=sum(x.sf!=0), Down=sum(x.sf<0), Up=sum(x.sf>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+write.table(file=out.file, data.frame(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="Library size", Total=sum(x.lib!=0), Down=sum(x.lib<0), Up=sum(x.lib>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="Deconvolution", Total=sum(x.al!=0), Down=sum(x.al<0), Up=sum(x.al>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+
+write.table(file=out.file, data.frame(Method="vs SF", Total=sum(x.sf!=0 & x.al!=0), Down=sum(x.sf<0 & x.al < 0), Up=sum(x.sf>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="vs TMM", Total=sum(x.tmm!=0 & x.al!=0), Down=sum(x.tmm<0 & x.al < 0), Up=sum(x.tmm>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
+write.table(file=out.file, data.frame(Method="vs lib", Total=sum(x.lib!=0 & x.al!=0), Down=sum(x.lib<0 & x.al < 0), Up=sum(x.lib>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
