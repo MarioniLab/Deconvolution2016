@@ -233,7 +233,7 @@ In order to be useful, the size factor for each pool is deconvolved back into th
 This ensures that cell-specific biases can be properly normalized.
 
 \subsection{Summation and deconvolution with linear equations}
-Define the library size-adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is the library size for cell $j$.
+Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$.
 The expectation of $\pi_{ij}$ can then be written as $\theta_j\lambda_{is} T_j^{-1}$.
 Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
 Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
@@ -284,12 +284,12 @@ Protection is provided by using linear inverse models in the limSolve package (v
 This will not provide sensible size factor estimates for the offending cells -- these are set to zero and should be removed --
     but will ensure that the estimates for other cells are not distorted by negative values elsewhere in the system.
 
-Note that counts could be summed rather than size-adjusted expression values.
-This means that the solution of the linear system will directly yield estimates of $\theta_j$.
-However, we use size-adjusted values to ensure that the sum is not dominated by a small number of very large libraries.
+The value of $T_j$ is typically set to the observed library size for each cell.
+This ensures that the sum $s_{ik}$ is not dominated by a small number of very large libraries.
 Information from each cell will then be weighted equally when computing the median ratio for each set, regardless of library size.
-It also reduces the risk of obtaining negative estimates for very small libraries.
-Such libraries have very small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
+It also reduces the risk of obtaining negative estimates for small libraries.
+Such libraries have small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
+The fact that the observed library size is variable is largely irrelevant, as the deconvolution procedure is valid for arbitrary positive values of $T_j$.
 
 \subsection{Clustering to weaken the non-DE assumption}
 This approach makes some moderately strong assumptions regarding the nature of DE across the data set.
