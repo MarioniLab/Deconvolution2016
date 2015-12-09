@@ -76,7 +76,7 @@ In particular, we will review three approaches that are commonly used for RNA-se
 DESeq normalization was originally introduced as part of the DESeq package for detecting DE genes \cite{anders2010differential}.
 It first constructs an ``average'' reference library, in which the ``count'' for each gene is defined as the geometric mean of the counts for that gene across all real libraries.
 Each real library is then normalized against this average.
-Specifically, for each gene, it computes the ratio of the count in each library to that in the average library.
+Specifically, for each gene, we compute the ratio of the count in each library to that in the average library.
 The size factor for each library is defined as the median of this ratio across all genes.
 This value represents the extent to which the counts in that library should be downscaled, 
     in order to eliminate any systematic differences in expression between libraries for the majority of (assumed) non-DE genes.
@@ -86,7 +86,7 @@ This method selects one library to be a reference, and normalizes each other lib
 Specifically, for each library, M-values (i.e., library size-adjusted log$_2$-ratios in expression) are computed against the reference for all genes.
 The genes with the most extreme M-values are trimmed away.
 High- or low-abundance genes are similarly removed.
-The weighted mean of the remaining M-values is computed, where the weighting is performed according to the asymptotic variance of each M-value.
+The weighted mean of the remaining M-values is computed, using precision weights that are calculated based on the asymptotic variance of each M-value.
 This is used to define the normalization factor for each library as $2^x$, where $x$ is the weighted mean for that library.
 The normalization factor represents the downscaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
@@ -106,9 +106,9 @@ This involves scaling the counts such that the library size is the same across l
     and is the basis for measures of normalized expression like counts- or transcripts-per-million.
 While simple, this approach is not robust in the presence of DE genes \cite{robinson2010scaling}.
 One can imagine a scenario where a single gene is strongly upregulated in one library compared to another.
-This increases the size of the first library, as more reads are generated from the upregulated gene.
-Normalization by library size will then scale up the counts for the second library to compensate.
-This introduces spurious differences in the counts between libraries for the non-DE genes.
+This increases the size of the first library as more reads are generated from the upregulated gene.
+Normalization by library size will compensate by scaling up the counts for the second library.
+However, this will introduce spurious differences between libraries for all of the non-DE genes.
 The likely presence of DE in real data means that library size normalization is often inappropriate.
 
 \subsection{Performance of existing methods on simulated data with zeroes}
@@ -132,11 +132,11 @@ The NB dispersion is defined for each gene as
     \varphi_i = 2 + \frac{100}{\lambda_{i0}}
 \]
 to represent a decreasing mean-dispersion trend.
-Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq studies,
+Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq data,
     and ensure that a large number of stochastic zeroes are generated.
-Approximately 30-50\% of all counts are zero in each simulated library.
+Approximately 30-50\% of all counts are sampled as zero in each simulated library.
 
-The simulation design involves 10000 genes for three subpopulations of 250 cells each.
+The simulation design involved 10000 genes for three subpopulations of 250 cells each.
 For each subpopulation, a unique set of $G$ genes was randomly chosen.
 DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $\phi_s^{-1}$ for the rest (downregulated).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
@@ -144,7 +144,8 @@ This provides each subpopulation with a unique expression signature containing d
 Simulations were performed for $G = 0$ (no DE), 1000 (moderate DE) and 3000 (strong DE).
 The simulation was also repeated with $G$ set to 3000, $p_s$ set to 50\% for all $s$ and $\phi_{s}$ set to 2, 5 and 10 for the first, second and third subpopulations, respectively.
 This represents an alternative scenario where the number of DE genes in either direction is the same but the magnitude of DE is different between subpopulations.
-For all scenarios, simulated data was generated by sampling NB-distributed counts as described.
+In each simulation scenario, the count for each gene in each cell was sampled from the above NB distribution,
+    the mean of which was modified according to the parameter settings of that scenario.
 
 DESeq, TMM and library size normalization were applied to this data.
 For DESeq normalization, the geometric mean was computed by replacing all zero counts with unity.
