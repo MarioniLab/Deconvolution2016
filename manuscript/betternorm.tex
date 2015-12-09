@@ -17,12 +17,12 @@
 \section{Introduction}
 Single-cell RNA sequencing (scRNA-seq) is a powerful technique that allows researchers to characterize the gene expression profile of single cells.
 From each cell, mRNA is isolated, reverse-transcribed and subjected to massively parallel sequencing \cite{stegle2015computational}.
-The sequencing reads are then mapped to a reference genome, whereby the number of reads mapped to each gene can be used to quantify the expression of that gene.
+The sequencing reads are mapped to a reference genome, whereby the number of reads mapped to each gene can be used to quantify the expression of that gene.
 Alternatively, transcript molecules can be counted directly using unique molecular identifiers (UMIs) \cite{islam2014quantitative}.
 Count data can be analyzed to identify new cell subtypes and to detect highly variable or differentially expressed (DE) genes between cell subpopulations.
 This type of single-cell resolution is not possible with bulk RNA sequencing of cellular populations.
 However, the downside is that the counts often contain high levels of technical noise with many ``drop-outs'', i.e., zero or near-zero values.
-This is due to the difficulties in sequencing low amounts of RNA per cell, which decreases the capture efficiency during library preparation.
+This is due to presence of low amounts of RNA per cell, which decreases the efficiency of capturing transcripts into libraries for sequencing.
 Moreover, the capture efficiency often varies from cell to cell, such that counts cannot be directly compared between cells.
 
 Normalization of the scRNA-seq counts is a critical step that corrects for differences in capture efficiency between cells.
@@ -47,7 +47,7 @@ One could proceed by removing the offending genes during normalization for each 
 
 Correct normalization of scRNA-seq data is essential as it determines the validity of all downstream quantitative analyses.
 In this article, we describe a deconvolution approach that improves the accuracy of non-DE normalization without using spike-ins.
-Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reducedby summing across cells.
+Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reduced by summing across cells.
 The pooled size factors are then deconvolved back to those for the individual cells.
 Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of existing normalization methods for count data with many zeroes.
 We also show a similar difference in behaviour on several real data sets, where the use of different normalization methods affects the final biological conclusions.
