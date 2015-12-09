@@ -194,7 +194,7 @@ Recall that size factors have a relative interpretation across cells, so overest
 \end{minipage}
 \caption{
     Performance of existing normalization methods on the simulated data with DE genes and stochastic zeroes.
-    The size factor estimate for each cell is plotted against its true values for (\subref{subfig:size_sim}) DESeq,
+    The size factor estimates for all cells are plotted against the true values for (\subref{subfig:size_sim}) DESeq,
         (\subref{subfig:tmm_sim}) TMM and (\subref{subfig:lib_sim}) library size normalization.
     Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
     Axes are shown on a log-scale.
@@ -233,7 +233,7 @@ In order to be useful, the size factor for each pool is deconvolved back into th
 This ensures that cell-specific biases can be properly normalized.
 
 \subsection{Summation and deconvolution with linear equations}
-Define the size-adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is the total library size for cell $j$.
+Define the library size-adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is the library size for cell $j$.
 The expectation of $\pi_{ij}$ can then be written as $\theta_j\lambda_{is} T_j^{-1}$.
 Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
 Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
@@ -253,10 +253,10 @@ The expectation of $r_{ik}$ represents the size factor for the pooled cells in $
     = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{C}
     \label{eqn:linear_single}
 \end{equation}
-where $C$ is a constant that does not depend on the gene, cell or set $\mathcal{S}_k$.
-The above approximation is valid if the variance of the sums is low -- 
-    this should be the case for large sets, as the variability relative to the mean should decrease due to the law of large numbers.
-$E(r_{ik})$ is estimated by taking any robust average (in this case, the median) of $r_{ik}$ across $i$.
+where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
+The approximation assumes that $u_{i}$ is stably estimated 
+    -- this is not unreasonable for data sets with hundreds of cells, where variability relative to the mean should decrease due to the law of large numbers.
+$E(r_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across $i$.
 Robustness protects the average against DE genes with extreme ratios.
 
 The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates for $\theta_j$ for each cell.
@@ -297,7 +297,7 @@ The use of the median is only valid when less than 50\% of genes are DE in any d
     i.e., less than 50\% of genes can be upregulated and less than 50\% of genes can be downregulated.
 If more DE genes are present, the median will not represent a robust average across non-DE genes.
 This condition generally requires a proportion of genes to be constantly expressed across all cells in the data set 
-    -- otherwise, all genes would be DE against the average in at least one pseudo-cell -- 
+    -- otherwise, all genes would be DE against the average in at least one pool of cells -- 
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
 This is similar to that required for DESeq normalization where an average reference is also used.
 
@@ -311,7 +311,7 @@ To do so, the reference pseudo-cells for all clusters are normalized against eac
 This is done by selecting a single ``baseline'' pseudo-cell against which all other pseudo-cells are normalized.
 The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for the pseudo-cell of each cluster against the baseline pseudo-cell
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
-The overall size factor for cell $j$ in cluster $c$ is subsequently defined as $f_j = f_{j}'\tau_{\mathcal{C}}$.
+The overall size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_j = f_{j}'\tau_{\mathcal{C}}$.
 
 % This is justified by considering normalization factors; you multiply the normalization factor within clusters with that between clusters to get the overall factor 
 % (independent of library size), then you multiply by the library size to get the size factors. 
@@ -320,11 +320,11 @@ The overall size factor for cell $j$ in cluster $c$ is subsequently defined as $
 % you only need to multiply by additional between-cluster differences to get the overall size factors 
 % (i.e., you don't need to compute the size factors between clusters, only the normalization factors).
 
-The use of within-cluster normalization reduces the number of DE genes, as all cells in each cluster have similar expression profiles.
+The use of within-cluster normalization reduces the amount of DE between cells, as all cells in each cluster have similar expression profiles.
 This avoids inaccurate estimation of the size factors due to violations of the non-DE assumption.
 Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
 This weakens the assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
-For example, in the simulation with varying magnitude of DE, only 60\% of genes are DE between any two subpopulations, while 90\% of genes exhibit DE across all subpopulations.
+For example, in the simulation with varying magnitude of DE, only 60\% of genes are DE between any two subpopulations, while 90\% of genes are DE across all subpopulations.
 
 Any clustering technique can be used to group cells with similar expression profiles.
 We favour a correlation-based approach using $1-\rho_{xy}$ as the distance, where $\rho_{xy}$ denotes Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
@@ -335,10 +335,10 @@ This is done so that each cluster contains a minimum number of cells (200 by def
 Correlation-based methods are attractive as they are insensitive to global scaling of the expression values in each cell.
 Prior normalization is not required, which avoids a circular dependence between normalization and clustering.
 
-By default, the baseline pseudo-cell is chosen from the cluster where the mean library size per cell is equal to the median of the mean per cell for all clusters
+By default, the baseline pseudo-cell is chosen from the cluster where the mean library size per cell is equal to the median of the mean library size across all clusters
     (or, for an even number of clusters, the cluster with the smallest mean library size above the median).
 This uses the mean library size as a rough proxy for cell similarity.
-The baseline cluster is likely to be least dissimilar to every other cluster, which reduces the amount of DE genes during pairwise normalization.
+The baseline cluster is likely to be least dissimilar to every other cluster, which reduces the amount of DE during pairwise normalization between pseudo-cells.
 More intelligent choices of the baseline can be used if the similarities between clusters are known, e.g., from visualization after dimensionality reduction.
 
 Systematic zeroes within each cluster are also removed prior to deconvolution in that cluster.
@@ -349,7 +349,7 @@ This is because they will have non-zero counts in at least one cluster (assuming
 Removal of such genes will distort the median ratio between pseudo-cells and lead to biased size factor estimates, as described previously for the existing methods.
 
 \subsection{Selecting cell pools to sum}
-The pool of cells in each set $\mathcal{S}_{ik}$ consists of cells with similar library sizes.
+The pool of cells in each $\mathcal{S}_{ik}$ is chosen to consist of similar library sizes.
 Cells in a given cluster are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
 These cells are arranged in a ring, with odd cells on the left and even cells on the right.
 Conceptually, one can start at the 12 o'clock position on the ring, for the largest libraries; moving clockwise through the even cells with decreasing library size;
@@ -398,12 +398,12 @@ This increases the total number of equations in the system and means that each $
 
 An additional set of equations is added to ensure that the system is solvable.
 In each equation, the $\theta_jT_j^{-1}$ for each cell is equated to the size factor estimated directly from its single-cell counts.
-These equations are assigned very low weights compared to the other equations involving summed cells, with weights of $10^{-6}$ and unity respectively.
+These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ and unity respectively.
 A weighted least-squares approach is then applied to solve the linear system.
 In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
 This ensures that a single solution can be obtained.
 Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
-This means that the estimated values are driven primarily by the equations for the summed cells.
+This means that the estimated values will be driven primarily by the equations for the summed cells.
 
 \subsection{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
@@ -435,8 +435,8 @@ However, the deconvolution method is still more accurate than the existing metho
 \end{minipage}
 \end{center}
     \caption{
-        Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes.
-        Results are shown for scenarios with (\subref{subfig:sumclust_1}) no DE, (\subref{subfig:sumclust_2}) moderate DE, 
+        Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes,
+        shown against the true values for scenarios with (\subref{subfig:sumclust_1}) no DE, (\subref{subfig:sumclust_2}) moderate DE, 
                 (\subref{subfig:sumclust_3}) strong DE and (\subref{subfig:sumclust_4}) varying magnitude of DE.
         Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
         Axes are shown on a log-scale, and the red line represents equality with the true factors.
@@ -445,10 +445,12 @@ However, the deconvolution method is still more accurate than the existing metho
 \end{figure}
 
 One potential criticism of this approach is that it relies on clustering information.
-Cluster-specific normalization might introduce artificial differences between cells in different clusters, 
+In general, cluster-specific normalization requires some caution.
+This is because it might introduce artificial differences between cells in different clusters, 
     such that the statistical rigour of downstream analyses (e.g., to detect DE between clusters) would be compromised.
-Such problems are avoided by normalization between the cluster-specific reference pseudo-cells to ensure that cells are comparable between clusters.
-The end result is that all systematic differences between cells are removed.
+However, these problems are avoided by the deconvolution method due to its use of a two-step normalization strategy.
+The first normalization step removes any systematic differences between cells in each cluster, while the second normalization between pseudo-cells removes any differences between clusters.
+The end result is that differences between all cells in all clusters are removed.
 This is equivalent to the outcome of a hypothetical one-step method that does not use cluster information (and is robust to DE and stochastic zeroes, unlike existing methods).
 Moreover, normalization accuracy in Figure~\ref{fig:sim_cluster_DE} is unaffected by the use of clustering prior to deconvolution, which suggests that this approach is valid.
 
