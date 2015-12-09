@@ -468,47 +468,38 @@ Counts were obtained from the NCBI Gene Expression Omnibus with the accession GS
 
 For both data sets, low-abundance genes were defined as those with an average count below 0.2 across all cells.
 These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further analysis.
-The set of External RNA Controls Consortium (ERCC) spike-ins in the brain data set were also removed.
+The set of External RNA Controls Consortium (ERCC) spike-ins in the brain data set was also removed.
 This ensures that normalization is only performed using the counts for the cellular genes.
 For the inDrop data set, counts were only used for cells before withdrawal of leukemia inhibitory factor (LIF), and those 7 days after withdrawal.
 This resulted in a final set consisting of approximately 1700 cells.
 Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 3000 for each cell.
 
 \subsection{Deconvolution yields a wider spread of size factors}
-Each normalization method was applied on the counts for all cells in both data sets.
-Compared to DESeq and TMM normalization, the deconvolution method yields a wider spread of size factor estimates (Figure~\ref{fig:real_spread}).
-This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for the existing methods.
+Each normalization method was applied on the counts for cells in both data sets.
+In both cases, deconvolution yields a wider range of size factor estimates compared to DESeq and TMM normalization (Figure~\ref{fig:real_comp}).
+This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for these two existing methods.
 Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
-This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data and cannot simply be ignored.
-The deconvolution method reduces the number of zero counts by summing across cells.
-This avoids the bias towards unity in the simulations and increases the range of the estimates in the brain and inDrop data.
+This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data that cannot simply be ignored.
+Recall that the deconvolution method reduces the number of zero counts by summing across cells.
+This avoids bias towards unity in the simulations and increases the range of the estimates in the brain and inDrop data.
 
-\begin{figure}[btp]
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Zeisel_NormFactors.pdf}
-        \subcaption{}\label{subfig:spread_brain}
-    \end{minipage}
-    \begin{minipage}{0.48\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Klein_NormFactors.pdf}
-        \subcaption{}\label{subfig:spread_indrop}
-    \end{minipage}
-    \caption{
-        Boxplots of the estimated size factors across all cells in the (\subref{subfig:spread_brain}) brain or (\subref{subfig:spread_indrop}) inDrop data,
-            for all normalization methods.
-        Axes are on a log-scale, and dots represent outlier cells with extreme size factors.
-        To simplify comparisons between methods, each set of size factors was scaled to have a median of unity.
-    }
-    \label{fig:real_spread}   
-\end{figure}
-
-The size factor estimate from deconvolution is a monotonic increasing function of that from the other methods (Figure~\ref{fig:real_comp}).
-This suggests that the methods are qualitatively similar, in that the rankings of size factors are in rough agreement across methods.
-However, the quantitative behaviour of each method is substantially different.
-Deconvolution yields a wider range of estimates compared to DESeq and TMM normalization, consistent with the simulation results.
-Differences are also present between the estimates from deconvolution and those from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
-This is attributable to the likely presence of DE genes between cell types, which will confound library size normalization.
-In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
-The two methods are more similar for the inDrop data where less DE is expected within the same cell type.
+%\begin{figure}[btp]
+%    \begin{minipage}{0.48\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Zeisel_NormFactors.pdf}
+%        \subcaption{}\label{subfig:spread_brain}
+%    \end{minipage}
+%    \begin{minipage}{0.48\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{realdata/Klein_NormFactors.pdf}
+%        \subcaption{}\label{subfig:spread_indrop}
+%    \end{minipage}
+%    \caption{
+%        Boxplots of the estimated size factors across all cells in the (\subref{subfig:spread_brain}) brain or (\subref{subfig:spread_indrop}) inDrop data,
+%            for all normalization methods.
+%        Axes are on a log-scale, and dots represent outlier cells with extreme size factors.
+%        To simplify comparisons between methods, each set of size factors was scaled to have a median of unity.
+%    }
+%    \label{fig:real_spread}   
+%\end{figure}
 
 \begin{figure}[btp]
     \begin{minipage}{0.33\textwidth}
@@ -535,6 +526,14 @@ The two methods are more similar for the inDrop data where less DE is expected w
     \label{fig:real_comp}  
 \end{figure}
 
+
+Deconvolution also yields different size factors from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
+Specifically, a substantial number of cells have size factor estimates from library size normalization that are larger than those from deconvolution.
+This is attributable to the likely presence of DE genes between different cell types.
+Any upregulation will increase the size factors for affected cells by increasing the library sizes.
+In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
+The two methods are more similar for the inDrop data where less DE is expected within the same cell type.
+
 \subsection{Different normalization schemes change the DE profile}
 To gauge the impact of the differences in the normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
 For the brain data set, the count data was subsetted to contain only cells classified as microglia or oligodendrocytes \cite{zeisel2015brain}.
@@ -545,20 +544,19 @@ A likelihood ratio test was performed to test each gene for DE between cell type
 The Benjamini-Hochberg correction was applied to the $p$-values to control the false dicovery rate (FDR) at a threshold of 5\%.
 This process was repeated for the inDrop data to test for DE after LIF withdrawal.
 
-Substantial differences are present in the numbers of DE genes between methods (Table~\ref{tab:real_de}).
-In general, deconvolution results in fewer DE genes than DESeq and TMM normalization.
-The numbers of DE genes are also more balanced between up- and downregulated genes.
-The total number of DE genes from library size normalization are more similar to those from deconvolution, 
-    but the numbers of DE genes changing in each direction is still different.
-The set of DE genes detected in either direction by deconvolution also tends to be a superset or subset of that detected by the existing methods.
-This is consistent with a difference in overall scaling of the average expression values between the different biological conditions, 
-    such that the DE log-fold changes from deconvolution are consistently shifted relative to those from the existing methods.
+The total number of DE genes from deconvolution is generally similar to that of the other methods (Table~\ref{tab:real_de}).
+However, the number of DE genes changing in each direction is substantially different in both data sets.
+Deconvolution yields a more balanced set of DE genes, with smaller differences between the numbers of up- and downregulated genes.
+The set of DE genes detected in either direction also tends to be a superset or subset of that detected by the existing methods.
+This is consistent with a difference in overall scaling of the average expression values between different biological conditions, 
+    such that the DE log-fold changes from deconvolution are shifted in one direction relative to those from the existing methods.
 
 \begin{table}[bt]
 \caption{
     Number of DE genes detected by edgeR at a FDR of 5\% in each data set, using the size factor estimates from different methods for normalization.
     This is also separated into the number of up- and downregulated genes for each data set.
     Upregulation refers to increased expression in oligodendrocytes over microglia in the brain data, and to increased expression after LIF withdrawal in the inDrop data.
+    The number of DE genes shared between analyses using deconvolution and each other method is also shown.
 }
 \begin{center}
 \begin{tabular}{l r r r c r r r}
@@ -584,7 +582,7 @@ $\quad$ shared with library size    & 3019 & 1536 & 1483 && 9250  & 4269 & 4981 
 These results indicate that different normalization schemes will affect downstream steps like DE analyses.
 For example, incorrect normalization may preserve (or even introduce) spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
 Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
-For these data sets, over a thousand genes are found or lost when the deconvolution method is used instead of the existing methods.
+In the data sets tested here, over a thousand genes are found or lost when the deconvolution method is used instead of the existing methods.
 This is likely to have some impact on the biological conclusions that can be taken from the DE analysis.
 
 \subsection{Deconvolution and existing methods are inconsistent with spike-ins}
@@ -636,16 +634,17 @@ Obviously, the truth of each assumption is largely unknown, so it is difficult t
     \label{fig:real_spike}  
 \end{figure}
 
-A more philosophical point is that spike-in normalization preserves differences in cell size and total RNA content.
-In contrast, deconvolution and the existing methods will remove such differences, as they affect all genes within each cell and are absorbed into the cell-specific bias.
-Whether or not this is appropriate depends on whether cell size differences are of interest.
+Of greater biological relevance is the fact that spike-in normalization preserves differences in cell size and total RNA content.
+In contrast, deconvolution and the existing methods will remove such differences.
+This is because they affect all genes within each cell and are subsequently treated as part of the cell-specific bias.
+Whether or not this is appropriate depends on whether cell size differences are of interest to the researcher.
 In some scenarios, this may be the case such that spike-ins should be used, e.g., when studying cycling cells with differences in total RNA.
-In other cases, cell size may be a confounding variable that needs to be removed, e.g., when focusing on changes in the expression profile between cells.
+For other applications, cell size may be a confounding variable that needs to be removed.
 For these data sets, normalization should be performed with the deconvolution method.
 
 \section{Conclusions}
 Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
-This approach provides improved performance for size factor estimation, compared to existing methods on simulated data.
+This approach provides improved performance for size factor estimation compared to existing methods on simulated data.
 In particular, it avoids estimation inaccuracy in the presence of stochastic zeroes and is robust to DE in the data set.
 Similar differences in the size factors across methods were also observed in analyses of real data,
     where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
