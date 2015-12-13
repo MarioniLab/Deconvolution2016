@@ -66,13 +66,30 @@ countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
 
 # ---- SF-Difference ----
 scaled_factors<- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
-boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor",cex.axis=1.5,cex.lab=1.8)
-plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy",cex.axis=1.5,cex.lab=1.8)
-abline(0,1,col="dodgerblue")
 
-plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,cex=0.6,pch=19,col="#00000073",xlab="Librarysize",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
-abline(0,1,col="dodgerblue")
+cairo_pdf("Klein_NormFactors.pdf")
+par(mar=c(8.6,5.1,2.1,1.1))
+boxplot(scaled_factors,log="y",ylab="Size factors",cex.axis=1.5,cex.lab=1.8,xaxt='n')
+text(labels=colnames(scaled_factors),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.1,srt=45, pos=2)
+dev.off()
 
+cairo_pdf("Klein_SFvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$DESeq,scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col="dodgerblue")
+dev.off()
+
+cairo_pdf("Klein_LibvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col="dodgerblue")
+dev.off()
+
+cairo_pdf("Klein_TMMvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors[,"TMM"],scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col="dodgerblue")
+dev.off()
 # ---- Diferential-Expression ----
 
 ## Subset Data for EdgeR

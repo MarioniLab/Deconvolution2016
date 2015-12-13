@@ -103,19 +103,33 @@ szf_alClust <- normalizeBySums(countsHEnoSpike, clusters = szfCluster)
 
 scaled_factors <- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
 #Comparison of SF Distribution
-boxplot(scaled_factors,log="y",ylab="Scaled Normalizationfactor",cex.axis=1.5,cex.lab=1.8)
 
+cairo_pdf("Zeisel_NormFactors.pdf")
+par(mar=c(8.6,5.1,2.1,1.1))
+boxplot(scaled_factors,log="y",ylab="Size factors",cex.axis=1.5,cex.lab=1.8,xaxt='n')
+text(labels=colnames(scaled_factors),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.1,srt=45, pos=2)
+dev.off()
 #SF vs Deconvoluted
-plot(scaled_factors$Sizefactor,scaled_factors$Deconvoluted,xlim=c(0.1,6),ylim=c(0.1,6),cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
+
+cairo_pdf("Zeisel_SFvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$DESeq,scaled_factors$Deconvolution,xlim=c(0.1,6),ylim=c(0.1,6),cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
+dev.off()
 
 #Libfactor vs Deconvoluted
-plot(scaled_factors$LibrarySize,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
+cairo_pdf("Zeisel_LibvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
+dev.off()
 
 #TMM vs Deconvoluted
-plot(scaled_factors$TMM,scaled_factors$Deconvoluted,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",cex.axis=1.5,cex.lab=1.8)
+cairo_pdf("Zeisel_TMMvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$TMM,scaled_factors$Deconvolution,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col="dodgerblue")
+dev.off()
 # ---- Normalize ----
 
 # countsHENorm <- as.data.frame(t(t(countsHEnoSpike) / szf_HE))
@@ -128,40 +142,23 @@ abline(0,1,col="dodgerblue")
 # plt <- ggplot(ddf, aes(x=Librarysizes, fill=Normalization, group=Normalization))
 # plot(plt + geom_density(alpha=0.3) + scale_x_log10())
 # ---- Spike-Ins ----
+cairo_pdf("Zeisel_ERCCvSF.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$DESeq,erccfactor/median(erccfactor),ylab="Spike-in",xlab="DESeq",log="x",cex=0.6,pch=19,col="#00000073",cex.axis=1.5,cex.lab=1.8)
+dev.off()
+cairo_pdf("Zeisel_ERCCvTMM.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$TMM,erccfactor/median(erccfactor),ylab="Spike-in",xlab="TMM",log="x",cex=0.6,pch=19,col="#00000073",cex.axis=1.5,cex.lab=1.8)
+dev.off()
+cairo_pdf("Zeisel_ERCCvDeconv.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors$Deconvolution,erccfactor/median(erccfactor),ylab="Spike-in",xlab="Deconvolution",log="x",cex=0.6,pch=19,col="#00000073",cex.axis=1.5,cex.lab=1.8)
+dev.off()
+cairo_pdf("Zeisel_ERCCvLib.pdf")
+par(mar=c(5.1,5.1,4.1,1.1))
+plot(scaled_factors[,"Library size"],erccfactor/median(erccfactor),ylab="Spike-in",xlab="Library size",log="x",cex=0.6,pch=19,col="#00000073",cex.axis=1.5,cex.lab=1.8)
+dev.off()
 
-# plot(scaled_factors$Sizefactor,erccfactor/median(erccfactor),ylab="Spike-In Sizefactor",xlab="Sizefactors",log="x",cex=0.6,pch=19,col="#00000073")
-# plot(scaled_factors$TMM,erccfactor/median(erccfactor),ylab="Spike-In Sizefactor",xlab="TMM",log="x",cex=0.6,pch=19,col="#00000073")
-# plot(scaled_factors$Deconvoluted,erccfactor/median(erccfactor),ylab="Spike-In Sizefactor",xlab="Deconvoluted",log="x",cex=0.6,pch=19,col="#00000073")
-# plot(scaled_factors$LibrarySize,erccfactor/median(erccfactor),ylab="Spike-In Sizefactor",xlab="LibrarySize",log="x",cex=0.6,pch=19,col="#00000073")
-
-## Compute conversionFactor
-# betafactor <- apply(countsHE[featuresHE$spike,],2, function(x) lm(x ~ molecules[molecules$ERCC_ID %in% rownames(featuresHE)[featuresHE$spike],"molecules_in_each_chamber"])$coefficients[2])
-
-## Sizefactors dont correspond to conversion factors
-# plot(szf_HE,betafactor,cex=0.6,pch=19,col="#00000073",xlab="Sizefactors",ylab="Conversion Factors",main="Sizefactors are not assoicated with Conversion Factors")
-
-# ---- Effect-on-HVG ---
-
-##Order of Variability
-# plot(order(dm),order(dmNorm),cex=0.5,pch=19)
-# plot(order(dm),order(dmNorm_al),cex=0.5,pch=19)
-# plot(order(dmNorm),order(dmNorm_al),cex=0.5,pch=19)
-# 
-# featuresHE_Ord<- featuresHE[order(-dm),]
-# featuresNorm_Ord<- featuresNorm[order(-dmNorm),]
-# featuresNorm_alOrd <- featuresNorm_al[order(-dmNorm_al),]
-# 
-# featuresHE$hvg <- rownames(featuresHE) %in% rownames(featuresHE_Ord)[1:1000]
-# featuresNorm$hvg <- rownames(featuresNorm) %in% rownames(featuresNorm_Ord)[1:1000]
-# featuresNorm_al$hvg <- rownames(featuresNorm_al) %in% rownames(featuresNorm_alOrd)[1:1000]
-# 
-# venHE <- which(featuresHE$hvg)
-# venNorm <- which(featuresNorm$hvg)
-# venNorm_al <- which(featuresNorm_al$hvg)
-# 
-# venn.diagram(list("Non-Norm" = venHE,"Sizefacotrs" = venNorm, "Summation" = venNorm_al), fill = c("red","green","blue"),
-#              alpha= c(0.5,0.5,0.5), cex = 1 , cat.fontface = 4, fontfamily = 3,imagetype="png",
-#              filename = "VenDiagram2.png")
 
 # ---- Diferential-Expression ----
 ## Subset Data for EdgeR
