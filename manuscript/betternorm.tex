@@ -9,7 +9,7 @@
 \urlstyle{same}
 
 \title{Computing normalization factors for single-cell RNA-seq data: avoiding problems with zero counts}
-\author{Aaron Lun and Karsten Bach}
+\author{Aaron T. L. Lun and Karsten Bach}
 
 \begin{document}
 \maketitle
@@ -237,53 +237,13 @@ This is not particularly interesting for downstream analyses focusing on single 
 In order to be useful, the size factor for each pool is deconvolved back into the size factors for its constituent cells.
 This ensures that cell-specific biases can be properly normalized.
 
-\subsection{Summation and deconvolution with linear equations}
-Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (usually the library size).
-This means that $E(\pi_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.
-Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
-Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
-The values of $s_{ik}$ across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
-The expectation of $s_{ik}$ is equal to 
-\[
-    E(s_{ik}) = \lambda_{is} \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
-\]
-Define $u_{i}$ as the mean of expression values for gene $i$ across all $N$ cells in the entire data set.
-The values of $u_{i}$ across all genes represent the expression profile for an averaged reference pseudo-cell.
-The cell pool for set $\mathcal{S}_k$ is then normalized against this reference pseudo-cell.
-Let $r_{ik}$ denote the ratio of $s_{ik}$ to $u_{i}$ for a non-DE gene $i$.
-The expectation of $r_{ik}$ represents the size factor for the pooled cells in $\mathcal{S}_k$, and is written as
-\begin{equation}
-    E(r_{ik}) \approx \frac{E(s_{ik})}{E(u_{i})} 
-    = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{ N^{-1} \sum_{\mathcal{S}_0} \theta_j T_j^{-1}} 
-    = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{C}
-    \label{eqn:linear_single}
-\end{equation}
-where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
-The approximation assumes that $u_{i}$ is stably estimated 
-    -- this is not unreasonable for data sets with hundreds of cells, where variability relative to the mean should decrease due to the law of large numbers.
-$E(r_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across $i$.
-Robustness protects the average against DE genes with extreme ratios.
-
-The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates for $\theta_j$ for each cell.
-A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
-by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
-The constant $C$ can be set to unity and ignored, as it does not contribute to the relative differences between size factors.
-Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{ik}$ will generate an overdetermined system of linear equations, 
-    in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
-This system can be solved with standard least-squares methods to obtain estimates of $\theta_j T_j^{-1}$ for all cells 
-    (this represents ``deconvolution'' of the cell pool factors to the factors for the individual cells, hence the name).
-Multiplication by $T_j$ for each cell will yield an estimate of $\theta_j$.
-
-This approach may seem somewhat circuitous, given that $\theta_j$ could be estimated directly from the counts for each individual cell.
-However, summation reduces the number of stochastic zeroes that cause problems in existing methods.
-As a result, ratios computed from pooled expression profiles are more accurate.
-This improvement will propagate back to the $\theta_j$ estimates for each $j$ when the linear system is solved.
-
+The deconvolution method is centred around the fact that the size factor for the pool of cells can be expressed as a sum of the size factors for the constituent cells.
+This allows a linear system to be constructed and solved, in order to obtain estimates for the cell-specific size factors.
 Further implementation details for this method can be found in Section~\suppdeconv{} of the Supplementary Materials.
-Briefly, this includes a description of the use of linear inverse models to protect against negative estimates of $\theta_j$; 
-    a justification for the choice of $T_j$ in count adjustment;
-    a description of the assumption of a non-DE majority of genes, and the weakening of that assumption with clustering;
-    and a description of the strategy used to choose cells in each $\mathcal{S}_{ik}$ for construction of the linear system (see also Supplementary Figure~\suppring{}).
+This includes an outline of the mathematical framework; 
+    the use of linear inverse models to protect against negative estimates;
+    the use of clustering to weaken the assumption of a non-DE majority of genes;
+    and a description of the strategy used to choose the cells in each pool for construction of the linear system (see also Supplementary Figure~\suppring{}).
 
 \subsection{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
