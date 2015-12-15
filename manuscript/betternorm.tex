@@ -40,10 +40,12 @@ Counts are scaled so that there is, on average, no fold-difference in expression
 This is the underlying concept of commonly used methods such as DESeq \cite{anders2010differential} and trimmed mean of M-values (TMM) normalization \cite{robinson2010scaling}.
 An even simpler approach involves scaling the counts to remove differences in library sizes between cells.
 
-The type of normalization that can be used often depends on the characteristics of the data set.
-In some data sets, spike-in data may not be present -- for example, droplet-based protocols \cite{klein2015droplet,macosko2015highly} do not allow spike-ins to be easily incorporated.
-This obviously precludes the use of spike-in normalization.
-The methods based on cellular counts can be applied more generally but have their own deficiencies.
+The type of normalization that can be used depends on the characteristics of the data set.
+In some data sets, spike-in counts may not be present which obviously precludes their use in normalization.
+For example, droplet-based protocols \cite{klein2015droplet,macosko2015highly} do not allow spike-ins to be easily incorporated.
+Spike-in normalization also depends on several assumptions \cite{robinson2010scaling,marinov2014singlecell,grun2015design}, 
+    the violations of which may compromise performance \cite{risso2014normalization}.
+Methods based on cellular counts can be applied more generally but have their own deficiencies.
 Normalization by library size is insufficient when DE genes are present, as composition biases can introduce spurious differences between cells \cite{robinson2010scaling}.
 DESeq or TMM normalization are more robust to DE but rely on the calculation of ratios of counts between cells.
 This is not straightforward in scRNA-seq data, where the high frequency of drop-out events interferes with stable normalization.
