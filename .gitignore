@@ -21,5 +21,7 @@ data/
 results/
 realdata/*.swp
 realdata/.RData
-realdata/*.pdf
+realdata/*.csv
+realdata/DEresults
 realdata/*.png
+realdata/*.pdf
