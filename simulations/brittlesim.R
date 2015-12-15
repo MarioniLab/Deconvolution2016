@@ -29,22 +29,27 @@ make.plot <- function(sf, truth, name, main="") {
 
 ###########################################################################
 
-for (scenario in 1:4) { 
+for (scenario in 1:5) { 
     true.means <- 2^runif(ngenes, 3, 6)
     dispersions <- 2 + 100/true.means
     
     up.per.pop <- c(0.2, 0.5, 0.8)
-    fc <- c(5, 5, 5)
-    if (scenario==1L) { 
-        nde <- 0
-    } else if (scenario==2L) {
+    fc.up <- c(5, 5, 5)
+    fc.down <- 1/fc.up
+    if (scenario==1L) { # No DE
+        nde <- 0 
+    } else if (scenario==2L) { # Some DE; same number of genes, different numbers per direction
         nde <- 1000
-    } else if (scenario==3L) { 
+    } else if (scenario==3L) { # More DE; same number of genes, different numbers per direction
         nde <- 3000
-    } else if (scenario==4L) {
+    } else if (scenario==4L) { # More DE; same numbers per direction, different magnitude of DE
         nde <- 3000
         up.per.pop <- c(0.5, 0.5, 0.5)
-        fc <- c(2, 5, 10) 
+        fc.up <- c(2, 5, 10) 
+        fc.down <- 1/fc.up
+    } else if (scenario==5L) { # Some DE; same number, different directions, but down set to zero.
+        nde <- 1000
+        fc.down <- c(0, 0, 0)
     }
 
     counts <- list()
@@ -58,8 +63,8 @@ for (scenario in 1:4) {
         is.up <- seq_len(nde*up.per.pop[x])
         upregulated <- chosen[is.up]
         downregulated <- chosen[-is.up]
-        effective.means[upregulated,] <- effective.means[upregulated,] * fc[x]
-        effective.means[downregulated,] <- effective.means[downregulated,] / fc[x]
+        effective.means[upregulated,] <- effective.means[upregulated,] * fc.up[x]
+        effective.means[downregulated,] <- effective.means[downregulated,] * fc.down[x]
     
         counts[[x]] <- matrix(rnbinom(ngenes*popsize, mu=effective.means, size=1/dispersions), ncol=popsize)
     }
