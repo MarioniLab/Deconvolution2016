@@ -18,7 +18,7 @@ for (x in c("Zeisel", "Klein")) {
     }
 
     # Using the precomputed size factors.
-    for (method in c("SF", "TMM", "lib", "Deconv")) {
+    for (method in c("SF", "TMM", "lib", "Decon")) {
         y <- DGEList(counts)
         y$samples$norm.factors <- size.facs[[method]]/y$samples$lib.size
         y <- estimateDisp(y, design, prior.df=0, trend='none')
