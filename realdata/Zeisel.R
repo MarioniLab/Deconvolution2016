@@ -101,8 +101,10 @@ szf_alClust <- normalizeBySums(countsHEnoSpike, clusters = szfCluster)
 
 # ---- SF-Difference ----
 
-scaled_factors <- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
+scaled_factors <- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor[cells$group != "4"]), "Deconvolution" = szf_alClust/median(szf_alClust[cells$group != "4"]),check.names=FALSE)
 #Comparison of SF Distribution
+cellCols <- labels2colors(as.integer(cells$group))
+cellCols2 <- sapply(cells$group, function(x) if (x == "4") "firebrick1" else "#00000073")
 
 cairo_pdf("Zeisel_NormFactors.pdf")
 par(mar=c(8.6,5.1,2.1,1.1))
@@ -120,14 +122,14 @@ dev.off()
 #Libfactor vs Deconvoluted
 cairo_pdf("Zeisel_LibvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8)
+plot(libfactor/median(libfactor[cells$group != "4"]),szf_alClust/median(szf_alClust[cells$group != "4"]),xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,xlab="Library size",ylab="Deconvolution",log="xy",cex.axis=1.5,cex.lab=1.8,col=cellCols2)
 abline(0,1,col="dodgerblue")
 dev.off()
 
 #TMM vs Deconvoluted
 cairo_pdf("Zeisel_TMMvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors$TMM,scaled_factors$Deconvolution,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",cex.axis=1.5,cex.lab=1.8)
+plot(scaled_factors$TMM,scaled_factors$Deconvolution,xlim=c(0.1,7),ylim=c(0.1,7),cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",cex.axis=1.5,cex.lab=1.8,log="xy")
 abline(0,1,col="dodgerblue")
 dev.off()
 # ---- Normalize ----
