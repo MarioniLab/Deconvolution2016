@@ -143,7 +143,7 @@ Approximately 30-50\% of all counts are sampled as zero in each simulated librar
 
 The simulation design involved 10000 genes for three subpopulations of 250 cells each.
 For each subpopulation, a unique set of $G$ genes was randomly chosen.
-DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $\phi_s^{-1}$ for the rest (downregulated).
+DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
 This provides each subpopulation with a unique expression signature containing different numbers of DE genes in each direction.
 Simulations were performed for $G = 0$ (no DE), 1000 (moderate DE) and 3000 (strong DE).
