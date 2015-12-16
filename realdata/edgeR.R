@@ -1,5 +1,6 @@
 require(edgeR)
-dir.create("DEresults")
+de.dir <- "DEresults"
+dir.create(de.dir)
 
 for (x in c("Zeisel", "Klein")) { 
     counts <- read.csv(sprintf("%sCounts.csv", x), row.names=1)
@@ -18,7 +19,8 @@ for (x in c("Zeisel", "Klein")) {
     }
 
     # Using the precomputed size factors.
-    for (method in c("SF", "TMM", "lib", "Decon")) {
+    all.methods <- c("SF", "TMM", "lib", "Decon")
+    for (method in all.methods) {
         y <- DGEList(counts)
         y$samples$norm.factors <- size.facs[[method]]/y$samples$lib.size
         y <- estimateDisp(y, design, prior.df=0, trend='none')
@@ -26,7 +28,7 @@ for (x in c("Zeisel", "Klein")) {
         res <- glmTreat(fit, lfc=1)
 
         xxx <- topTags(res, n=Inf, sort.by="none")
-        fhandle <- gzfile(file.path("DEresults", paste0(x, method, ".tsv.gz")), open="wb")
+        fhandle <- gzfile(file.path(de.dir, paste0(x, method, ".tsv.gz")), open="wb")
         write.table(file=fhandle, xxx$table, sep="\t", quote=FALSE, col.names=NA)
         close(fhandle)
 
@@ -52,4 +54,26 @@ for (x in c("Zeisel", "Klein")) {
     save2file(Method="shared with DESeq", Total=sum(x.sf!=0 & x.d!=0), Down=sum(x.sf<0 & x.d < 0), Up=sum(x.sf>0 & x.d > 0))
     save2file(Method="shared with TMM", Total=sum(x.tmm!=0 & x.d!=0), Down=sum(x.tmm<0 & x.d < 0), Up=sum(x.tmm>0 & x.d > 0))
     save2file(Method="shared with library size", Total=sum(x.lib!=0 & x.d!=0), Down=sum(x.lib<0 & x.d < 0), Up=sum(x.lib>0 & x.d > 0))
+
+    # Computing the rankings.
+    
+    out.sf <- read.table(file.path(de.dir, paste0(x, all.methods[1], ".tsv.gz")), header=TRUE, row.names=1) 
+    out.tmm <- read.table(file.path(de.dir, paste0(x, all.methods[2], ".tsv.gz")), header=TRUE, row.names=1) 
+    out.lib <- read.table(file.path(de.dir, paste0(x, all.methods[3], ".tsv.gz")), header=TRUE, row.names=1) 
+    out.decon <- read.table(file.path(de.dir, paste0(x, all.methods[4], ".tsv.gz")), header=TRUE, row.names=1) 
+    
+    r.sf <- rank(out.sf$PValue, ties="first") # WARNING: p-value not accurate for < 100 genes, as they're all zero!
+    r.tmm <- rank(out.tmm$PValue, ties="first")
+    r.lib <- rank(out.lib$PValue, ties="first")
+    r.decon <- rank(out.decon$PValue, ties="first")
+
+    out.file <- sprintf("%s_ranking.txt", x)
+    isfirst <- TRUE
+    comp <- function(a, b, top) { sprintf("%.2f", sum(a<=top & b<=top)/top) }
+    for (top in c(100, 500, 2000)) {
+        write.table(file=out.file, data.frame(Top=top, SF=comp(r.sf, r.decon, top), TMM=comp(r.tmm, r.decon, top), lib=comp(r.lib, r.decon, top)),
+                    append=!isfirst, col.names=isfirst, row.names=FALSE, quote=FALSE, sep="\t")
+        isfirst <- FALSE
+    }
+
 }
