@@ -16,13 +16,14 @@ make.plot <- function(sf, truth, name, main="") {
     resids <- log2(sf) - log2(truth)
     fitted <- lm(resids ~ 1, na.action=na.exclude)
     all.range <- range(truth)
-    col <- rep(c(rgb(0,0,0,0.5), rgb(0,0,1,0.5), rgb(1,0.5,0,0.5)), each=popsize)
+    col <- rep(c("black", "dodgerblue", "orange"), each=popsize)
+    shuffle <- as.vector(t(matrix(seq_along(sf), nrow=popsize)))
 
     pdf(file.path(output.dir, paste0(name, ".pdf")))
     par(mar=c(5.1,5.1,4.1,1.1))
-    plot(truth, truth * 2^residuals(fitted), xlim=all.range, ylim=all.range, 
+    plot(truth[shuffle], (truth * 2^residuals(fitted))[shuffle], xlim=all.range, ylim=all.range, 
          ylab="Estimated factors", xlab="True factors", log="xy", pch=16, 
-         col=col, cex.axis=1.5, cex.lab=1.8, main=main, cex.main=1.8)
+         col=col[shuffle], cex.axis=1.5, cex.lab=1.8, main=main, cex.main=1.8)
     abline(0, 1, col="red")
     dev.off()
 }
