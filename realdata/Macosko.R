@@ -46,6 +46,7 @@ retina <- merge(retina, Retina6, by = 1, all=T)
 retina <- merge(retina, Retina7, by = 1, all=T)
 rownames(retina) <- retina[,1]
 retina <- retina[,2:ncol(retina)]
+retina <- na.omit(retina)
 rm("Retina1","Retina2","Retina3","Retina4","Retina5","Retina6","Retina7")
 
 # Only choose training set as definied by authors which removes cells with very low counts
