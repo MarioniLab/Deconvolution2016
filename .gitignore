@@ -13,9 +13,15 @@ manuscript/betternorm.pdf
 manuscript/betternorm.out
 manuscript/pics/library_ring.pdf
 
+manuscript/suppmat.aux
+manuscript/suppmat.log
+manuscript/suppmat.pdf
+
 data/
 results/
 realdata/*.swp
 realdata/.RData
-realdata/*.pdf
+realdata/*.csv
+realdata/DEresults
 realdata/*.png
+realdata/*.pdf
