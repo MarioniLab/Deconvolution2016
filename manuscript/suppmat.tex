@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 %\usepackage{natbib}
 \usepackage{subcaption}
+\usepackage{multirow}
 
 \renewcommand{\textfraction}{1.0}
 \renewcommand{\floatpagefraction}{.9}
@@ -319,5 +320,33 @@ Ideally, the decision to use spike-ins or not should be driven by biology, i.e.,
 In practice, though, issues such as cost and convenience determine whether spike-ins are added in the experiment.
 This is especially true for the droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
 If spike-ins are not available, normalization of cell-specific biases must be performed with methods that assume a non-DE majority, e.g., TMM, deconvolution.
+
+\begin{table}[ptb]
+    \caption{
+        Proportion of the top set of genes that were shared between deconvolution and each existing normalization method.
+        Top genes were identified as those with the lowest $p$-values from edgeR in the analysis with each normalization method.
+        Top sets of size ranging from 100 to 2000 were tested for both the brain and inDrop data sets.
+        Smaller sets were not tested due to avoid ambiguous ranks from $p$-values of zero.
+    }
+    \begin{center}
+        \begin{tabular}{l r r r r}
+            \hline
+            \multirow{2}{*}{\textit{Data set}} & \multirow{2}{*}{\textit{Top}} & \multicolumn{3}{c}{\textit{Method}} \\
+                \cline{3-5}
+                & & DESeq & TMM & Library size \\
+            \hline
+            \multirow{3}{*}{Brain}            
+            & 100  & 0.44 & 0.60 & 0.71 \\ 
+            & 500  & 0.60 & 0.70 & 0.75 \\
+            & 2000 & 0.70 & 0.75 & 0.80 \\
+            \hline
+            \multirow{3}{*}{inDrop}            
+            & 100  & 0.88 & 0.94 & 0.98 \\ 
+            & 500  & 0.84 & 0.92 & 0.97 \\
+            & 2000 & 0.83 & 0.93 & 0.95 \\
+            \hline
+        \end{tabular}
+    \end{center}
+\end{table}
 
 \end{document}

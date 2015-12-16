@@ -16,8 +16,11 @@
 
 \newcommand{\suppdeconv}{1}
 \newcommand{\suppspikesec}{2}
+
 \newcommand{\suppring}{S1}
 \newcommand{\suppspikefig}{S2}
+
+\newcommand{\supprank}{S1}
 
 \section{Introduction}
 Single-cell RNA sequencing (scRNA-seq) is a powerful technique that allows researchers to characterize the gene expression profile of single cells.
@@ -377,7 +380,7 @@ A more detailed explanation is provided in Section~\suppspikesec{} of the Supple
 
 \subsection{Different normalization schemes change the DE profile}
 To gauge the impact of the differences in the normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
-For the brain data set, the count data was subsetted to contain only cells classified as microglia or oligodendrocytes \cite{zeisel2015brain}.
+For the brain data set, the count data was subsetted to contain only cells classified as pyramidal CA1 or oligodendrocytes \cite{zeisel2015brain}.
 Size factors from each method were used as the effective library sizes.
 The estimateDisp function was used to estimate a gene-specific NB dispersion for each gene \cite{chen2014differential} without any empirical Bayes shrinkage.
 A generalized linear model was fitted for each gene using a one-way layout with the two cell types \cite{mccarthy2012differential}.
@@ -387,23 +390,23 @@ This process was repeated for the inDrop data to test for DE after LIF withdrawa
 
 % With 1000 samples, you get so much evidence for DE that you call things with really small log-FCs. TREAT protects against this.
 
-The greatest difference between methods is observed in the number of DE genes changing in each direction in the brain data set (Table~\ref{tab:real_de}).
-Deconvolution yields a more balanced set of DE genes than DESeq or TMM normalization, with smaller differences between the numbers of up- and downregulated genes.
+The greatest difference between methods is observed in the number of DE genes changing in each direction for the brain data set (Table~\ref{tab:real_de}).
+Deconvolution yields a more balanced set of DE genes than DESeq, TMM or library size normalization, with smaller differences between the numbers of up- and downregulated genes.
 The set of DE genes detected in either direction also tends to be a superset or subset of that detected by the existing methods.
 This is consistent with a difference in overall scaling of the average expression values between different biological conditions, 
     such that the DE log-fold changes from deconvolution are shifted in one direction relative to those from the existing methods.
-The numbers for deconvolution are more similar to those for library size normalization, consistent with the relative similarity in Figure~\ref{fig:real_comp}.
-Nonetheless, there are still 358 out of 1319 DE genes that are unique to deconvolution, 
-    indicating that the systematic differences in the size factors for the oligodendrocytes are not negligible.
-Smaller differences are observed for the inDrop data set where fewer DE genes are present.
-Here, the similar performances of deconvolution and library size normalization are attributable to their mutual robustness to stochastic zeroes and, for the latter, a relative lack of DE.
-This suggests that library size normalization may be satisfactory for homogeneous data sets.
+For example, consider the differences in the numbers of DE genes between deconvolution and library size normalization.
+The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{subfig:comp_lib}.
+This is because any increase in gene expression in oligodendrocytes is incorporated into the library size and is weakened upon library size normalization.
+In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
+This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
+    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
 
 \begin{table}[bt]
 \caption{
     Number of DE genes detected by edgeR at a FDR of 5\% in each data set, using the size factor estimates from different methods for normalization.
     This is also separated into the number of up- and downregulated genes for each data set.
-    Upregulation refers to increased expression in oligodendrocytes over microglia in the brain data, and to increased expression after LIF withdrawal in the inDrop data.
+    Upregulation refers to increased expression in pyramidal CA1 cells over oligodendrocytes in the brain data, and to increased expression after LIF withdrawal in the inDrop data.
     The number of DE genes shared between analyses using deconvolution and each other method is also shown.
 }
 \begin{center}
@@ -414,24 +417,29 @@ This suggests that library size normalization may be satisfactory for homogeneou
 \cline{6-8}
 & Total & Down & Up && Total & Down & Up \\
 \hline
-DEseq                               & 1843 & 257 & 1586 && 497 & 298 & 199 \\
-TMM                                 & 1757 & 273 & 1484 && 462 & 239 & 223 \\
-Library size                        & 1237 & 641 & 596  && 492 & 199 & 293 \\
-Deconvolution                       & 1319 & 503 & 816  && 489 & 212 & 277 \\
-$\quad$ shared with DESeq           & 1073 & 257 & 816  && 411 & 212 & 199 \\
-$\quad$ shared with TMM             & 1089 & 273 & 816  && 435 & 212 & 223 \\
-$\quad$ shared with library size    & 1099 & 503 & 596  && 475 & 198 & 277 \\
+DEseq                               & 5073 & 894  & 4179 && 497 & 298 & 199 \\
+TMM                                 & 4489 & 1051 & 3438 && 462 & 239 & 223 \\
+Library size                        & 4258 & 1176 & 3082 && 492 & 199 & 293 \\
+Deconvolution                       & 3632 & 1706 & 1926 && 489 & 212 & 277 \\
+$\quad$ shared with DESeq           & 2820 & 894  & 1926 && 411 & 212 & 199 \\
+$\quad$ shared with TMM             & 2977 & 1051 & 1926 && 435 & 212 & 223 \\
+$\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \hline                                                   
 \end{tabular}
 \end{center}
 \label{tab:real_de}
 \end{table}
 
-These results indicate that different normalization schemes will affect downstream steps like DE analyses.
-For example, incorrect normalization may preserve (or even introduce) spurious differences in expression for non-DE genes by failing to properly correct for cell-specific biases.
-Conversely, the log-fold changes for genuine DE genes may be distorted such that detection power is decreased.
-In the data sets tested here, 20-30\% of DE genes are found or lost when the deconvolution method is used instead of the existing methods.
-This is likely to have some impact on the biological conclusions that can be taken from the DE analysis.
+The different normalization strategies also affect the ranking of the top set of genes in the brain data.
+Of the top genes with the lowest $p$-values, around 20 - 50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).
+This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
+The ranking is important as the genes contributing to the biological difference between conditions (i.e., cell types) are expected to have strong DE.
+Thus, the top-ranked genes are often prioritized for further investigation.
+Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
+
+Smaller differences are observed for the inDrop data set where fewer DE genes are present (Table~\ref{tab:real_de}, Supplementary Table~\supprank{}).
+Here, the similar performances of deconvolution and library size normalization are attributable to their mutual robustness to stochastic zeroes and, for the latter, a relative lack of DE within a cell type.
+This suggests that library size normalization may be satisfactory for homogeneous data sets.
 
 \section{Conclusions}
 Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
