@@ -66,6 +66,8 @@ countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
 
 # ---- SF-Difference ----
 scaled_factors<- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
+cell.col <- rgb(0,0,0) 
+line.col <- "red"
 
 cairo_pdf("Klein_NormFactors.pdf")
 par(mar=c(8.6,5.1,2.1,1.1))
@@ -75,72 +77,19 @@ dev.off()
 
 cairo_pdf("Klein_SFvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors$DESeq,scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="DESeq",ylab="Deconvolution",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy",cex.axis=1.5,cex.lab=1.8)
-abline(0,1,col="dodgerblue")
+plot(scaled_factors$DESeq,scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="DESeq",ylab="Deconvolution",xlim=c(0.1,3.5),ylim=c(0.1,3.5),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col=line.col)
 dev.off()
 
 cairo_pdf("Klein_LibvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="Library size",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
-abline(0,1,col="dodgerblue")
+plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="Library size",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col=line.col)
 dev.off()
 
 cairo_pdf("Klein_TMMvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors[,"TMM"],scaled_factors$Deconvolution,cex=0.6,pch=19,col="#00000073",xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
-abline(0,1,col="dodgerblue")
+plot(scaled_factors[,"TMM"],scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+abline(0,1,col=line.col)
 dev.off()
-# ---- Diferential-Expression ----
 
-## Subset Data for EdgeR
-cells <- data.frame("Cells" = celltype)
-
-# Setup EdgeR
-desgn <- model.matrix(~factor(cells$Cells))
-y <- DGEList(countsHE)
-
-#Sizefactors
-y.sf <- y
-y.sf$samples$norm.factors <- szf_HE/y.sf$samples$lib.size
-y.sf <- estimateDisp(y.sf,desgn)
-fit.sf <- glmFit(y.sf,desgn)
-res.sf <- glmLRT(fit.sf)
-
-#TMM
-y.tmm <- y
-y.tmm$samples$norm.factors <- tmm/y.tmm$samples$lib.size
-y.tmm <- estimateDisp(y.tmm,desgn)
-fit.tmm <- glmFit(y.tmm,desgn)
-res.tmm <- glmLRT(fit.tmm)
-
-#Library Size
-y.lib <- y
-y.lib$samples$norm.factors <- 1
-y.lib <- estimateDisp(y.lib,desgn)
-fit.lib <- glmFit(y.lib,desgn)
-res.lib <- glmLRT(fit.lib)
-
-#Deconvoluted
-y.al <- y
-y.al$samples$norm.factors <- szf_alClust/y.al$samples$lib.size
-y.al <- estimateDisp(y.al,desgn)
-fit.al <- glmFit(y.al,desgn)
-res.al <- glmLRT(fit.al)
-
-## Comparison
-
-x.sf <- decideTestsDGE(res.sf)
-x.lib <- decideTestsDGE(res.lib)
-x.tmm <- decideTestsDGE(res.tmm)
-x.al <- decideTestsDGE(res.al)
-
-
-out.file <- "Klein_output.txt"
-write.table(file=out.file, data.frame(Method="Size factor", Total=sum(x.sf!=0), Down=sum(x.sf<0), Up=sum(x.sf>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
-write.table(file=out.file, data.frame(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
-write.table(file=out.file, data.frame(Method="Library size", Total=sum(x.lib!=0), Down=sum(x.lib<0), Up=sum(x.lib>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
-write.table(file=out.file, data.frame(Method="Deconvolution", Total=sum(x.al!=0), Down=sum(x.al<0), Up=sum(x.al>0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
-
-write.table(file=out.file, data.frame(Method="vs SF", Total=sum(x.sf!=0 & x.al!=0), Down=sum(x.sf<0 & x.al < 0), Up=sum(x.sf>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
-write.table(file=out.file, data.frame(Method="vs TMM", Total=sum(x.tmm!=0 & x.al!=0), Down=sum(x.tmm<0 & x.al < 0), Up=sum(x.tmm>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
-write.table(file=out.file, data.frame(Method="vs lib", Total=sum(x.lib!=0 & x.al!=0), Down=sum(x.lib<0 & x.al < 0), Up=sum(x.lib>0 & x.al > 0)), sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE, append=TRUE)
