@@ -158,7 +158,7 @@ In each simulation scenario, the count for each gene in each cell was sampled fr
     the mean of which was modified according to the parameter settings of that scenario.
 
 DESeq, TMM and library size normalization were applied to this data.
-For DESeq normalization, the geometric mean was computed by replacing all zero counts with unity.
+For DESeq normalization, the geometric mean for each gene was computed after removing all zeroes.
 This is necessary to avoid a situation where a majority of genes have geometric means of zero, such that the majority of ratios to the geometric mean would be undefined.
 Zero counts were also removed within each library prior to calculation of the median ratio, to avoid obtaining size factors equal to zero.
 For TMM normalization, the calcNormFactors function in the edgeR package (v3.12.0) was used with default settings.
