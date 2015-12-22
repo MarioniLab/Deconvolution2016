@@ -1,42 +1,29 @@
 # Normalizing Drop-Seq data with Summation strategy
 #
 # ---- Packages ----
-pkgs <- "/nfs/research2/marioni/Karsten/utils/Rpack/"
-library('rJava',lib.loc=pkgs)
-library('xlsxjars',lib.loc=pkgs)
-library('xlsx',lib.loc=pkgs)
-library('zoo',lib.loc=pkgs)
 library('DESeq2')
-library('plyr')
 library('edgeR')
-library('dynamicTreeCut',lib.loc=pkgs)
-library('lattice',lib.loc=pkgs)
-library('ggplot2',lib.loc=pkgs)
-library('gridExtra',lib.loc=pkgs)
-library('pheatmap',lib.loc=pkgs)
-library("RColorBrewer")
 library('AK47')
 source("./functions.R") 
 
 # ---- Data ----
-esd0 <- read.csv("../data/GSM1599494_ES_d0_main.csv.bz2", header = FALSE, stringsAsFactors= FALSE)  
-esd7 <- read.csv("../data/GSM1599499_ES_d7_LIFminus.csv.bz2", header = FALSE, stringsAsFactors= FALSE)  
+esd0 <- read.csv("../data/GSM1599494_ES_d0_main.csv.bz2", header=FALSE, stringsAsFactors=FALSE, row.names=1)
+esd7 <- read.csv("../data/GSM1599499_ES_d7_LIFminus.csv.bz2", header=FALSE, stringsAsFactors=FALSE, row.names=1)
 
-colnames(esd0) <- c("feature",c(1:933))
-colnames(esd7) <- c("feature",c(1920:2717))
+colnames(esd0) <- 0L + seq_len(ncol(esd0))
+colnames(esd7) <- 1919L + seq_len(ncol(esd7))
+counts <- merge (esd0, esd7, by=0, all=TRUE)
+rownames(counts) <- counts[,1]
+counts <- counts[,-1]
 
-counts <- merge (esd0,esd7,by="feature",all=T)
-rownames(counts) <- counts$feature
-counts <- counts[,!(colnames(counts) %in% "feature")]
-
-celltypeCol <- c(rep("red",933),rep("blue",798))
-celltype <- c(rep("d0",933),rep("d7",798))
+cell.num <- c(ncol(esd0), ncol(esd7))
+celltypeCol <- rep(c("red", "blue"), cell.num)
+celltype <- rep(c("d0", "d7"), cell.num)
 
 # ---- Gene-Filter ----
 # Remove lowly expressed Genes
-IncCrit <- ncol(counts)/5
 
-highE<- rowSums(counts) >= IncCrit
+highE<- rowMeans(counts) >= 0.2
 countsHE <- counts[highE,]
 minExpr <- 1
 featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
@@ -45,14 +32,16 @@ featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
 # ---- Size-Factors ----
 
 #Normal SF
-geoMeans_HE <- apply(countsHE, 1, function(row) if (all(row == 0)) 0 else exp(mean(log(row[row != 0]))))
+tmp <- countsHE
+tmp[tmp < 1] <- 1
+geoMeans_HE <- exp(rowMeans(log(tmp)))
 szf_HE <- estimateSizeFactorsForMatrix(countsHE,geoMeans = geoMeans_HE)
 
 #Normal TMM
 tmm <- calcNormFactors(as.matrix(countsHE),method="TMM") * colSums(countsHE)
 
 #Normal Library Size
-libfactor <- colSums(countsHE) / 10000
+libfactor <- colSums(countsHE)
 
 #Deconvoluted
 szfCluster <- quickCluster(countsHE,deepSplit = 1)
