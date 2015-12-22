@@ -54,7 +54,7 @@ countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
 
 
 # ---- SF-Difference ----
-scaled_factors<- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
+scaled_factors<- data.frame(DESeq=szf_HE / median(szf_HE), TMM=tmm/median(tmm), LibSize=libfactor/median(libfactor), Deconvolution=szf_alClust/median(szf_alClust), check.names=FALSE)
 cell.col <- rgb(0,0,0) 
 line.col <- "red"
 
@@ -72,13 +72,13 @@ dev.off()
 
 cairo_pdf("Klein_LibvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors[,"Library size"],scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="Library size",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+plot(scaled_factors$LibSize,scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="Library size",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col=line.col)
 dev.off()
 
 cairo_pdf("Klein_TMMvDeconv.pdf")
 par(mar=c(5.1,5.1,4.1,1.1))
-plot(scaled_factors[,"TMM"],scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
+plot(scaled_factors$TMM,scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col=line.col)
 dev.off()
 
