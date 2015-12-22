@@ -356,9 +356,9 @@ This avoids bias towards unity in the simulations and increases the range of the
         Comparisons between the estimated size factors from the deconvolution method to those from (\subref{subfig:comp_sf}) DESeq,  (\subref{subfig:comp_tmm}) TMM
             or (\subref{subfig:comp_lib}) library size normalization.
         This is shown for the brain (top) and inDrop data sets (bottom).
-        Axes are on a log-scale, and the blue line represents equality between the two sets of factors.
-        All sets of factors were centered to a median of unity.
-        For the comparison between library size and deconvolution in the brain data, all cells except for oligodendrocytes (red) were used to compute the median for centering.
+        Axes are on a log-scale, and the red line represents equality between the two sets of factors.
+        All sets of factors were centered to a median of unity prior to comparison.
+        For the brain data, cells classified by Klein \textit{et al.} as oligodendrocytes or pyramidal CA1 are shown here in orange and blue, respectively.
     }
     \label{fig:real_comp}  
 \end{figure}
@@ -398,9 +398,6 @@ This is consistent with a difference in overall scaling of the average expressio
 For example, consider the differences in the numbers of DE genes between deconvolution and library size normalization.
 The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{subfig:comp_lib}.
 This is because any increase in gene expression in oligodendrocytes is incorporated into the library size and is weakened upon library size normalization.
-In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
-This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
-    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
 
 \begin{table}[bt]
 \caption{
@@ -429,6 +426,11 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \end{center}
 \label{tab:real_de}
 \end{table}
+
+In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
+This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
+    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
+% Add mention of GO terms here.
 
 The different normalization strategies also affect the ranking of the top set of genes in the brain data.
 Of the top genes with the lowest $p$-values, around 20 - 50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).
