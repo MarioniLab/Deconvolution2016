@@ -15,7 +15,7 @@ colnames(esd0) <- paste0("d0.", seq_len(ncol(esd0)))
 colnames(esd7) <- paste0("d7.", seq_len(ncol(esd7)))
 counts <- merge (esd0, esd7, by=0, all=TRUE)
 rownames(counts) <- counts[,1]
-counts <- counts[,-1]
+counts <- as.matrix(counts[,-1])
 
 cell.num <- c(ncol(esd0), ncol(esd7))
 timepoint <- rep(c("d0", "d7"), cell.num)
@@ -32,9 +32,9 @@ featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
 # ---- Size-Factors ----
 
 #Normal SF
-tmp <- countsHE
-tmp[tmp < 1] <- 1
-geoMeans_HE <- exp(rowMeans(log(tmp)))
+tmp <- log(countsHE)
+tmp[!is.finite(tmp)] <- NA_real_
+geoMeans_HE <- exp(rowMeans(tmp, na.rm=TRUE))
 szf_HE <- estimateSizeFactorsForMatrix(countsHE,geoMeans = geoMeans_HE)
 
 #Normal TMM
@@ -84,6 +84,5 @@ dev.off()
 
 # ---- Saving for DE and other analyses ---
 
-metadata <- data.frame(Cell=colnames(counts), Time=timepoint)
-save(metadata, counts, scaled_factors, file="KleinData.Rda")
+saveRDS(list(Cells=data.frame(Cell=colnames(counts), Time=timepoint), Counts=countsHE, SF=scaled_factors), file="KleinData.rds")
 
