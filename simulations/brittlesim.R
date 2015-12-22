@@ -2,6 +2,7 @@
 
 require(AK47)
 require(edgeR)
+require(DESeq2)
 
 set.seed(100)
 ngenes <- 10000
@@ -79,16 +80,15 @@ for (scenario in 1:4) {
     tmm2.sf <- tmm2.sf[-1]
     make.plot(tmm2.sf, true.facs, paste0("TMMave_", scenario), main="TMM against average")
 
-    # Size factors with raw counts (must remove zeros for both geometric mean and for each library):
+    # Size factors with raw counts (must counter zeros for both geometric mean and for each library):
     logvals <- log(counts)
-    logvals[is.infinite(logvals)] <- 0
-    gm <- exp(rowMeans(logvals))
-    size.sf <- apply(counts, 2, function(u) median((u/gm)[u > 0]))
+    logvals[is.infinite(logvals)] <- NA_real_
+    gm <- exp(rowMeans(logvals, na.rm=TRUE))
+    size.sf <- estimateSizeFactorsForMatrix(counts, geoMeans=gm)
     make.plot(size.sf, true.facs, paste0("size_", scenario), main="DESeq")
 
-    # Size factors with averaged counts (must remove zeros in each library):
-    averaged <- rowMeans(counts)
-    size2.sf <- apply(counts, 2, function(u) median((u/averaged)[u > 0]))
+    # Size factors with averaged counts (still removes zeros in each library):
+    size2.sf <- estimateSizeFactorsForMatrix(counts, geoMeans=rowMeans(counts))
     make.plot(size.sf, true.facs, paste0("sizeAM_", scenario), main="DESeq with arithmetic mean")
 
     # Library size
