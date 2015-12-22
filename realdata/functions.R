@@ -9,15 +9,14 @@ featureCalc <- function(counts,htseq,exprmin,hvg) {
   if (htseq) {
     counts <- counts[ - grep("__",rownames(counts)),] ##remove htseq statistics
   }
-  spike <- rep(FALSE,nrow(counts))
-  spike[grep("ERCC",rownames(counts))] <- TRUE
+  spike <- grepl("ERCC",rownames(counts))
   cv2 <- apply(counts,1,CV2)
-  mean <- apply(counts,1,mean)
-  expInCells <- apply(counts,1, function(x) length(x[x >= exprmin]))
+  mean <- rowMeans(counts)
+  expInCells <- rowSums(counts >= exprmin)
   if (missing(hvg)) {
     hvg <- rep(NA,nrow(counts))
   }
-  feats <- data.frame(spike,cv2,mean,hvg,expInCells,stringsAsFactors = F)
+  feats <- data.frame(spike,cv2,mean,hvg,expInCells,stringsAsFactors = FALSE)
   rownames(feats) <- rownames(counts)
   return(feats)
 }
