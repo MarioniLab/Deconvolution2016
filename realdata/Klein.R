@@ -10,8 +10,8 @@ source("./functions.R")
 esd0 <- read.csv("../data/GSM1599494_ES_d0_main.csv.bz2", header=FALSE, stringsAsFactors=FALSE, row.names=1)
 esd7 <- read.csv("../data/GSM1599499_ES_d7_LIFminus.csv.bz2", header=FALSE, stringsAsFactors=FALSE, row.names=1)
 
-colnames(esd0) <- 0L + seq_len(ncol(esd0))
-colnames(esd7) <- 1919L + seq_len(ncol(esd7))
+colnames(esd0) <- paste0("d0.", seq_len(ncol(esd0)))
+colnames(esd7) <- paste0("d7.", seq_len(ncol(esd7)))
 counts <- merge (esd0, esd7, by=0, all=TRUE)
 rownames(counts) <- counts[,1]
 counts <- counts[,-1]
