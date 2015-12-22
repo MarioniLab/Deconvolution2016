@@ -1,6 +1,7 @@
 # Normalizing Drop-Seq data with Summation strategy
 #
 # ---- Packages ----
+
 library('DESeq2')
 library('edgeR')
 library('AK47')
@@ -17,8 +18,8 @@ rownames(counts) <- counts[,1]
 counts <- counts[,-1]
 
 cell.num <- c(ncol(esd0), ncol(esd7))
-celltypeCol <- rep(c("red", "blue"), cell.num)
-celltype <- rep(c("d0", "d7"), cell.num)
+timepoint <- rep(c("d0", "d7"), cell.num)
+# timepointCol <- rep(c("red", "blue"), cell.num)
 
 # ---- Gene-Filter ----
 # Remove lowly expressed Genes
@@ -27,7 +28,6 @@ highE<- rowMeans(counts) >= 0.2
 countsHE <- counts[highE,]
 minExpr <- 1
 featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
-
 
 # ---- Size-Factors ----
 
@@ -52,9 +52,9 @@ szf_alClust <- normalizeBySums(countsHE,cluster=szfCluster)
 countsHENorm <- as.data.frame(t(t(countsHE) / szf_HE))
 countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
 
-
 # ---- SF-Difference ----
-scaled_factors<- data.frame(DESeq=szf_HE / median(szf_HE), TMM=tmm/median(tmm), LibSize=libfactor/median(libfactor), Deconvolution=szf_alClust/median(szf_alClust), check.names=FALSE)
+
+scaled_factors<- data.frame(DESeq=szf_HE/median(szf_HE), TMM=tmm/median(tmm), LibSize=libfactor/median(libfactor), Deconvolution=szf_alClust/median(szf_alClust), check.names=FALSE)
 cell.col <- rgb(0,0,0) 
 line.col <- "red"
 
@@ -81,4 +81,9 @@ par(mar=c(5.1,5.1,4.1,1.1))
 plot(scaled_factors$TMM,scaled_factors$Deconvolution,pch=16,col=cell.col,xlab="TMM",ylab="Deconvolution",xlim=c(0.1,8),ylim=c(0.1,8),log="xy",cex.axis=1.5,cex.lab=1.8)
 abline(0,1,col=line.col)
 dev.off()
+
+# ---- Saving for DE and other analyses ---
+
+metadata <- data.frame(Cell=colnames(counts), Time=timepoint)
+save(metadata, counts, scaled_factors, file="KleinData.Rda")
 
