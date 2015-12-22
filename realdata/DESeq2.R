@@ -34,13 +34,13 @@ for (x in c("Zeisel", "Klein")) {
         log2folds[is.na(log2folds)] <- 0
         out <- log2folds * significant  #Create vector with log2foldchanges, 0 if not significant
 
-        if (method=="SF") { 
+        if (method=="DESeq") { 
             x.deseq <- out
         } else if (method=="TMM") {
             x.tmm <- out
-        } else if (method=="lib") {
+        } else if (method=="LibSize") {
             x.lib <- out
-        } else {
+        } else if (method=="Deconvolution") {
             x.d <- out
         }
         gc()

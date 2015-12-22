@@ -35,13 +35,13 @@ for (x in c("Zeisel", "Klein")) {
         close(fhandle)
 
         out <- decideTestsDGE(res)
-        if (method=="SF") { 
+        if (method=="DESeq") { 
             x.deseq <- out
         } else if (method=="TMM") {
             x.tmm <- out
-        } else if (method=="lib") {
+        } else if (method=="LibSize") {
             x.lib <- out
-        } else {
+        } else if (method=="Deconvolution") {
             x.d <- out
         }
         gc()
