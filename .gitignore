@@ -22,6 +22,7 @@ results/
 realdata/*.swp
 realdata/.RData
 realdata/*.csv
+realdata/*.rds
 realdata/DEresults
 realdata/*.png
 realdata/*.pdf

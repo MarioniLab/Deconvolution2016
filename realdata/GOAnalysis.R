@@ -4,10 +4,10 @@ require("topGO")
 # ---- Data ----
 
 input.dir<- "./DEresults"
-lib <- read.table(file.path(input.dir,"Zeisellib.tsv.gz"), header=TRUE, row.names=1) 
+lib <- read.table(file.path(input.dir,"ZeiselLibSize.tsv.gz"), header=TRUE, row.names=1) 
 TMM <- read.table(file.path(input.dir,"ZeiselTMM.tsv.gz"), header=TRUE, row.names=1) 
-sf <- read.table(file.path(input.dir,"ZeiselSF.tsv.gz"), header=TRUE, row.names=1) 
-decon <- read.table(file.path(input.dir,"ZeiselDecon.tsv.gz"), header=TRUE, row.names=1) 
+sf <- read.table(file.path(input.dir,"ZeiselDESeq.tsv.gz"), header=TRUE, row.names=1) 
+decon <- read.table(file.path(input.dir,"ZeiselDeconvolution.tsv.gz"), header=TRUE, row.names=1) 
 
 sig.lib <- lib[lib$FDR < 0.05,]
 sig.TMM <- TMM[TMM$FDR < 0.05,]

@@ -1,9 +1,10 @@
 require(DESeq2)
 
-for (x in c("Zeisel","Klein")) { 
-    counts <- read.csv(sprintf("%sCounts.csv", x), row.names=1)
-    size.facs <- read.csv(sprintf("%sSF.csv", x))
-    grouping <- read.csv(sprintf("%sCells.csv", x))
+for (x in c("Zeisel", "Klein")) {
+    cur.data <- readRDS(sprintf("%sData.rds", x))
+    counts <- cur.data$Counts
+    size.facs <- cur.data$SF
+    grouping <- cur.data$Cells
 
     if (x=="Zeisel") { 
         # Using only microglia
@@ -13,12 +14,14 @@ for (x in c("Zeisel","Klein")) {
         grouping <- grouping[of.interest,]
         y <- DESeqDataSetFromMatrix(countData = counts, colData = grouping, design = ~ level1class)
     } else {
-        y <- DESeqDataSetFromMatrix(countData = counts, colData = grouping, design = ~ Cells)
+        y <- DESeqDataSetFromMatrix(countData = counts, colData = grouping, design = ~ Time)
     }
 
 
     # Using the precomputed size factors.
-    for (method in c("SF", "TMM", "lib", "Decon")) {
+    all.methods <- c("DESeq", "TMM", "LibSize", "Deconvolution")
+    stopifnot(all(all.methods%in%colnames(size.facs)))
+    for (method in all.methods) {
 
         colData(y)$sizeFactor <- size.facs[[method]]
         y <- estimateDispersions(y)
@@ -31,13 +34,13 @@ for (x in c("Zeisel","Klein")) {
         log2folds[is.na(log2folds)] <- 0
         out <- log2folds * significant  #Create vector with log2foldchanges, 0 if not significant
 
-        if (method=="SF") { 
-            x.sf <- out
+        if (method=="DESeq") { 
+            x.deseq <- out
         } else if (method=="TMM") {
             x.tmm <- out
-        } else if (method=="lib") {
+        } else if (method=="LibSize") {
             x.lib <- out
-        } else {
+        } else if (method=="Deconvolution") {
             x.d <- out
         }
         gc()
@@ -45,11 +48,11 @@ for (x in c("Zeisel","Klein")) {
 
     out.file <- sprintf("%s_outputPyr.txt", x)
     save2file <- function(..., first=FALSE) { write.table(file=out.file, data.frame(...), sep="\t", quote=FALSE, row.names=FALSE, col.names=first, append=!first) }
-    save2file(Method="DESeq", Total=sum(x.sf!=0), Down=sum(x.sf<0), Up=sum(x.sf>0), first=TRUE)
+    save2file(Method="DESeq", Total=sum(x.deseq!=0), Down=sum(x.deseq<0), Up=sum(x.deseq>0), first=TRUE)
     save2file(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0))
     save2file(Method="Library size", Total=sum(x.lib!=0), Down=sum(x.lib<0), Up=sum(x.lib>0))
     save2file(Method="Deconvolution", Total=sum(x.d!=0), Down=sum(x.d<0), Up=sum(x.d>0))  
-    save2file(Method="shared with DESeq", Total=sum(x.sf!=0 & x.d!=0), Down=sum(x.sf<0 & x.d < 0), Up=sum(x.sf>0 & x.d > 0))
+    save2file(Method="shared with DESeq", Total=sum(x.deseq!=0 & x.d!=0), Down=sum(x.deseq<0 & x.d < 0), Up=sum(x.deseq>0 & x.d > 0))
     save2file(Method="shared with TMM", Total=sum(x.tmm!=0 & x.d!=0), Down=sum(x.tmm<0 & x.d < 0), Up=sum(x.tmm>0 & x.d > 0))
     save2file(Method="shared with library size", Total=sum(x.lib!=0 & x.d!=0), Down=sum(x.lib<0 & x.d < 0), Up=sum(x.lib>0 & x.d > 0))
 }
