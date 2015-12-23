@@ -35,21 +35,7 @@ set.uq.lib <- as.integer(rownames(decon) %in% uq.lib)
 set.uq.TMM <- as.integer(rownames(decon) %in% uq.TMM)
 set.uq.sf <- as.integer(rownames(decon) %in% uq.sf)
 set.uq.decon <- as.integer(rownames(decon) %in% uq.decon)
-# 
-#testint OG up (that is down) regulated genes
-# up.sf <- rownames(sig.sf)[sig.sf$logFC < 0]
-# up.TMM <- rownames(sig.TMM)[sig.TMM$logFC < 0]
-# up.lib <- rownames(sig.lib)[sig.lib$logFC < 0]
-# up.decon <- rownames(sig.decon)[sig.decon$logFC < 0]
-# 
-##Oligodendrocyte marker genes
-# marker <- c("Olig1","Olig2","Olig3","Cnp","Cntnap2","Mag","Mog","Ascl1","Rtn4r","Omg","Mbp","Pdgfra")
-# 
-# set.up.sf <- as.integer(rownames(decon) %in% up.sf)
-# set.up.TMM <- as.integer(rownames(decon) %in% up.TMM)
-# set.up.lib <- as.integer(rownames(decon) %in% up.lib)
-# set.up.decon <- as.integer(rownames(decon) %in% up.decon)
-# 
+
 #prepare Data for topGO
 
 list.uq <- list("Lib"=set.uq.lib,"TMM"=set.uq.TMM,"SF"=set.uq.sf,"Decon"=set.uq.decon)
