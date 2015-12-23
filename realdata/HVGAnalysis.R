@@ -1,9 +1,9 @@
 # Analysing ranking of HVG's
 source("./functions.R")
 source("./DM.R")
-library("zoo")
 library("plyr")
-out.dir <- "./HVGAnalysis"
+
+out.dir <- "./HVGresults"
 dir.create(out.dir)
 
 for (x in c("Zeisel","Klein")) {
