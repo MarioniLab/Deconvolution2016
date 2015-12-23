@@ -323,7 +323,7 @@ If spike-ins are not available, normalization of cell-specific biases must be pe
 
 \begin{table}[ptb]
     \caption{
-        Proportion of the top set of genes that were shared between deconvolution and each existing normalization method.
+        Proportion of the top set of DE genes that were shared between deconvolution and each existing normalization method.
         Top genes were identified as those with the lowest $p$-values from edgeR in the analysis with each normalization method.
         Top sets of size ranging from 100 to 2000 were tested for both the brain and inDrop data sets.
         Smaller sets were not tested due to avoid ambiguous ranks from $p$-values of zero.
@@ -350,9 +350,11 @@ If spike-ins are not available, normalization of cell-specific biases must be pe
 \end{table}
 
 \begin{table}[ptb]
-    \caption{ Proportion of genes identified as highly variable shared between the established normalization methods and deconvolution. The variability
-        of gene expression was estimated by computing the distance of the squared CV (coefficient of variation) and a running median, referred to as DM \cite{Kim2015}. Top genes
-        were identified as those with the largest DM value. For both datasets, top sets of ranges between 500 and 2000 were compared.
+    \caption{ 
+        Proportion of the top set of highly variable genes that were shared between deconvolution and each existing normalization method.
+        The variability of gene expression was quantified by computing the DM, i.e., the difference between the squared coefficient of variation for each gene to a running median across all genes with similar abundance \cite{kolod2015single}. 
+        Top genes were identified as those with the largest DM values. 
+        For both data sets, top sets of size between 500 and 2000 were compared between normalization methods.
     }
     \begin{center}
         \begin{tabular}{l r r r r}
