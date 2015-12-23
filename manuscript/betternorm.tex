@@ -159,7 +159,7 @@ In each simulation scenario, the count for each gene in each cell was sampled fr
     the mean of which was modified according to the parameter settings of that scenario.
 
 DESeq, TMM and library size normalization were applied to this data.
-For DESeq normalization, the geometric mean was computed by replacing all zero counts with unity.
+For DESeq normalization, the geometric mean for each gene was computed after removing all zeroes.
 This is necessary to avoid a situation where a majority of genes have geometric means of zero, such that the majority of ratios to the geometric mean would be undefined.
 Zero counts were also removed within each library prior to calculation of the median ratio, to avoid obtaining size factors equal to zero.
 For TMM normalization, the calcNormFactors function in the edgeR package (v3.12.0) was used with default settings.
@@ -399,13 +399,6 @@ This is consistent with a difference in overall scaling of the average expressio
 For example, consider the differences in the numbers of DE genes between deconvolution and library size normalization.
 The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{subfig:comp_lib}.
 This is because any increase in gene expression in oligodendrocytes is incorporated into the library size and is weakened upon library size normalization.
-In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
-This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
-    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
-Additionally, for the brain data set, a gene set enrichment analysis was conducted with topGO \cite{topGO} using a Fisher's exact test comparing uniquely called DE genes between library size normalization and deconvolution. 
-Amongst the top 100 gene ontology terms identified uniquely after deconvolution are many expected biological processes for oligodendrocytes, e.g. amide metabolism, lipid metabolism, cell adhesion and membrane organization.
-In contrast the GO terms enriched in the uniquely DE called genes after library size normalization relate to less expected processes such as meiosis, protein modification, gene expression and spermatogenesis.
-This suggests, that the genes uniquely identified by deconvolution are biologically meaningful.
 
 \begin{table}[bt]
 \caption{
@@ -434,6 +427,14 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \end{center}
 \label{tab:real_de}
 \end{table}
+
+In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
+This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
+    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
+Additionally, for the brain data set, a gene set enrichment analysis was conducted with topGO \cite{topGO} using a Fisher's exact test comparing uniquely called DE genes between library size normalization and deconvolution. 
+Amongst the top 100 gene ontology terms identified uniquely after deconvolution are many expected biological processes for oligodendrocytes, e.g. amide metabolism, lipid metabolism, cell adhesion and membrane organization.
+In contrast the GO terms enriched in the uniquely DE called genes after library size normalization relate to less expected processes such as meiosis, protein modification, gene expression and spermatogenesis.
+This suggests, that the genes uniquely identified by deconvolution are biologically meaningful.
 
 The different normalization strategies also affect the ranking of the top set of genes in the brain data.
 Of the top genes with the lowest $p$-values, around 20 - 50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).

@@ -4,10 +4,10 @@ require("topGO")
 # ---- Data ----
 
 input.dir<- "./DEresults"
-lib <- read.table(file.path(input.dir,"Zeisellib.tsv.gz"), header=TRUE, row.names=1) 
+lib <- read.table(file.path(input.dir,"ZeiselLibSize.tsv.gz"), header=TRUE, row.names=1) 
 TMM <- read.table(file.path(input.dir,"ZeiselTMM.tsv.gz"), header=TRUE, row.names=1) 
-sf <- read.table(file.path(input.dir,"ZeiselSF.tsv.gz"), header=TRUE, row.names=1) 
-decon <- read.table(file.path(input.dir,"ZeiselDecon.tsv.gz"), header=TRUE, row.names=1) 
+sf <- read.table(file.path(input.dir,"ZeiselDESeq.tsv.gz"), header=TRUE, row.names=1) 
+decon <- read.table(file.path(input.dir,"ZeiselDeconvolution.tsv.gz"), header=TRUE, row.names=1) 
 
 sig.lib <- lib[lib$FDR < 0.05,]
 sig.TMM <- TMM[TMM$FDR < 0.05,]
@@ -25,18 +25,23 @@ geneConv <- mm.genes[match(rownames(decon),mm.genes$external_gene_name),]
 
 # ---- GOanalysis ----
 
-uq.lib <- rownames(sig.decon)[!rownames(sig.decon) %in% rownames(sig.lib)]
-uq.TMM <- rownames(sig.decon)[!rownames(sig.decon) %in% rownames(sig.TMM)]
-uq.sf <- rownames(sig.decon)[!rownames(sig.decon) %in% rownames(sig.sf)]
+## testing unique DE genes
+uq.lib <- rownames(sig.lib)[!rownames(sig.lib) %in% rownames(sig.decon)]
+uq.TMM <- rownames(sig.TMM)[!rownames(sig.TMM) %in% rownames(sig.decon)]
+uq.sf <- rownames(sig.sf)[!rownames(sig.sf) %in% rownames(sig.decon)]
+uq.decon <- rownames(sig.decon)[!rownames(sig.decon) %in% rownames(sig.lib)]
 
 set.uq.lib <- as.integer(rownames(decon) %in% uq.lib)
 set.uq.TMM <- as.integer(rownames(decon) %in% uq.TMM)
 set.uq.sf <- as.integer(rownames(decon) %in% uq.sf)
+set.uq.decon <- as.integer(rownames(decon) %in% uq.decon)
 
-list.uq <- list("Lib"=set.uq.lib,"TMM"=set.uq.TMM,"SF"=set.uq.sf)
+#prepare Data for topGO
+
+list.uq <- list("Lib"=set.uq.lib,"TMM"=set.uq.TMM,"SF"=set.uq.sf,"Decon"=set.uq.decon)
 ontologies <- c("BP","CC","MF")
 
-output <- list("Lib"=as.list(ontologies),"TMM"=as.list(ontologies),"DESeq"=as.list(ontologies))
+output <- list("Lib"=as.list(ontologies),"TMM"=as.list(ontologies),"DESeq"=as.list(ontologies),"Decon"=as.list(ontologies))
 output.dir <- "GOresults"
 dir.create(output.dir)
 
@@ -52,14 +57,14 @@ for (i in 1:length(list.uq)) {
                       description="Lib GO",ontology=x,
                       allGenes=alg, 
                       annot=annFUN.org, mapping="org.Mm.eg.db",
-                      nodeSize=5,ID="ensembl")
+                      nodeSize=10,ID="ensembl")
 
         result.classic <- runTest(GO.data, algorithm="classic", statistic="Fisher" )
 
         output[[i]][[x]] <- GenTable(GO.data, 
             Fisher.classic=result.classic,
-            orderBy="Fisher.classic", topNodes = 100)
+            orderBy="Fisher.classic", topNodes = 200)
     }
     output.print <- data.frame(output[i])[,-1:-3]
-    write.table(output.print,paste(output.dir,"/GOoutput",names(list.uq)[i],".txt",sep=""))
+    write.csv(output.print[,2:4],paste(output.dir,"/GOoutputUQin",names(list.uq)[i],".csv",sep=""))
 }

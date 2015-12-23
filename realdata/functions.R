@@ -9,15 +9,14 @@ featureCalc <- function(counts,htseq,exprmin,hvg) {
   if (htseq) {
     counts <- counts[ - grep("__",rownames(counts)),] ##remove htseq statistics
   }
-  spike <- rep(FALSE,nrow(counts))
-  spike[grep("ERCC",rownames(counts))] <- TRUE
+  spike <- grepl("ERCC",rownames(counts))
   cv2 <- apply(counts,1,CV2)
-  mean <- apply(counts,1,mean)
-  expInCells <- apply(counts,1, function(x) length(x[x >= exprmin]))
+  mean <- rowMeans(counts)
+  expInCells <- rowSums(counts >= exprmin)
   if (missing(hvg)) {
     hvg <- rep(NA,nrow(counts))
   }
-  feats <- data.frame(spike,cv2,mean,hvg,expInCells,stringsAsFactors = F)
+  feats <- data.frame(spike,cv2,mean,hvg,expInCells,stringsAsFactors = FALSE)
   rownames(feats) <- rownames(counts)
   return(feats)
 }
@@ -62,4 +61,19 @@ ClusterSums <- function(cnts, clusters, sz) {
     rownames(results[[1]]) <- rownames(cnts)
     return(results)
     options(warn = oldW)
+}
+
+compareHVG <- function(HVGdf,topX) {
+    #Takes data.frame with colomns represented orderd gene names by highes DM value and an integer for the top X genes..
+    #Returns matrix showing overlap between each method
+    HVGdf <- HVGdf[c(1:topX),]
+    result <- NULL 
+    for (i in c(1:ncol(HVGdf))) {
+             overlap <- sapply(HVGdf,function(x) length(intersect(HVGdf[,i],x))) ## Calc number of overlap between HVG[i] and all other HVGs
+             uniq <- length(HVGdf[,i]) - length(intersect(HVGdf[,i],unlist(HVGdf[,-i]))) ## Calculate number of unique HVGs
+             result <- cbind(result,c(overlap,uniq))
+    }
+    colnames(result) <- colnames(HVGdf)
+    rownames(result) <- c(colnames(HVGdf),"Unique")
+    return(result)
 }
