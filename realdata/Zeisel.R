@@ -90,8 +90,8 @@ shffl <- sample(ncol(countsHE)) # Shuffling cells to avoid one colour plotting o
 
 cairo_pdf("Zeisel_NormFactors.pdf")
 par(mar=c(8.6,5.1,2.1,1.1))
-boxplot(scaled_factors,log="y",ylab="Size factors",cex.axis=1.5,cex.lab=1.8,xaxt='n')
-text(labels=colnames(scaled_factors),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.1,srt=45, pos=2)
+boxplot(scaled_factors[,-ncol(scaled_factors)],log="y",ylab="Size factors",cex.axis=1.5,cex.lab=1.8,xaxt='n')
+text(labels=colnames(scaled_factors[,-ncol(scaled_factors)]),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.1,srt=45, pos=2)
 dev.off()
 
 #SF vs Deconvoluted
