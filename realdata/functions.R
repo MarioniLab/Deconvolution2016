@@ -63,3 +63,17 @@ ClusterSums <- function(cnts, clusters, sz) {
     return(results)
     options(warn = oldW)
 }
+
+compareHVG <- function(HVGlist) {
+    # Function that takes two vectors with group names for cells, the grps1[i] represents the group and i the cell number according to the original sorting in the matrix. !! Important that the two vectors have the same order, that is the one of the original data.frame object.
+    # Output is a matrix with coloumn representing Clusters1 and rows representing Clusters2
+    result <- NULL 
+    for (i in c(1:length(HVGlist))) {
+             overlap <- sapply(HVGlist,function(vector) length(intersect(HVGlist[[i]],vector))) ## Calc number of overlap between HVG[i] and all other HVGs
+             uniq <- length(HVGlist[[i]]) - length(intersect(HVGlist[[i]],unlist(HVGlist[-i]))) ## Calculate number of unique HVGs
+             result <- cbind(result,c(overlap,uniq))
+    }
+    colnames(result) <- names(HVGlist)
+    rownames(result) <- c(names(HVGlist),"Unique")
+    return(result)
+}

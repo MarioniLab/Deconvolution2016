@@ -17,6 +17,7 @@ library('pheatmap',lib.loc=pkgs)
 library("RColorBrewer")
 library('AK47')
 source("./functions.R") 
+source("./DM.R")
 
 # ---- Data ----
 esd0 <- read.csv("../data/GSM1599494_ES_d0_main.csv.bz2", header = FALSE, stringsAsFactors= FALSE)  
@@ -58,11 +59,6 @@ libfactor <- colSums(countsHE) / 10000
 szfCluster <- quickCluster(countsHE,deepSplit = 1)
 szf_alClust <- normalizeBySums(countsHE,cluster=szfCluster)
 
-# ---- Normalize ----
-
-countsHENorm <- as.data.frame(t(t(countsHE) / szf_HE))
-countsHENorm_alClust <- as.data.frame(t(t(countsHE) / szf_alClust))
-
 
 # ---- SF-Difference ----
 scaled_factors<- data.frame("DESeq" = szf_HE / median(szf_HE),"TMM" = tmm/median(tmm), "Library size" = libfactor/median(libfactor), "Deconvolution" = szf_alClust/median(szf_alClust),check.names=FALSE)
@@ -93,3 +89,34 @@ plot(scaled_factors[,"TMM"],scaled_factors$Deconvolution,pch=16,col=cell.col,xla
 abline(0,1,col=line.col)
 dev.off()
 
+# ---- Normalization ----
+
+counts.sf <- as.data.frame(t(t(countsHE) / szf_HE))
+counts.tmm <- as.data.frame(t(t(countsHE) / tmm))
+counts.lib <- as.data.frame(t(t(countsHE) / libfactor))
+counts.decon <- as.data.frame(t(t(countsHE) / szf_alClust))
+
+features.sf <- featureCalc(counts.sf, htseq=FALSE,minExpr)
+features.tmm <- featureCalc(counts.tmm, htseq=FALSE,minExpr)
+features.lib <- featureCalc(counts.lib, htseq=FALSE,minExpr)
+features.decon <- featureCalc(counts.decon, htseq=FALSE,minExpr)
+
+# ---- HVG-calling ----
+
+dm.sf <- DM(meanGenes=features.sf$mean,CV2Genes=features.sf$cv2)
+dm.tmm <- DM(meanGenes=features.tmm$mean,CV2Genes=features.tmm$cv2)
+dm.lib <- DM(meanGenes=features.lib$mean,CV2Genes=features.lib$cv2)
+dm.decon <- DM(meanGenes=features.decon$mean,CV2Genes=features.decon$cv2)
+
+features.sfOrd <- features.sf[order(-dm.sf),]
+features.tmmOrd <- features.tmm[order(-dm.tmm),]
+features.libOrd <- features.lib[order(-dm.lib),]
+features.deconOrd <- features.decon[order(-dm.decon),]
+
+for (x in c(500,1000,2000)) {
+
+    HVGlist <- list("DESeq"=rownames(features.sfOrd)[1:x], "TMM"=rownames(features.tmmOrd)[1:x], "Lib"=rownames(features.libOrd)[1:x], "Deconvolution"=rownames(features.deconOrd)[1:x])
+
+    comparisonMatrix <- compareHVG(HVGlist)
+    write.table(comparisonMatrix,paste("HVGcomparisonKlein",x,".txt",sep=""))
+}

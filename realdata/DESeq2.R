@@ -7,7 +7,7 @@ for (x in c("Zeisel","Klein")) {
 
     if (x=="Zeisel") { 
         # Using only microglia
-        of.interest <- grouping$level1class %in% c("microglia", "oligodendrocytes")
+        of.interest <- grouping$level1class %in% c("pyramidal CA1", "oligodendrocytes")
         counts <- counts[,of.interest]
         size.facs <- size.facs[of.interest,]
         grouping <- grouping[of.interest,]
@@ -43,7 +43,7 @@ for (x in c("Zeisel","Klein")) {
         gc()
     }
 
-    out.file <- sprintf("%s_output.txt", x)
+    out.file <- sprintf("%s_outputPyr.txt", x)
     save2file <- function(..., first=FALSE) { write.table(file=out.file, data.frame(...), sep="\t", quote=FALSE, row.names=FALSE, col.names=first, append=!first) }
     save2file(Method="DESeq", Total=sum(x.sf!=0), Down=sum(x.sf<0), Up=sum(x.sf>0), first=TRUE)
     save2file(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0))

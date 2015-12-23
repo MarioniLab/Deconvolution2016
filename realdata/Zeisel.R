@@ -187,6 +187,10 @@ features.tmmOrd <- features.tmm[order(-dm.tmm),]
 features.libOrd <- features.lib[order(-dm.lib),]
 features.deconOrd <- features.decon[order(-dm.decon),]
 
-HVGlist <- list("DESeq"=rownames(features.sfOrd)[1:1000], "TMM"=rownames(features.tmmOrd)[1:1000], "Lib"=rownames(features.libOrd)[1:1000], "Deconvolution"=rownames(features.deconOrd)[1:1000])
+for (x in c(500,1000,2000)) {
 
-comparisonMatrix <- compareHVG(HVGlist)
+    HVGlist <- list("DESeq"=rownames(features.sfOrd)[1:x], "TMM"=rownames(features.tmmOrd)[1:x], "Lib"=rownames(features.libOrd)[1:x], "Deconvolution"=rownames(features.deconOrd)[1:x])
+
+    comparisonMatrix <- compareHVG(HVGlist)
+    write.table(comparisonMatrix,paste("HVGcomparisonZeisel",x,".txt",sep=""))
+}
