@@ -349,4 +349,29 @@ If spike-ins are not available, normalization of cell-specific biases must be pe
     \end{center}
 \end{table}
 
+\begin{table}[ptb]
+    \caption{ Proportion of genes identified as highly variable shared between the established normalization methods and deconvolution. The variability
+        of gene expression was estimated by computing the distance of the squared CV (coefficient of variation) and a running median, referred to as DM \cite{Kim2015}. Top genes
+        were identified as those with the largest DM value. For both datasets, top sets of ranges between 500 and 2000 were compared.
+    }
+    \begin{center}
+        \begin{tabular}{l r r r r}
+            \hline
+            \multirow{2}{*}{\textit{Data set}} & \multirow{2}{*}{\textit{Top}} & \multicolumn{3}{c}{\textit{Method}} \\
+                \cline{3-5}
+                & & DESeq & TMM & Library size \\
+            \hline
+            \multirow{3}{*}{Brain}            
+            & 500 & 0.78 & 0.80 & 0.88 \\ 
+            & 1000 & 0.70 & 0.74 & 0.86 \\
+            & 2000 & 0.67 & 0.73 & 0.84 \\
+            \hline
+            \multirow{3}{*}{inDrop}            
+            & 500  & 0.57 & 0.59 & 0.85 \\ 
+            & 1000  & 0.53 & 0.57 & 0.82 \\
+            & 2000 & 0.59 & 0.61 & 0.85 \\
+            \hline
+        \end{tabular}
+    \end{center}
+\end{table}
 \end{document}
