@@ -62,3 +62,18 @@ ClusterSums <- function(cnts, clusters, sz) {
     return(results)
     options(warn = oldW)
 }
+
+compareHVG <- function(HVGdf,topX) {
+    #Takes data.frame with colomns represented orderd gene names by highes DM value and an integer for the top X genes..
+    #Returns matrix showing overlap between each method
+    HVGdf <- HVGdf[c(1:topX),]
+    result <- NULL 
+    for (i in c(1:ncol(HVGdf))) {
+             overlap <- sapply(HVGdf,function(x) length(intersect(HVGdf[,i],x))) ## Calc number of overlap between HVG[i] and all other HVGs
+             uniq <- length(HVGdf[,i]) - length(intersect(HVGdf[,i],unlist(HVGdf[,-i]))) ## Calculate number of unique HVGs
+             result <- cbind(result,c(overlap,uniq))
+    }
+    colnames(result) <- colnames(HVGdf)
+    rownames(result) <- c(colnames(HVGdf),"Unique")
+    return(result)
+}
