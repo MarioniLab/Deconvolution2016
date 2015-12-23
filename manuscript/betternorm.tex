@@ -428,21 +428,22 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \label{tab:real_de}
 \end{table}
 
-In short, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
+In summary, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
 This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
     especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
-Additionally, for the brain data set, a gene set enrichment analysis was conducted with topGO \cite{topGO} using a Fisher's exact test comparing uniquely called DE genes between library size normalization and deconvolution. 
-Amongst the top 100 gene ontology terms identified uniquely after deconvolution are many expected biological processes for oligodendrocytes, e.g. amide metabolism, lipid metabolism, cell adhesion and membrane organization.
-In contrast the GO terms enriched in the uniquely DE called genes after library size normalization relate to less expected processes such as meiosis, protein modification, gene expression and spermatogenesis.
-This suggests, that the genes uniquely identified by deconvolution are biologically meaningful.
+To demonstrate, a gene set enrichment analysis was conducted with topGO \cite{alexa2010topgo} on the unique DE genes detected by either library size normalization or deconvolution.
+Enrichment of GO terms in each unique set was determined using Fisher's exact test, for all terms containing at least 10 genes.
+Genes unique to deconvolution were associated with expected biological processes for oligodendrocytes, e.g., amide and lipid metabolism, cell adhesion and membrane organization.
+In contrast, genes unique to library size normalization were associated with more varied processes including meiosis and spermatogenesis.
+Thus, changes in DE between the different normalization strategies will influence the biological conclusions of the analysis.
 
 The different normalization strategies also affect the ranking of the top set of genes in the brain data.
 Of the top genes with the lowest $p$-values, around 20 - 50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).
 This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
-Normalization also affects the ranking of highly variable genes, which were identified by computing the deviation of the squared coefficient of variation from a running median \cite{Kim2015}.
-In the brain data set around 10 - 30\% of the top ranked genes vary if the deconvolution method is used.
-For the inDrop data, the effect is more pronounced with differences ranging from 15 - 50\% (Supplementary Table~\suppHVG{}).
-The ranking is important as the genes contributing to the biological difference between conditions (i.e., cell types) are expected to have strong DE and variability.
+Similar changes are observed for highly variable genes detected using the distance-to-median approach \cite{kolod2015single}.
+Approximately 10 - 30\% and 15 - 50\% of the top-ranked genes change in the brain and inDrop data sets, respectively,
+    if deconvolution is used instead of the existing methods (Supplementary Table~\suppHVG{}).
+Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong DE and variability.
 Thus, the top-ranked genes are often prioritized for further investigation.
 Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
 
