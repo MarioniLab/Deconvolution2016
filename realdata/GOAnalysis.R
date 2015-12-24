@@ -31,27 +31,17 @@ names(set.uq.lib) <- names(set.uq.TMM) <- names(set.uq.sf) <- names(set.uq.decon
 
 list.uq <- list("Lib"=set.uq.lib,"TMM"=set.uq.TMM,"SF"=set.uq.sf,"Decon"=set.uq.decon)
 ontologies <- c("BP","CC","MF")
-
 output.dir <- "GOresults"
 dir.create(output.dir)
 
 for (i in seq_along(list.uq)) {
     alg <- factor(list.uq[[i]])
-    output <- list()
 
-    for (x in seq_along(ontologies)) {
-        GO.data <- new("topGOdata",
-                      description="Lib GO",ontology=ontologies[x],
-                      allGenes=alg, 
-                      annot=annFUN.org, mapping="org.Mm.eg.db",
-                      nodeSize=10,ID="symbol")
-
-        result.classic <- runTest(GO.data, algorithm="classic", statistic="Fisher" )
-
-        output[[x]] <- GenTable(GO.data, 
-            Fisher.classic=result.classic,
-            orderBy="Fisher.classic", topNodes = 200)
+    for (x in ontologies) {
+        GO.data <- new("topGOdata", description="Lib GO",ontology=x, allGenes=alg, 
+                      annot=annFUN.org, mapping="org.Mm.eg.db", nodeSize=10, ID="symbol")
+        result.classic <- runTest(GO.data, algorithm="classic", statistic="Fisher")
+        output <- GenTable(GO.data, Fisher.classic=result.classic, orderBy="Fisher.classic", topNodes=200, numChar=10000)
+        write.table(output, file.path(output.dir, paste0("GOoutputUQin", names(list.uq)[i], "_", x, ".tsv")), quote=FALSE, row.names=FALSE, sep="\t")
     }
-    output.print <- data.frame(output)[,-1:-3]
-    write.csv(output.print[,2:4], file.path(output.dir, paste0("GOoutputUQin", names(list.uq)[i], ".csv")))
 }
