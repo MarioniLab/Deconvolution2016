@@ -47,7 +47,7 @@ for (x in c("Zeisel", "Klein")) {
         gc()
     }
 
-    out.file <- sprintf("%s_output.txt", x)
+    out.file <- sprintf("%s_edgeR_number.txt", x)
     save2file <- function(..., first=FALSE) { write.table(file=out.file, data.frame(...), sep="\t", quote=FALSE, row.names=FALSE, col.names=first, append=!first) }
     save2file(Method="DESeq", Total=sum(x.deseq!=0), Down=sum(x.deseq<0), Up=sum(x.deseq>0), first=TRUE)
     save2file(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0))
@@ -69,7 +69,7 @@ for (x in c("Zeisel", "Klein")) {
     r.lib <- rank(out.lib$PValue, ties="first")
     r.decon <- rank(out.decon$PValue, ties="first")
 
-    out.file <- sprintf("%s_ranking.txt", x)
+    out.file <- sprintf("%s_edgeR_ranking.txt", x)
     isfirst <- TRUE
     comp <- function(a, b, top) { sprintf("%.2f", sum(a<=top & b<=top)/top) }
     for (top in c(100, 500, 2000)) {

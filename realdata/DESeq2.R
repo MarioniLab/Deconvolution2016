@@ -46,7 +46,7 @@ for (x in c("Zeisel", "Klein")) {
         gc()
     }
 
-    out.file <- sprintf("%s_outputPyr.txt", x)
+    out.file <- sprintf("%s_DESeq_number.txt", x)
     save2file <- function(..., first=FALSE) { write.table(file=out.file, data.frame(...), sep="\t", quote=FALSE, row.names=FALSE, col.names=first, append=!first) }
     save2file(Method="DESeq", Total=sum(x.deseq!=0), Down=sum(x.deseq<0), Up=sum(x.deseq>0), first=TRUE)
     save2file(Method="TMM", Total=sum(x.tmm!=0), Down=sum(x.tmm<0), Up=sum(x.tmm>0))
