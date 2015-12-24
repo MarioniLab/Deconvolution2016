@@ -34,7 +34,7 @@ for (x in c("Zeisel","Klein")) {
         isfirst <- FALSE
         
         comparisonMatrix <- compareHVG(top.ranked, top)
-        write.table(comparisonMatrix, file.path(out.dir, paste0(x, "_HVGranking.txt")))
+        write.table(comparisonMatrix, file.path(out.dir, paste0(x, "HVGTop", top, ".txt")))
     }
 }
 
