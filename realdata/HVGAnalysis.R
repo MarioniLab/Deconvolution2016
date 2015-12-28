@@ -26,11 +26,12 @@ for (x in c("Zeisel","Klein")) {
     isfirst <- TRUE
     comp <- function(a, b, top) { sprintf("%.2f", sum(a<=top & b<=top)/top) }
     for (top in c(100, 500, 2000)) {
-        write.table(file=out.file, data.frame(Top=top, 
-                                              SF=comp(ranking$DESeq, ranking$Deconvolution, top), 
-                                              TMM=comp(ranking$TMM, ranking$Deconvolution, top), 
-                                              Lib=comp(ranking$LibSize, ranking$Deconvolution, top)),
-                    append=!isfirst, col.names=isfirst, row.names=FALSE, quote=FALSE, sep="\t")
+        write.table(data.frame(Top=top, 
+                              SF=comp(ranking$DESeq, ranking$Deconvolution, top), 
+                              TMM=comp(ranking$TMM, ranking$Deconvolution, top), 
+                              Lib=comp(ranking$LibSize, ranking$Deconvolution, top)),
+                    append=!isfirst, col.names=isfirst, row.names=FALSE, quote=FALSE, sep="\t",
+                    file.path(out.dir,out.file))
         isfirst <- FALSE
         
         comparisonMatrix <- compareHVG(top.ranked, top)
