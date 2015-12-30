@@ -189,6 +189,11 @@ Alternatively, one can use known aspects of the data set as clusters, e.g., trea
 If such information is available, empirical clustering may not be required.
 This reduces computational work and avoids potential errors.
 
+% While PCA does mean-centering of each gene, this is probably unwise for correlation-based clustering. 
+% Two cells that are similar to the mean expression profile will have uncorrelated residuals and would appear to be unrelated. 
+% The correct correlation should be near unity as their expression values would match up perfectly. 
+% Use of uncentered counts is also easier to interpret and ensures insensitivity to normalization.
+
 By default, the baseline pseudo-cell is chosen from the cluster where the mean library size per cell is equal to the median of the mean library size across all clusters
     (or, for an even number of clusters, the cluster with the smallest mean library size above the median).
 This uses the mean library size as a rough proxy for cell similarity.
