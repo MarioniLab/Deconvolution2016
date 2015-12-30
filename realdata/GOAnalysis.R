@@ -2,7 +2,7 @@ require("topGO")
 
 # ---- Data ----
 
-input.dir<- "./DEresults"
+input.dir<- "./DEresults/edgeR"
 lib <- read.table(file.path(input.dir,"ZeiselLibSize.tsv.gz"), header=TRUE, row.names=1) 
 TMM <- read.table(file.path(input.dir,"ZeiselTMM.tsv.gz"), header=TRUE, row.names=1) 
 sf <- read.table(file.path(input.dir,"ZeiselDESeq.tsv.gz"), header=TRUE, row.names=1) 
