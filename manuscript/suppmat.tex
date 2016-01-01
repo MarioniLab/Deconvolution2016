@@ -66,6 +66,30 @@ $^2$European Bioinformatics Institute (EMBL-EBI), Wellcome Genome Campus, Hinxto
 \end{center}
 \end{titlepage}
 
+\begin{figure}[p]
+    \begin{center}
+        \begin{minipage}{0.33\textwidth}
+            \includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/sizeP_1.pdf}
+            \includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/sizeP_4.pdf}
+            \subcaption{}\label{subfig:size_prior}
+        \end{minipage}
+        \begin{minipage}{0.33\textwidth}
+            \includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/sizeP2_1.pdf}
+            \includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/sizeP2_4.pdf}
+            \subcaption{}\label{subfig:size_libprior}
+        \end{minipage}
+    \end{center}
+    \caption{
+        Performance of DESeq normalization after addition of a pseudo-count.
+        A pseudo-count of unity was added to all counts directly (\subref{subfig:size_prior}) or after scaling the pseudo-count by the relative library size (\subref{subfig:size_libprior}), i.e., the pseudo-count added to each cell was equal to the ratio of its library size to the mean library size.
+        Simulations were performed with no DE (first row) and varying magnitudes of DE (second row).
+        Axes are shown on a log-scale.
+        For comparison, each set of size factors was scaled such that the same grand mean across cells was the same as that for the true values.
+        The red line represents equality between the rescaled estimates and true factors.
+        Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+    }
+\end{figure}
+
 \section{Implementation details for the deconvolution method}
 
 \subsection{Summation and deconvolution with linear equations}

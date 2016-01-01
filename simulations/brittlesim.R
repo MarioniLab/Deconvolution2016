@@ -89,8 +89,18 @@ for (scenario in 1:4) {
 
     # Size factors with averaged counts (still removes zeros in each library):
     size2.sf <- estimateSizeFactorsForMatrix(counts, geoMeans=rowMeans(counts))
-    make.plot(size.sf, true.facs, paste0("sizeAM_", scenario), main="DESeq with arithmetic mean")
+    make.plot(size2.sf, true.facs, paste0("sizeAM_", scenario), main="DESeq with arithmetic mean")
 
+    # Size factors with an added pseudo-count.
+    sizeP.sf <- estimateSizeFactorsForMatrix(counts+1)
+    make.plot(sizeP.sf, true.facs, paste0("sizeP_", scenario), main="DESeq with pseudo-count")
+    
+    # Size factors with a library size-adjusted pseudo-count.
+    lib.size <- colSums(counts)
+    pcounts <- t(t(counts) + lib.size/mean(lib.size))
+    sizeP2.sf <- estimateSizeFactorsForMatrix(pcounts)
+    make.plot(sizeP2.sf, true.facs, paste0("sizeP2_", scenario), main="DESeq with library size-adjusted pseudo-count")
+    
     # Library size
     lib.sf <- colSums(counts)
     make.plot(lib.sf, true.facs, paste0("lib_", scenario), main="Library size")

@@ -17,8 +17,9 @@
 \newcommand{\suppdeconv}{1}
 \newcommand{\suppspikesec}{2}
 
-\newcommand{\suppring}{S1}
-\newcommand{\suppspikefig}{S2}
+\newcommand{\supppseudo}{S1}
+\newcommand{\suppring}{S2}
+\newcommand{\suppspikefig}{S3}
 
 \newcommand{\supprank}{S1}
 \newcommand{\suppHVG}{S2}
@@ -232,6 +233,13 @@ This is because the library size is stably computed by summing across all genes 
 This results in improved performance in the simple simulation with no DE (Figure~\ref{subfig:lib_sim}).
 However, as previously discussed, the use of the library size as a size factor assumes that all genes are non-DE in each cell.
 Violations of this assumption lead to substantial estimation errors, which can be seen in the results for the simulations involving any DE.
+
+One might attempt to resolve the problem of stochastic zeroes by adding a pseudo-count prior to normalization.
+This would prevent biases due to unbalanced removal of zeroes between cells.
+However, direct addition of a pseudo-count squeezes all size factor estimates towards unity (Supplementary Figure~\supppseudo{}).
+This is because any ratio of two counts will approach unity when the same pseudo-count is added to both.
+A slightly different approach scales the pseudo-count to match the library size of each cell to avoid the unity bias.
+This results in behaviour similar to library size normalization, along with its associated problems.
 
 \section{Improving normalization accuracy with deconvolution}
 
