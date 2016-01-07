@@ -53,7 +53,7 @@ line.col <- "red"
 cairo_pdf("Kowalczyk_NormFactors.pdf")
 par(mar=c(8.6,5.1,2.1,1.1))
 boxplot(scaled_factors,log="y",ylab="Size factors",cex.axis=1.5,cex.lab=1.8,xaxt='n')
-text(labels=colnames(scaled_factors),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.22,srt=45, pos=2)
+text(labels=colnames(scaled_factors),xpd=TRUE,cex=1.8, x=c(1.8,2.8,3.8,4.8)-0.7, y=0.21,srt=45, pos=2)
 dev.off()
 
 cairo_pdf("Kowalczyk_SFvDeconv.pdf")
