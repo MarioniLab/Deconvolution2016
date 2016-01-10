@@ -1,4 +1,4 @@
-# AK47 Normalization Macosko
+# scran Normalization Macosko
 
 # ---- Packages ----
 pkgs <- "/nfs/research2/marioni/Karsten/utils/Rpack/"
@@ -18,7 +18,7 @@ library('ggplot2',lib.loc=pkgs)
 library('gridExtra',lib.loc=pkgs)
 library('pheatmap',lib.loc=pkgs)
 library("RColorBrewer")
-library('AK47')
+library('scran')
 source("./functions.R") 
 source("./DM.R")
 

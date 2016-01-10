@@ -4,7 +4,7 @@
 
 require('DESeq2')
 require('edgeR')
-require('AK47')
+require('scran')
 require('openxlsx')
 source("./functions.R") 
 source("./DM.R")

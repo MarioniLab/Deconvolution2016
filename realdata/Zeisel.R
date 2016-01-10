@@ -1,9 +1,9 @@
-# AK47 Normalization
+# scran Normalization
 
 # ---- Packages ----
 library('DESeq2')
 library('edgeR')
-library('AK47')
+library('scran')
 source("./functions.R") 
 #source("./DM.R")
 

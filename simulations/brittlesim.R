@@ -1,6 +1,6 @@
 # This checks the brittleness of the summation approach in the presence of DE genes.
 
-require(AK47)
+require(scran)
 require(edgeR)
 require(DESeq2)
 
