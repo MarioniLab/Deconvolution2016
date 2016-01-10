@@ -1,5 +1,0 @@
-useDynLib(AK47)
-
-export(normalizeBySums,
-        quickCluster)
-importFrom("dynamicTreeCut",cutreeDynamic)
