@@ -18,7 +18,7 @@ counts.log$Gene.Symbol <- gsub("'", "", counts.log$Gene.Symbol)
 
 rownames(counts.log) <- make.names(counts.log$Gene.Symbol, unique=TRUE)
 counts.log <- counts.log[,-1]
-counts <-2^counts.log - 1
+counts <- 2^counts.log - 1
 
 # ---- Gene-Filter ----
 
@@ -29,9 +29,7 @@ countsHE <- as.matrix(counts[highE,])
 # ---- Size-Factors ----
 
 #Normal SF
-tmp <- log(countsHE)
-tmp[!is.finite(tmp)] <- NA_real_
-geoMeans_HE <- exp(rowMeans(tmp, na.rm=TRUE))
+geoMeans_HE <- noZeroGM(countsHE)
 szf_HE <- estimateSizeFactorsForMatrix(countsHE,geoMeans = geoMeans_HE)
 
 #Normal TMM
