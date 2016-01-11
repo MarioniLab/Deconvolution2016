@@ -33,9 +33,7 @@ featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
 # ---- Size-Factors ----
 
 #Normal SF
-tmp <- log(countsHE)
-tmp[!is.finite(tmp)] <- NA_real_
-geoMeans_HE <- exp(rowMeans(tmp, na.rm=TRUE))
+geoMeans_HE <- noZeroGM(countsHE)
 szf_HE <- estimateSizeFactorsForMatrix(countsHE,geoMeans = geoMeans_HE)
 
 #Normal TMM

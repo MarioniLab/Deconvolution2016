@@ -51,9 +51,7 @@ featuresHE <- featureCalc(countsHE, htseq = FALSE, minExpr)
 countsHEnoSpike <- countsHE[!featuresHE$spike,]
 
 #Normal SF
-tmp <- log(countsHEnoSpike)
-tmp[!is.finite(tmp)] <- NA_real_
-geoMeans_HE <- exp(rowMeans(tmp, na.rm=TRUE))
+geoMeans_HE <- noZeroGM(countsHEnoSpike)
 szf_HE <- estimateSizeFactorsForMatrix(countsHEnoSpike, geoMeans = geoMeans_HE)
 
 #Normal TMM

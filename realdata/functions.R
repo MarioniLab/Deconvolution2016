@@ -3,6 +3,13 @@ CV2 <- function(x) {
   (sd(x)/mean(x))^2
 }
 
+noZeroGM <- function(x) {
+    # Calculates the geometric mean after removing zeros from each row.
+    x <- log(x)
+    x[!is.finite(x)] <- NA_real_
+    exp(rowMeans(x, na.rm=TRUE))
+}
+
 featureCalc <- function(counts,htseq,exprmin,hvg) {
     #Takes countdata, the logical variables htseq (if True the htseq statistics are removed) and expression minium (usually 1) and a logical vector indicating whether a gene is highly variable
     #The output is a matrix with features as rownames and different properties of the features as coloumns
