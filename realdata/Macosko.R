@@ -18,11 +18,13 @@ Retina5 <- read.delim("../data/GSM1626797_P14Retina_5.digital_expression.txt.gz"
 Retina6 <- read.delim("../data/GSM1626798_P14Retina_6.digital_expression.txt.gz", skip=1, row.names=1, header=FALSE)
 Retina7 <- read.delim("../data/GSM1626799_P14Retina_7.digital_expression.txt.gz", skip=1, row.names=1, header=FALSE)
 
-present.in.all <- intersect(rownames(Retina1), rownames(Retina2), rownames(Retina3), rownames(Retina4), 
-                            rownames(Retina5), rownames(Retina6), rownames(Retina7))
+present.in.all <- Reduce(intersect, list(rownames(Retina1), rownames(Retina2), rownames(Retina3), rownames(Retina4), 
+		                         rownames(Retina5), rownames(Retina6), rownames(Retina7)))
 retina <- cbind(Retina1[present.in.all,], Retina2[present.in.all,], Retina3[present.in.all,], Retina4[present.in.all,], 
                 Retina5[present.in.all,], Retina6[present.in.all,], Retina7[present.in.all,])
+retina <- as.matrix(retina)
 rm("Retina1","Retina2","Retina3","Retina4","Retina5","Retina6","Retina7")
+gc()
 
 # Only choose training set as definied by authors which removes cells with very low counts
 
