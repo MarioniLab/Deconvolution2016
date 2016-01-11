@@ -56,7 +56,7 @@ szfCluster <- quickCluster(countsHE)
 szf_alClust <- normalizeBySums(countsHE, cluster=szfCluster, positive = TRUE)
 
 # ---- SF-Difference ----
-cellCols <- labels2colors(as.integer(szfCluster))
+cellCols <- rainbow(nlevels(szfCluster))[as.integer(szfCluster)]
 scaled_factors<- data.frame(DESeq=szf_HE/median(szf_HE), TMM=tmm/median(tmm), LibSize=libfactor/median(libfactor), Deconvolution=szf_alClust/median(szf_alClust), check.names=FALSE)
 
 cairo_pdf("Macosko_NormFactors.pdf")
