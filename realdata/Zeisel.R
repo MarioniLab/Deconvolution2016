@@ -5,7 +5,6 @@ library('DESeq2')
 library('edgeR')
 library('scran')
 source("./functions.R") 
-#source("./DM.R")
 
 # ---- Data ----
 

@@ -6,7 +6,6 @@ library('DESeq2')
 library('edgeR')
 library('scran')
 source("./functions.R") 
-source("./DM.R")
 
 # ---- Data ----
 esd0 <- read.csv("../data/GSM1599494_ES_d0_main.csv.bz2", header=FALSE, stringsAsFactors=FALSE, row.names=1)

@@ -7,7 +7,6 @@ require('edgeR')
 require('scran')
 require('openxlsx')
 source("./functions.R") 
-source("./DM.R")
 
 # ---- Data ----
 

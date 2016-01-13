@@ -1,7 +1,6 @@
 # Analysing ranking of HVG's
 source("./functions.R")
-source("./DM.R")
-library("plyr")
+require(scran)
 
 out.dir <- "./HVGresults"
 dir.create(out.dir)
@@ -16,7 +15,7 @@ for (x in c("Zeisel","Klein")) {
     for (y in colnames(size.facs)) {
         norm.counts <- as.data.frame(t(t(counts) / size.facs[,y]))
         features <- featureCalc(norm.counts, htseq=FALSE, 1)
-        dm <- DM(meanGenes=features$mean, CV2Genes=features$cv2)
+        dm <- DM(features$mean, features$cv2)
         ranking[[y]] <- rank(-dm, ties.method="first")
         top.ranked[[y]] <- rownames(features)[order(dm, decreasing=TRUE)]
     }
