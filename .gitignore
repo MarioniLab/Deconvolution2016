@@ -1,9 +1,6 @@
-simulations/justification/explanation.aux
-simulations/justification/explanation.log
-simulations/justification/explanation.pdf
-simulations/test.Rout.save
-simulations/benefit.pdf
 simulations/results
+simulations/results_high
+simulations/highcounts.R
 
 manuscript/betternorm.aux
 manuscript/betternorm.bbl
