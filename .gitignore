@@ -14,6 +14,10 @@ manuscript/suppmat.aux
 manuscript/suppmat.log
 manuscript/suppmat.pdf
 
+other/dependency_break.aux
+other/dependency_break.log
+other/dependency_break.pdf
+
 data/
 results/
 realdata/*.swp
