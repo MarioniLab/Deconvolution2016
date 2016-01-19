@@ -55,9 +55,9 @@ It should be noted that the direct estimate of each size factor is unbiased as s
 Of course, it is not very precise either, due to the presence of low discrete counts.
 
 As the number of cells in the system increases, the sizes of $J_1$ and $J_2$ will increase. 
-For example, deconvolution is typically applied in data sets involving 200 cells and a sliding window of size 20, such that both $J_1$ and $J_2$ will consist of 10 cells.
-With more cells, the sum of the errors will approach its expected value.
-This means that the minimum is obtained at $x=0$, i.e., solving the linear system will yield the true values.
+For example, deconvolution is typically applied in data sets involving at least 200 cells and a sliding window of size 20, such that both $J_1$ and $J_2$ will consist of at least 10 cells.
+With more cells, the sum of the errors $\theta_j - \theta'_j$ will approach the sum of their expected values, i.e., zero.
+This means that the minimum residual sum of squares will be obtained at $x=0$, i.e., solving the linear system will yield the true values of the size factors.
 Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
 
 \end{document}
