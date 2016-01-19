@@ -464,10 +464,10 @@ This approach provides improved performance for size factor estimation compared 
 In particular, it avoids estimation inaccuracy in the presence of stochastic zeroes and is robust to DE in the data set.
 Similar differences in the size factors across methods were also observed in analyses of real data,
     where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
-This indicates that the choice of normalization method has a substantive impact on the results of downstream analyses.
+This indicates that the choice of normalization method has a substantial impact on the results of downstream analyses.
 Any increase in accuracy from our deconvolution approach is likely to have some beneficial effect on the validity of the biological conclusions.
 We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
-It is available as part of the edgeR package in the Bioconductor project \cite{huber2015orchestrating}.
+It is publicly available as part of the scran package on GitHub (\url{https://github.com/MarioniLab/scran}).
 
 \bibliographystyle{unsrt}
 \bibliography{references}
