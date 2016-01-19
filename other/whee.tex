@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{multirow}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
+\urlstyle{same}
+
+\begin{document}
+
+\section{Resolving linear dependencies in the constructed system}
+Consider the application of the deconvolution method on a data set with four cells using a sliding window of size 2.
+Assuming cells $a$ to $d$ were placed consecutively on the ring, this would yield the linear system
+\[
+\begin{bmatrix}
+1 & 1 & 0 & 0 \\
+0 & 1 & 1 & 0 \\
+0 & 0 & 1 & 1 \\
+1 & 0 & 0 & 1 
+\end{bmatrix}
+\begin{bmatrix}
+\theta_a \\
+\theta_b \\
+\theta_c \\
+\theta_d 
+\end{bmatrix}
+=
+\begin{bmatrix}
+\theta_1 \\
+\theta_2 \\
+\theta_3 \\
+\theta_4 
+\end{bmatrix}
+\]
+for pool-based size factor estimates $\theta_1$ to $\theta_4$. 
+Assume that the pool-based factors are estimated accurately and precisely, such that the minimum residual sum of squares is obtained at the set of true values (or something very close to them) for the cell-based factors.
+This system has no unique solution - for the set of true factors $(\theta_a, \theta_b, \theta_c, \theta_d)^T$, 
+    an equally good fit can be obtained with $(\theta_a+x, \theta_b-x, \theta_c+x, \theta_d - x)^T$ for any real $x$.
+
+The addition of equations relating each $\theta_j$ with its direct estimate $\theta'_j$ ensures identifiability, 
+    as a value of $x$ will be chosen that minimizes the residual sum of squares of the possible solutions from the direct estimates.
+In this simple example, the residual sum of squares for a possible solution can be written as
+\[
+\sum_{j \in J_1} (\theta_j +x - \theta'_j)^2+ \sum_{j \in J_2} (\theta_j -x - \theta'_j)^2 
+= \sum_{j \in \{J_1, J_2\}} x^2 + 2x\left[ \sum_{j \in J_2} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \theta'_j)^2
+\]
+where $J_1 = \{a, c\}$ and $J_2=\{b, d\}$.
+For $n=4$ cells in the data set, the above expression is minimized at
+\[
+x = n^{-1}\left[ \sum_{j \in J_2} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] \;.
+\]
+It should be noted that the direct estimate of each size factor is unbiased as stochastic zeroes are not removed, i.e., $E(\theta_j - \theta'_j)=0$.
+Of course, it is not very precise either, due to the presence of low discrete counts.
+
+As the number of cells in the system increases, the sizes of $J_1$ and $J_2$ will increase. 
+For example, deconvolution is typically applied in data sets involving 200 cells and a sliding window of size 20, such that both $J_1$ and $J_2$ will consist of 10 cells.
+With more cells, the sum of the errors will approach its expected value.
+This means that the minimum is obtained at $x=0$, i.e., solving the linear system will yield the true values.
+Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
+
+\end{document}
