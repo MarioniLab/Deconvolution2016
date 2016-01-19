@@ -92,6 +92,17 @@ $^2$European Bioinformatics Institute (EMBL-EBI), Wellcome Genome Campus, Hinxto
 
 \section{Implementation details for the deconvolution method}
 
+\subsection{Overview}
+The deconvolution method consists of several key steps --
+    defining a pool of cells;
+    summing counts across all cells in the pool;
+    normalizing the cell pool against an average reference, using the count sums;
+    repeating this for many different pools of cells to construct a linear system;
+    and deconvolving the pool-based size factors to cell-based factors.
+This can be applied directly to all cells in the data set, but in practice, it is more appropriately used after clustering cells based on their expression profiles.
+Specifically, deconvolution is applied separately on each cluster of cells to obtain sets of cell-based size factors.
+These values are adjusted via pairwise normalization between clusters to yield the final factor estimates.
+
 \subsection{Summation and deconvolution with linear equations}
 Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (usually the library size).
 This means that $E(\pi_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.
