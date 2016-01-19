@@ -247,17 +247,17 @@ This results in behaviour similar to library size normalization, along with its 
 The aim of the deconvolution strategy is to normalize on summed expression values from pools of cells.
 Summation across cells results in fewer zeroes, which means that the ensuing normalization is less susceptible to the errors observed for existing methods.
 While normalization accuracy is improved, the estimated size factors are only relevant to the pools of cells.
-This is not particularly interesting for downstream analyses focusing on single cells.
-In order to be useful, the size factor for each pool is deconvolved back into the size factors for its constituent cells.
+This is not particularly interesting for downstream analyses which typically focus on single cells.
+To resolve this problem, the size factor for each pool is deconvolved into the size factors for its constituent cells.
 This ensures that cell-specific biases can be properly normalized.
 
 The deconvolution method is centred around the fact that the size factor for the pool of cells can be expressed as a sum of the size factors for the constituent cells.
-This allows a linear system to be constructed and solved, in order to obtain estimates for the cell-specific size factors.
+This allows a linear system to be constructed and solved, thus yielding estimates for the cell-specific size factors.
 Further implementation details for this method can be found in Section~\suppdeconv{} of the Supplementary Materials.
 This includes an outline of the mathematical framework; 
     the use of linear inverse models to protect against negative estimates;
     the use of clustering to weaken the assumption of a non-DE majority of genes;
-    and a description of the strategy used to choose the cells in each pool for construction of the linear system (see also Supplementary Figure~\suppring{}).
+    and a description of the strategy used to choose the cells in each pool prior to constructing the linear system (see also Supplementary Figure~\suppring{}).
 
 \subsection{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
