@@ -8,15 +8,14 @@ manuscript/betternorm.blg
 manuscript/betternorm.log
 manuscript/betternorm.pdf
 manuscript/betternorm.out
-manuscript/pics/library_ring.pdf
+manuscript/pics/*.pdf
 
 manuscript/suppmat.aux
 manuscript/suppmat.log
 manuscript/suppmat.pdf
 
-other/dependency_break.aux
-other/dependency_break.log
-other/*.pdf
+manuscript/dependency_break.aux
+manuscript/dependency_break.log
 
 data/
 results/
