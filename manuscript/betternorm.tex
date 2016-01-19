@@ -321,7 +321,7 @@ Cells in the intervening time points were not considered as the library sizes we
 \subsection{Deconvolution yields a wider spread of size factors}
 Each normalization method was applied on the counts for cells in both data sets.
 In both cases, deconvolution yields a wider range of size factor estimates compared to DESeq and TMM normalization (Figure~\ref{fig:real_comp}).
-This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for these two existing methods.
+This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for these two methods.
 Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
 This indicates that the presence of stochastic zeroes is an intrinsic property of high-throughput scRNA-seq data that cannot simply be ignored.
 Recall that the deconvolution method reduces the number of zero counts by summing across cells.
@@ -367,7 +367,7 @@ This avoids bias towards unity in the simulations and increases the range of the
         This is shown for the brain (top) and inDrop data sets (bottom).
         Axes are on a log-scale, and the red line represents equality between the two sets of factors.
         All sets of factors were centered to a median of unity prior to comparison.
-        For the brain data, cells classified by Klein \textit{et al.} as oligodendrocytes or pyramidal CA1 are shown here in orange and blue, respectively.
+        For the brain data, cells classified by Zeisel \textit{et al.} as oligodendrocytes or pyramidal CA1 are shown here in orange and blue, respectively.
     }
     \label{fig:real_comp}  
 \end{figure}
@@ -375,20 +375,20 @@ This avoids bias towards unity in the simulations and increases the range of the
 Deconvolution also yields different size factors from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
 Specifically, a substantial number of cells have size factor estimates from library size normalization that are larger than those from deconvolution.
 This is attributable to the likely presence of DE genes between different cell types -- specifically, between oligodendrocytes and the other neuronal cells.
-Any upregulation will increase the size factors from library size normalization for affected cells by (obviously) increasing the library sizes.
+Any upregulation will increase the size factors from library size normalization for affected cells by increasing the library sizes.
 In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
-The two methods are more similar for the inDrop data where less DE is expected within the same cell type.
+The two methods are more similar for the inDrop data where less DE is expected between cells from the same, theoretically homogeneous population.
 
 The brain data set also contains counts for ERCC spike-in genes.
 In such cases, an alternative normalization strategy can be performed to equalize spike-in coverage across cells, 
-    under the assumption that an equal amount of spike-in is added to each cell \cite{stegle2015computational}.
+    under the assumption that the same amount of spike-in is added to each cell \cite{stegle2015computational}.
 However, the size factors from spike-in normalization and those from deconvolution and the existing methods show no similarity (Supplementary Figure~\suppspikefig{}).
 This is largely attributable to the differences in the assumptions between spike-in normalization and that of deconvolution and the other existing methods,
     as well as the insensitivity of the latter methods to differences in cell size and total RNA content.
 A more detailed explanation is provided in Section~\suppspikesec{} of the Supplementary Materials.
 
 \subsection{Different normalization schemes change the DE profile}
-To gauge the impact of the differences in the normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
+To gauge the impact of employing different normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
 For the brain data set, the count data was subsetted to contain only cells classified as pyramidal CA1 or oligodendrocytes \cite{zeisel2015brain}.
 Size factors from each method were used as the effective library sizes.
 The estimateDisp function was used to estimate a gene-specific NB dispersion for each gene \cite{chen2014differential} without any empirical Bayes shrinkage.
@@ -399,7 +399,7 @@ This process was repeated for the inDrop data to test for DE after LIF withdrawa
 
 % With 1000 samples, you get so much evidence for DE that you call things with really small log-FCs. TREAT protects against this.
 
-The greatest difference between methods is observed in the number of DE genes changing in each direction for the brain data set (Table~\ref{tab:real_de}).
+The most noticeable difference between methods is observed in the number of DE genes and the signs of their log-fold changes for the brain data set (Table~\ref{tab:real_de}).
 Deconvolution yields a more balanced set of DE genes than DESeq, TMM or library size normalization, with smaller differences between the numbers of up- and downregulated genes.
 The set of DE genes detected in either direction also tends to be a superset or subset of that detected by the existing methods.
 This is consistent with a difference in overall scaling of the average expression values between different biological conditions, 
