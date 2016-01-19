@@ -1,7 +1,6 @@
 # This generates a plot indicating why the median fails with high numbers of low counts.
 
 set.seed(100)
-par(mfrow=c(1,2))
 
 y1 <- rnbinom(10000, mu=20, size=0.3)
 y2 <- rnbinom(10000, mu=50, size=1)
