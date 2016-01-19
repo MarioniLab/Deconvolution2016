@@ -27,15 +27,15 @@
 \section{Introduction}
 Single-cell RNA sequencing (scRNA-seq) is a powerful technique that allows researchers to characterize the gene expression profile of single cells.
 From each cell, mRNA is isolated, reverse-transcribed and subjected to massively parallel sequencing \cite{stegle2015computational}.
-The sequencing reads are mapped to a reference genome, whereby the number of reads mapped to each gene can be used to quantify the expression of that gene.
+The sequencing reads are mapped to a reference genome, such that the number of reads mapped to each gene can be used to quantify its expression.
 Alternatively, transcript molecules can be counted directly using unique molecular identifiers (UMIs) \cite{islam2014quantitative}.
 Count data can be analyzed to identify new cell subtypes and to detect highly variable or differentially expressed (DE) genes between cell subpopulations.
 This type of single-cell resolution is not possible with bulk RNA sequencing of cellular populations.
 However, the downside is that the counts often contain high levels of technical noise with many ``drop-outs'', i.e., zero or near-zero values.
-This is due to presence of low amounts of RNA per cell, which decreases the efficiency of capturing transcripts into libraries for sequencing.
+This is due to the presence of low amounts of RNA per cell, which decreases the efficiency of capturing transcripts into libraries for sequencing.
 Moreover, the capture efficiency often varies from cell to cell, such that counts cannot be directly compared between cells.
 
-Normalization of the scRNA-seq counts is a critical step that corrects for differences in capture efficiency between cells.
+Normalization of the scRNA-seq counts is a critical step that corrects for cell-to-cell differences in capture efficiency, sequencing depth and other technical confounders.
 Two broad classes of normalization approaches are available -- those using spike-in RNA sets, and those using the counts for cellular RNA.
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
 Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency between cells.
@@ -44,9 +44,10 @@ For the methods using the cellular counts, the assumption is that most genes are
 Counts are scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
 This is the underlying concept of commonly used methods such as DESeq \cite{anders2010differential} and trimmed mean of M-values (TMM) normalization \cite{robinson2010scaling}.
 An even simpler approach involves scaling the counts to remove differences in library sizes between cells.
+In general, these scaling methods aim to equalize (but not remove) technical biases across libraries, to ensure that analyses of relative differences between cells are valid.
 
 The type of normalization that can be used depends on the characteristics of the data set.
-In some data sets, spike-in counts may not be present which obviously precludes their use in normalization.
+In some cases, spike-in counts may not be present, which obviously precludes their use in normalization.
 For example, droplet-based protocols \cite{klein2015droplet,macosko2015highly} do not allow spike-ins to be easily incorporated.
 Spike-in normalization also depends on several assumptions \cite{robinson2010scaling,marinov2014singlecell,grun2015design}, 
     the violations of which may compromise performance \cite{risso2014normalization}.
@@ -57,10 +58,10 @@ This is not straightforward in scRNA-seq data, where the high frequency of drop-
 A large number of zeroes will result in nonsensical size factors from DESeq or undefined M-values from TMM.
 One could proceed by removing the offending genes during normalization for each cell, but this may introduce biases if the number of zeroes varies across cells.
 
-Correct normalization of scRNA-seq data is essential as it determines the validity of all downstream quantitative analyses.
-In this article, we describe a deconvolution approach that improves the accuracy of non-DE normalization without using spike-ins.
+Correct normalization of scRNA-seq data is essential as it determines the validity of downstream quantitative analyses.
+In this article, we describe a deconvolution approach that improves the accuracy of normalization without using spike-ins.
 Briefly, normalization is performed on pooled counts for multiple cells, where the incidence of problematic zeroes is reduced by summing across cells.
-The pooled size factors are then deconvolved back to those for the individual cells.
+The pooled size factors are then deconvolved to infer the size factors for the individual cells.
 Using a variety of simple simulations, we demonstrate that our approach outperforms the direct application of existing normalization methods for count data with many zeroes.
 We also show a similar difference in behaviour on several real data sets, where the use of different normalization methods affects the final biological conclusions.
 These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
