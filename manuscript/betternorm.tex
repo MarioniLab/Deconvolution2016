@@ -76,7 +76,7 @@ It is also technically difficult to process low quantities of input RNA into seq
 This results in high dropout rates whereby low-abundance transcripts are not captured during library preparation \cite{brennecke2013accounting}.
 
 At this point, it is important to distinguish between stochastic and systematic zeroes.
-Systematic zeroes refer to genes that are constitutively silent in a cell (sub)population, such that the count will be zero for all cells in that population.
+Systematic zeroes refer to genes that are constitutively silent across all cells in the data set, such that the count will be zero for each cell.
 These are generally not problematic as they contain no information and can be removed prior to normalization.
 Stochastic zeroes are found in genes that are actively expressed but obtain counts of zero in some cells due to sampling stochasticity.
 These genes may contain information about the relative differences between cells, so removing them prior to normalization may introduce biases.
@@ -91,7 +91,7 @@ It first constructs an ``average'' reference library, in which the ``count'' for
 Each real library is then normalized against this average.
 Specifically, for each gene, the ratio of the count in each library to that in the average library is computed.
 The size factor for each library is defined as the median of this ratio across all genes.
-This value represents the extent to which the counts in that library should be downscaled, 
+The counts in that library are then scaled by the inverse of the size factor,
     in order to eliminate systematic differences in expression between libraries for the majority of (assumed) non-DE genes.
 
 TMM normalization was introduced as part of the edgeR package for DE testing \cite{robinson2010edgeR}.
@@ -101,7 +101,7 @@ The genes with the most extreme M-values are trimmed away.
 High- or low-abundance genes are similarly removed.
 The weighted mean of the remaining M-values is computed, using precision weights that are calculated based on the asymptotic variance of each M-value.
 This is used to define the normalization factor for each library as $2^x$, where $x$ is the weighted mean for that library.
-The normalization factor represents the downscaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
+The normalization factor represents the scaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
 
 Both DESeq and TMM normalization assume that most genes are not DE between libraries.
@@ -121,6 +121,8 @@ One can imagine a scenario where a single gene is strongly upregulated in one li
 This increases the size of the first library as more reads are generated from the upregulated gene.
 Normalization by library size will compensate by scaling up the counts for the second library.
 However, this will introduce spurious differences between libraries for all of the non-DE genes.
+This will occur even if the libraries are sequenced to the same depth 
+    -- more reads will be spent in sequencing the upregulated gene in the first library, such that the coverage of non-DE genes will be reduced relative to other libraries.
 The likely presence of DE in real data means that library size normalization is often inappropriate.
 
 \subsection{Performance of existing methods on simulated data with zeroes}
