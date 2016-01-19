@@ -153,9 +153,65 @@ It also reduces the risk of obtaining negative estimates for small libraries.
 Such libraries have small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
 The fact that the observed library size is variable is largely irrelevant, as the deconvolution procedure is valid for arbitrary positive values of $T_j$.
 
+\subsection{Selecting cell pools to sum}
+\label{sec:systemconstruct}
+The pool of cells in each $\mathcal{S}_{k}$ is chosen to consist of similar library sizes.
+Cells in a given cluster are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
+These cells are arranged in a ring, with odd cells on the left and even cells on the right.
+Conceptually, one can start at the 12 o'clock position on the ring, for the largest libraries; moving clockwise through the even cells with decreasing library size;
+reaching the smallest libraries at 6 o'clock; and then, continuing to move clockwise through the odd cells with increasing library size (Figure~\ref{fig:library_ring}).
+For summation, a sliding window is moved cell-by-cell across this ring where each window contains the same number of cells.
+These cells are used to define a single instance of $\mathcal{S}_{k}$.
+Thus, each window defines a separate equation in the linear system.
+The use of a ring means that the window is still defined at the smallest and largest libraries.
+In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
+
+\begin{figure}[bt]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{pics/library_ring.pdf}
+    \end{center}
+    \caption{
+        Ring arrangement of cells ordered by library size.
+        Each circle represents a cell where the size of the circle corresponds to the library size of that cell.
+        Even- and odd-ranking cells lie on opposite sides, with the largest and smallest libraries at the top and bottom, respectively.
+        Cells lying in a window of length 4 are highlighted in red.
+        Different instances of the window are obtained by sliding the window across the ring.
+    }
+    \label{fig:library_ring}
+\end{figure}
+
+The pooling of cells with similar library sizes is designed to provide some robustness to DE.
+Specifically, the library size is used as a rough proxy for cell similarity.
+This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, 
+    e.g., due to type-specific differences in total RNA or capture efficiency.
+Summation of cells with similar library sizes (and by implication, similar expression profiles) reduces the number of DE genes in the cell pool relative to the reference pseudo-cell.
+This weakens the assumption of a non-DE majority that is required for deconvolution (see Section~\ref{sec:de_assumption}).
+
+% In small samples, it mightn't matter whether or not the cells have similar expression profiles;
+% DE anywhere in the data set will contaminate the average reference anyway, so the amount of DE in each cell pool relative to the pseudo-cell would be the same.
+% However, if the cluster is large enough, minor DE will average out in the pseudo-cell.
+% Then we definitely can see an advantage from summing similar cells at a time in each cell pool. 
+
+The total number of equations in the linear system is equal to the number of cells.
+The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
+By using different values of $w$, additional equations can be added to improve the precision of the estimates. 
+Specifically, values of $w$ are set to 20, 40, 60, 80 and 100.
+These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
+This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
+
+An additional set of equations is added to ensure that the system is solvable.
+In each equation, the $\theta_jT_j^{-1}$ for each cell is equated to the size factor estimated directly from its single-cell counts.
+These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ and unity respectively.
+A weighted least-squares approach is then applied to solve the linear system.
+In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
+This ensures that a single solution can be obtained.
+Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
+This means that the estimated values will be driven primarily by the equations for the summed cells.
+
 \subsection{Clustering to weaken the non-DE assumption}
 
 \subsubsection{Overview}
+\label{sec:de_assumption}
 This approach makes some moderately strong assumptions regarding the nature of DE across the data set.
 The use of the median is only valid when less than 50\% of genes are DE in any direction in the cell pool compared to the reference pseudo-cell,
     i.e., less than 50\% of genes can be upregulated and less than 50\% of genes can be downregulated.
@@ -190,6 +246,8 @@ This avoids inaccurate estimation of the size factors due to violations of the n
 Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
 This weakens the assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
 For example, in the simulation with varying magnitude of DE, only 60\% of genes are DE between any two subpopulations, while 90\% of genes are DE across all subpopulations.
+Clustering is also complemented by the library size-ordered pooling described above, which protects against any residual DE within each cluster.
+This is especially relevant for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
 
 In general, cluster-specific normalization requires some caution.
 Done incorrectly, this may introduce artificial differences between cells in different clusters, 
@@ -231,64 +289,6 @@ Such genes provide no information for normalizing between cells in the same clus
 However, these genes are retained during rescaling of the size factors between clusters.
 This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
 Removal of such genes will distort the median ratio between pseudo-cells and lead to biased size factor estimates, as described previously for the existing methods.
-
-\subsection{Selecting cell pools to sum}
-\label{sec:systemconstruct}
-The pool of cells in each $\mathcal{S}_{ik}$ is chosen to consist of similar library sizes.
-Cells in a given cluster are ordered by their total counts and partitioned into two groups, depending on whether the ranking of each cell is odd or even.
-These cells are arranged in a ring, with odd cells on the left and even cells on the right.
-Conceptually, one can start at the 12 o'clock position on the ring, for the largest libraries; moving clockwise through the even cells with decreasing library size;
-reaching the smallest libraries at 6 o'clock; and then, continuing to move clockwise through the odd cells with increasing library size (Figure~\ref{fig:library_ring}).
-For summation, a sliding window is moved cell-by-cell across this ring where each window contains the same number of cells.
-These cells are used to define a single instance of $\mathcal{S}_{k}$.
-Thus, each window defines a separate equation in the linear system.
-The use of a ring means that the window is still defined at the smallest and largest libraries.
-In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
-
-\begin{figure}[bt]
-    \begin{center}
-        \includegraphics[width=0.5\textwidth]{pics/library_ring.pdf}
-    \end{center}
-    \caption{
-        Ring arrangement of cells ordered by library size.
-        Each circle represents a cell where the size of the circle corresponds to the library size of that cell.
-        Even- and odd-ranking cells lie on opposite sides, with the largest and smallest libraries at the top and bottom, respectively.
-        Cells lying in a window of length 4 are highlighted in red.
-        Different instances of the window are obtained by sliding the window across the ring.
-    }
-    \label{fig:library_ring}
-\end{figure}
-
-The pooling of cells with similar library sizes is designed to provide some robustness to DE.
-Specifically, the library size is used as a rough proxy for cell similarity.
-This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, 
-    e.g., due to type-specific differences in total RNA or capture efficiency.
-Summation of cells with similar library sizes (and by implication, similar expression profiles) reduces the number of DE genes in the cell pool relative to the pseudo-cell.
-This further weakens the non-DE assumption that is required by the deconvolution approach.
-Note that this pooling strategy is performed on cells within a single cluster at a time.
-It complements the use of clustering by protecting against any residual DE within each cluster.
-This is especially true for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
-
-% In small samples, it mightn't matter whether or not the cells have similar expression profiles;
-% DE anywhere in the data set will contaminate the average reference anyway, so the amount of DE in each cell pool relative to the pseudo-cell would be the same.
-% However, if the cluster is large enough, minor DE will average out in the pseudo-cell.
-% Then we definitely can see an advantage from summing similar cells at a time in each cell pool. 
-
-The total number of equations in the linear system is equal to the number of cells.
-The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
-By using different values of $w$, additional equations can be added to improve the precision of the estimates. 
-Specifically, values of $w$ are set to 20, 40, 60, 80 and 100.
-These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
-This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
-
-An additional set of equations is added to ensure that the system is solvable.
-In each equation, the $\theta_jT_j^{-1}$ for each cell is equated to the size factor estimated directly from its single-cell counts.
-These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ and unity respectively.
-A weighted least-squares approach is then applied to solve the linear system.
-In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
-This ensures that a single solution can be obtained.
-Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
-This means that the estimated values will be driven primarily by the equations for the summed cells.
 
 \section{Deconvolution is inconsistent with spike-in normalization}
 The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
