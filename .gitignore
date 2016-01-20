@@ -18,9 +18,9 @@ manuscript/dependency_break.aux
 manuscript/dependency_break.log
 manuscript/dependency_break.pdf
 
-manuscript/figure*.aux
-manuscript/figure*.log
-manuscript/figure*.pdf
+manuscript/pics/figure*.aux
+manuscript/pics/figure*.log
+manuscript/pics/figure*.pdf
 
 data/
 results/
