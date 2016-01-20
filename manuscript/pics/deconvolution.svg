@@ -122,9 +122,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="678.39208"
-     inkscape:cy="1054.3138"
+     inkscape:zoom="1.4"
+     inkscape:cx="524.09226"
+     inkscape:cy="943.67598"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -171,12 +171,12 @@
        x="314.09784"
        y="268.02429" />
     <rect
-       style="opacity:1;fill:#d5f6ff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#d5f6ff;fill-opacity:1;stroke:none"
        id="rect4313"
        width="137.5"
        height="17.5"
        x="510.71429"
-       y="149.50504" />
+       y="156.64789" />
     <rect
        style="fill:#f9f9f9;fill-opacity:1;stroke:#b3b3b3;stroke-width:1.98830020000000007;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3092"
@@ -426,20 +426,20 @@
        xml:space="preserve"
        style="font-size:11.73624611px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="515.30505"
-       y="108.04597"
+       y="95.188828"
        id="text3291"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="515.30505"
-         y="108.04597"
+         y="95.188828"
          id="tspan3099">All cells (averaged to make </tspan><tspan
          sodipodi:role="line"
          x="515.30505"
-         y="122.71629"
+         y="109.85914"
          id="tspan3103">a reference pseudo-cell)</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 513.83576,103.50243 -31.60714,0.51558"
+       d="m 513.83576,90.645287 -31.60714,0.51558"
        id="path3299"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -447,34 +447,34 @@
        xml:space="preserve"
        style="font-size:11.73624611px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="514.68762"
-       y="146.24855"
+       y="153.3914"
        id="text3291-5"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="514.68762"
-         y="146.24855"
+         y="153.3914"
          id="tspan3295-0">Cell pool A:</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:11.73624611px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="514.95258"
-       y="161.53165"
+       y="168.6745"
        id="text3291-5-7"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="514.95258"
-         y="161.53165"
+         y="168.6745"
          id="tspan4774"
          style="font-style:italic;-inkscape-font-specification:Sans Italic">θ<tspan
-   style="font-size:65.00091553000000033%;baseline-shift:sub;font-style:italic;-inkscape-font-specification:Sans Italic"
+   style="font-size:65.00091553%;font-style:italic;baseline-shift:sub;-inkscape-font-specification:Sans Italic"
    id="tspan4784">1 </tspan>+ θ<tspan
-   style="font-size:65.00091553000000033%;baseline-shift:sub;font-style:italic;-inkscape-font-specification:Sans Italic"
+   style="font-size:65.00091553%;font-style:italic;baseline-shift:sub;-inkscape-font-specification:Sans Italic"
    id="tspan4798">2</tspan> + θ<tspan
-   style="font-size:65.00091553000000033%;baseline-shift:sub;font-style:italic;-inkscape-font-specification:Sans Italic"
+   style="font-size:65.00091553%;font-style:italic;baseline-shift:sub;-inkscape-font-specification:Sans Italic"
    id="tspan4800">3</tspan> + θ<tspan
-   style="font-size:65.00091553000000033%;baseline-shift:sub;font-style:italic;-inkscape-font-specification:Sans Italic"
+   style="font-size:65.00091553%;font-style:italic;baseline-shift:sub;-inkscape-font-specification:Sans Italic"
    id="tspan4802">4</tspan> = θ<tspan
-   style="font-size:65.00091553000000033%;baseline-shift:sub;font-style:italic;-inkscape-font-specification:Sans Italic"
+   style="font-size:65.00091553%;font-style:italic;baseline-shift:sub;-inkscape-font-specification:Sans Italic"
    id="tspan4804">A</tspan></tspan></text>
     <text
        xml:space="preserve"
@@ -672,12 +672,12 @@
        xml:space="preserve"
        style="font-size:11.73624611px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="514.60632"
-       y="78.332642"
+       y="54.332642"
        id="text3291-5-1-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="514.60632"
-         y="78.332642"
+         y="54.332642"
          id="tspan3295-0-9-4">Single cell</tspan></text>
     <path
        sodipodi:type="arc"
@@ -945,13 +945,13 @@
          y="229.4236">8</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 513.71748,74.680763 -64.68964,0.51558"
+       d="m 512.82462,50.680763 -84.68964,0.51558"
        id="path3299-1"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 512.28877,142.00335 -113.03571,0.51558"
+       d="m 512.28877,149.14621 -113.03571,0.51558"
        id="path3299-15"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
