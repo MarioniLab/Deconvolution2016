@@ -736,11 +736,12 @@ DE genes were defined at a FDR threshold of 5\% after applying the Benjamini-Hoc
 
 % With 1000 samples, you get so much evidence for DE that you call things with really small log-FCs. TREAT protects against this.
 
-A GO analysis was conducted to characterize the DE genes detected in the brain data set that were unique to deconvolution.
+A GO analysis was conducted to characterize the general function of the unique DE genes from deconvolution in the brain data set.
 Unique DE genes were defined as those detected after deconvolution at a FDR of 5\% that were not detected by the most similar existing method, i.e., library size normalization.
 The topGO method \cite{alexa2010topgo} was then applied to identify GO terms that were enriched within this unique set.
-Specifically, enrichment of GO terms in each unique set was determined using Fisher's exact test for all terms containing at least 10 genes.
-The top-ranking GO terms were identified based on their enrichment $p$-values.
+GO terms were only considered if they referred to a biological process and contained at least 10 genes.
+The significance of enrichment of GO terms in the unique set was determined using Fisher's exact test.
+Top-ranking GO terms were identified based on their enrichment $p$-values.
 This was repeated using the unique DE genes from library size normalization that were not detected after deconvolution.
 
 Highly variable genes in each data set were characterized using the distance-to-median approach \cite{kolod2015single}.
@@ -899,10 +900,12 @@ This file contains details on the clustering algorithm (Section~\suppclustering{
 It also contains Supplementary Figures~S1-3 and Supplementary Tables~S1-2.
 
 \subsection*{Additional file 2 -- Enriched GO terms for deconvolution}
-This file is in a comma-separated format and contains the top 200 GO terms that are enriched in the set of DE genes unique to deconvolution.
+This file is in a tab-separated format and contains the top 200 GO terms that were enriched in the set of DE genes unique to deconvolution.
+The identifier and name of each term is shown along with the total number of genes associated with the term, the number of associated genes that are also DE, the expected number under the null hypothesis, and the Fisher $p$-value.
 
 \subsection*{Additional file 3 -- Enriched GO terms for library size normalization}
-This file is in a comma-separated format and contains the top 200 GO terms that are enriched in the set of DE genes unique to library size normalization.
+This file is in a tab-separated format and contains the top 200 GO terms that were enriched in the set of DE genes unique to library size normalization.
+The fields are the same as described for Additional file~2.
 
 \end{backmatter}
 
