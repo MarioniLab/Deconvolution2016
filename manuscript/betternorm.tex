@@ -576,9 +576,13 @@ The use of the median is only valid when less than 50\% of genes are DE in any d
     i.e., less than 50\% of genes can be upregulated and less than 50\% of genes can be downregulated.
 If more DE genes are present, the median will not represent a robust average across non-DE genes.
 This condition generally requires a proportion of genes to be constantly expressed across all cells in the data set 
-    -- otherwise, all genes would be DE against the average in at least one pool of cells -- 
+    -- otherwise, all genes could be DE against the average in every pool of cells -- 
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
 This is similar to that required for DESeq normalization where an average reference is also used.
+
+% The only exception to the requirement for a non-DE set is if you have (a pool of) cells with expression equal to the average of many DE values.
+% This would give you non-DE ratios that would (hopefully) be the median. 
+% However, this seems coincidental to the extreme.
 
 To reduce the strength of the non-DE assumption, cells can be clustered based on their expression profiles.
 The deconvolution method is then applied to the cells in each cluster $\mathcal{C}$ separately,
@@ -863,7 +867,7 @@ The authors would like to thank Antonio Scialdone for useful discussions and hel
 \caption{
     \csentence{Diagram of the deconvolution method.}
     All cells in the data set are averaged to make a reference pseudo-cell.
-    Counts for cells in pool A are summed together and normalized against the reference to yield a pool-based size factor $\theta_A$.
+    Expression values for cells in pool A are summed together and normalized against the reference to yield a pool-based size factor $\theta_A$.
     This is equal to the sum of the cell-based factors for cells 1-4 and can be used to formulate a linear equation.
     Repeating this for multiple pools (e.g., pool B) constructs a linear system that can be solved to estimate $\theta_j$ for each cell $j$.
 }
