@@ -263,6 +263,7 @@ This is due to the presence of low amounts of RNA per cell, which decreases the 
 Moreover, the capture efficiency often varies from cell to cell, such that counts cannot be directly compared between cells.
 
 Normalization of the scRNA-seq counts is a critical step that corrects for cell-to-cell differences in capture efficiency, sequencing depth and other technical confounders.
+This ensures that downstream comparisons of relative expression between cells are valid.
 Two broad classes of normalization approaches are available -- those using spike-in RNA sets, and those using the counts for cellular RNA.
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
 Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency between cells.
@@ -271,7 +272,6 @@ For the methods using the cellular counts, the assumption is that most genes are
 Counts are scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
 This is the underlying concept of commonly used methods such as DESeq \cite{anders2010differential} and trimmed mean of M-values (TMM) normalization \cite{robinson2010scaling}.
 An even simpler approach involves scaling the counts to remove differences in library sizes between cells.
-In general, these scaling methods aim to equalize (but not remove) technical biases across libraries, to ensure that analyses of relative differences between cells are valid.
 
 The type of normalization that can be used depends on the characteristics of the data set.
 In some cases, spike-in counts may not be present, which obviously precludes their use in normalization.
@@ -309,6 +309,8 @@ Systematic zeroes refer to genes that are constitutively silent across all cells
 These are generally not problematic as they contain no information and can be removed prior to normalization.
 Stochastic zeroes are found in genes that are actively expressed but obtain counts of zero in some cells due to sampling stochasticity.
 These genes may contain information about the relative differences between cells, so removing them prior to normalization may introduce biases.
+We also define semi-systematic zeroes where the gene is silent in a cell subpopulation but is expressed in other cells.
+This results in zeroes for the silent subpopulation but non-zero counts elsewhere, thus providing information about the differences between subpopulations.
 
 \subsubsection*{A brief description of existing non-spike-in methods}
 Here, we only consider those normalization methods not based on spike-in data.
@@ -381,7 +383,7 @@ Approximately 30-50\% of all counts are sampled as zero in each simulated librar
 
 The simulation design involved 10000 genes for three subpopulations of 250 cells each.
 For each subpopulation, a unique set of $G$ genes was randomly chosen.
-DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated).
+DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
 This provides each subpopulation with a unique expression signature containing different numbers of DE genes in each direction.
 Simulations were performed for $G = 0$ (no DE), 1000 (moderate DE) and 3000 (strong DE).
@@ -401,7 +403,7 @@ For DESeq and TMM normalization, large size factors are consistently underestima
 This is a consequence of removing stochastic zeroes prior to normalization.
 Cells with low $\theta_j$ are likely to contain more stochastic zeroes, as the mean of the sampling distribution for the counts is lower.
 If these zeroes are removed prior to DESeq normalization, the median ratio will be computed from the remaining non-zero counts.
-This shifts the median upwards and results in overestimation of the size factor.
+This shifts the median upwards and results in overestimation of the size factor (Figure~\ref{fig:zero_fail}).
 Similarly, the distribution of M-values will be shifted towards positive values upon removal of zeroes.
 This is because stochastic zeroes represent sampled values below some non-zero mean, and would generally correspond to negative M-values.
 Their removal increases the (trimmed) mean of M-values and biases the estimate of the TMM normalization factor.
@@ -416,11 +418,13 @@ Across the three subpopulations, there are 9000 genes involved in subpopulation-
 An assumption of a non-DE majority of genes is clearly invalid in this scenario.
 Any systematic differences in expression between cells of different subpopulations will now include genuine DE in addition to cell-specific biases.
 Subsequently, the magnitude of DE will be incorporated in the size factors computed from each method, such that they are no longer accurate estimates of $\theta_j$.
-The estimates also split into three distinct groups in Figure~\ref{fig:existing_sim}, each corresponding to a different subpopulation.
-Size factors tend to be overestimated for subpopulations with more DE, as the increased expression of upregulated genes drags up the median ratio/trimmed mean.
+Indeed, the estimates split into three distinct groups in Figure~\ref{fig:existing_sim}, each corresponding to a different subpopulation.
+Size factors are overestimated for subpopulations with more DE as the increased expression of upregulated genes drags up the median ratio/trimmed mean.
+Normalization inaccuracy is also exacerbated by the removal of semi-systematic zeroes, which distorts the biases between subpopulations in the same way that the removal of stochastic zeroes distorts the biases between cells.
 
-It is worth noting that library size normalization is not affected by stochastic zeroes.
+It is worth noting that library size normalization is not affected by stochastic or semi-systematic zeroes.
 This is because the library size is stably computed by summing across all genes in each cell.
+Removal of zero counts is not required as they naturally do not contribute to the sum.
 This results in improved performance in the simple simulation with no DE (Figure~\ref{fig:existing_sim}c).
 However, as previously discussed, the use of the library size as a size factor assumes that all genes are non-DE in each cell.
 Violations of this assumption lead to substantial estimation errors, which can be seen in the results for the simulations involving any DE.
@@ -447,7 +451,7 @@ The deconvolution method consists of several key steps --
     summing counts across all cells in the pool;
     normalizing the cell pool against an average reference, using the count sums;
     repeating this for many different pools of cells to construct a linear system;
-    and deconvolving the pool-based size factors to cell-based factors.
+    and deconvolving the pool-based size factors to cell-based factors (Figure~\ref{fig:deconvolution}).
 This can be applied directly to all cells in the data set, but in practice, it is more appropriately used after clustering cells based on their expression profiles.
 Deconvolution is performed separately on each cluster of cells, followed by pairwise normalization between clusters to yield the final factor estimates.
 
@@ -532,7 +536,7 @@ In the matrix containing the coefficients of the linear system, the incorporatio
 This ensures that a single solution can be obtained.
 Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
 This means that the estimated values will be driven primarily by the equations for the summed cells.
-See Section~\supplineardep{} in Additional file~1 for a more detailed explanation of the effect of these additional equations on the system.
+See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
