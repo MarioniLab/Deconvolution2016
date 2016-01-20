@@ -390,15 +390,9 @@ In each simulation scenario, the count for each gene in each cell was sampled fr
     the mean of which was modified according to the parameter settings of that scenario.
 
 DESeq, TMM and library size normalization were applied to this data.
-For DESeq normalization, the geometric mean for each gene was computed after removing all zeroes.
-This is necessary to avoid a situation where a majority of genes have geometric means of zero, such that the majority of ratios to the geometric mean would be undefined.
-Ratios of zero were also removed prior to calculation of the median in each library, to avoid obtaining a size factor equal to zero.
-For TMM normalization, the calcNormFactors function in the edgeR package (v3.12.0) was used with default settings.
-All undefined M-values were automatically removed prior to trimming and calculation of the normalization factor for each library.
-The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
-For library size normalization, the total library size was used directly as the size factor for each cell.
+Zero counts were removed prior to or during DESeq and TMM normalization -- see Methods for more details.
 The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove the cell-specific bias of $j$.
-Estimated size factors were then compared to the true values for all cells.
+Estimated size factors from each method were then compared to their true values for all cells.
 
 \subsubsection*{Size factor estimates from existing methods are inaccurate}
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
@@ -706,6 +700,16 @@ It is publicly available as part of the scran package on GitHub ({https://github
 
 \section*{Methods}
 
+\subsection*{Implementation of existing normalization methods}
+For DESeq normalization, the geometric mean for each gene was computed after removing all zeroes.
+This is necessary to avoid a situation where a majority of genes have geometric means of zero, such that the majority of ratios to the geometric mean would be undefined.
+Ratios of zero were also removed prior to calculation of the median in each library, to avoid obtaining a size factor equal to zero.
+Size factors were then computed using the estimateSizeFactorsForMatrix function in DESeq2 v1.10.1 \cite{love2014moderated}.
+For TMM normalization, the calcNormFactors function in the edgeR package v3.12.0 \cite{robinson2010edgeR} was used with default settings.
+All undefined M-values were automatically removed prior to trimming and calculation of the normalization factor for each library.
+The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
+For library size normalization, the total library size was used directly as the size factor for each cell.
+
 \subsection*{Obtaining the real scRNA-seq data}
 Libraries in the brain data set were prepared for over 3000 single cells using the Fluidigm C1 system \cite{zeisel2015brain}.
 Gene expression was quantified for each cell by counting UMIs after sequencing.
@@ -722,7 +726,7 @@ This resulted in a final set consisting of approximately 1700 cells.
 Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 3000 for those cells.
 
 \subsection*{Downstream analyses on real data}
-The DE analysis was performed on each data set using methods in edgeR v3.12.0.
+A DE analysis was performed on each data set using the statistical methods in edgeR.
 Size factors from each method were used as the effective library sizes.
 The estimateDisp function was used to estimate a gene-specific NB dispersion for each gene \cite{chen2014differential} without any empirical Bayes shrinkage.
 A generalized linear model was fitted for each gene using a one-way layout with the two groups of interest \cite{mccarthy2012differential}.
