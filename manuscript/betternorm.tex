@@ -830,6 +830,26 @@ The authors would like to thank Antonio Scialdone for useful discussions and hel
 
 \begin{figure}[!h]
 \caption{
+    \csentence{Illustration of the effect of removing stochastic zeroes (black) from the distribution of ratios across all genes, for (a) small and (b) large cells.}
+    The estimated median ratio (dashed) is increased beyond the true median (full) upon removal of zeroes, which results in overestimation of the size factor for the cell.
+    This effect is more pronounced for small cells with greater numbers of zeros, compared to large cells where the estimated and true medians are more similar.
+}
+\label{fig:zero_fail}
+\end{figure}
+
+\begin{figure}[!h]
+\caption{
+    \csentence{Diagram of the deconvolution method.}
+    All cells in the data set are averaged to make a reference pseudo-cell.
+    Counts for cells in pool A are summed together and normalized against the reference to yield a pool-based size factor $\theta_A$.
+    This is equal to the sum of the cell-based factors for cells 1-4 and can be used to formulate a linear equation.
+    Repeating this for multiple pools (e.g., pool B) constructs a linear system that can be solved to estimate $\theta_j$ for each cell $j$.
+}
+\label{fig:deconvolution}
+\end{figure}
+
+\begin{figure}[!h]
+\caption{
     \csentence{Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes,
     shown against the true values for scenarios with (a) no DE, (b) moderate DE, (c) strong DE and (d) varying magnitude of DE.}
     Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
