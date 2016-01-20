@@ -1,18 +1,84 @@
-\documentclass{article}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage{amsmath}
-\usepackage{subcaption}
-\usepackage{graphicx}
-\usepackage{hyperref}
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
+
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
 \usepackage{multirow}
-\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
-\urlstyle{same}
 
-\title{Computing normalization factors for single-cell RNA-seq data: avoiding problems with zero counts}
-\author{Aaron T. L. Lun and Karsten Bach}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{document}
-\maketitle
+
+\def\includegraphic{}
+%\def\includegraphics{}
+
+
+
+%%% Put your definitions there:
+\startlocaldefs
 
 \newcommand{\suppdeconv}{1}
 \newcommand{\suppspikesec}{2}
@@ -24,7 +90,170 @@
 \newcommand{\supprank}{S1}
 \newcommand{\suppHVG}{S2}
 
-\section{Introduction}
+\endlocaldefs
+
+
+%%% Begin ...
+\begin{document}
+
+%%% Start of article front matter
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Research}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Computing normalization factors for single-cell RNA-seq data: avoiding problems with zero counts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+   addressref={aff1},
+   corref={aff1}, 
+   email={aaron.lun@cruk.cam.ac.uk}   
+]{\inits{ATL}\fnm{Aaron TL} \snm{Lun}}
+\author[
+   addressref={aff2},
+   email={kbach@ebi.ac.uk}
+]{\inits{KB}\fnm{Karsten} \snm{Bach}}
+\author[
+    addressref={aff1,aff2},
+    email={marioni@ebi.ac.uk}
+]{\inits{JCM}\fnm{John C} \snm{Marioni}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=aff1]{%                           % unique id
+  \orgname{Cancer Research UK Cambridge Institute, University of Cambridge},
+  \street{Li Ka Shing Centre, Robinson Way},                     %
+  \postcode{CB2 0RE},                        % post or zip code
+  \city{Cambridge},                              % city
+  \cny{UK}                                    % country
+}
+\address[id=aff2]{%
+  \orgname{EMBL European Bioinformatics Institute},
+  \street{Wellcome Genome Campus, Hinxton},
+  \postcode{CB10 1SD}
+  \city{Cambridge},
+  \cny{UK}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+%\note[id=n1]{Equal contributor} % note, connected to author
+\end{artnotes}
+
+\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Abstract begins here                 %%
+%%                                          %%
+%% Please refer to the Instructions for     %%
+%% authors on http://www.biomedcentral.com  %%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstractbox}
+
+\begin{abstract} % abstract
+\parttitle{First part title} %if any
+Text for this section.
+
+\parttitle{Second part title} %if any
+Text for this section.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The keywords begin here                  %%
+%%                                          %%
+%% Put each keyword in separate \kwd{}.     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{keyword}
+\kwd{sample}
+\kwd{article}
+\kwd{author}
+\end{keyword}
+
+% MSC classifications codes, if any
+%\begin{keyword}[class=AMS]
+%\kwd[Primary ]{}
+%\kwd{}
+%\kwd[; secondary ]{}
+%\end{keyword}
+
+\end{abstractbox}
+%
+%\end{fmbox}% uncomment this for twcolumn layout
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Main Body begins here                %%
+%%                                          %%
+%% Please refer to the instructions for     %%
+%% authors on:                              %%
+%% http://www.biomedcentral.com/info/authors%%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%% See the Results and Discussion section   %%
+%% for details on how to create sub-sections%%
+%%                                          %%
+%% use \cite{...} to cite references        %%
+%%  \cite{koon} and                         %%
+%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
+%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
+% <put your article body there>
+
+%%%%%%%%%%%%%%%%
+%% Background %%
+%%
+
+\section*{Introduction}
 Single-cell RNA sequencing (scRNA-seq) is a powerful technique that allows researchers to characterize the gene expression profile of single cells.
 From each cell, mRNA is isolated, reverse-transcribed and subjected to massively parallel sequencing \cite{stegle2015computational}.
 The sequencing reads are mapped to a reference genome, such that the number of reads mapped to each gene can be used to quantify its expression.
@@ -66,9 +295,9 @@ Using a variety of simple simulations, we demonstrate that our approach outperfo
 We also show a similar difference in behaviour on several real data sets, where the use of different normalization methods affects the final biological conclusions.
 These results suggest that our approach is a viable alternative to existing methods for general normalization of scRNA-seq data.
 
-\section{Existing normalization methods fail with zero counts}
+\section*{Existing normalization methods fail with zero counts}
 
-\subsection{The origin of zero counts in scRNA-seq data}
+\subsection*{The origin of zero counts in scRNA-seq data}
 The high frequency of zeroes in scRNA-seq data is driven by both biological and technical factors.
 Gene expression is highly variable across cells due to cell-to-cell heterogeneity and phenomena like transcriptional bursting \cite{marinov2014singlecell}.
 Such variability can result in zero counts for lowly expressed genes.
@@ -81,7 +310,7 @@ These are generally not problematic as they contain no information and can be re
 Stochastic zeroes are found in genes that are actively expressed but obtain counts of zero in some cells due to sampling stochasticity.
 These genes may contain information about the relative differences between cells, so removing them prior to normalization may introduce biases.
 
-\subsection{A brief description of existing non-spike-in methods}
+\subsection*{A brief description of existing non-spike-in methods}
 Here, we only consider those normalization methods not based on spike-in data.
 This is motivated by the desire to obtain a general method that can be applied to all data sets.
 In particular, we will review three approaches that are commonly used for RNA-seq data -- DESeq, TMM and library size normalization.
@@ -125,7 +354,7 @@ This will occur even if the libraries are sequenced to the same depth
     -- more reads will be spent in sequencing the upregulated gene in the first library, such that the coverage of non-DE genes will be reduced relative to other libraries.
 The likely presence of DE in real data means that library size normalization is often inappropriate.
 
-\subsection{Performance of existing methods on simulated data with zeroes}
+\subsection*{Simulating scRNA-seq data with stochastic zeroes and DE}
 To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeros.
 Consider a cell $j$ in a subpopulation $s$.
 This subpopulation may represent cell type or some other biological condition, e.g., drug treatment. 
@@ -172,6 +401,7 @@ For library size normalization, the total library size was used directly as the 
 The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove the cell-specific bias of $j$.
 Estimated size factors were then compared to the true values for all cells.
 
+\subsection*{Size factors from existing methods are inaccurate}
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
 For DESeq and TMM normalization, large size factors are consistently underestimated while small size factors are overestimated.
 This is a consequence of removing stochastic zeroes prior to normalization.
@@ -183,41 +413,6 @@ This is because stochastic zeroes represent sampled values below some non-zero m
 Their removal increases the (trimmed) mean of M-values and biases the estimate of the TMM normalization factor.
 The converse applies to cells with large $\theta_j$.
 Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
-
-\begin{figure}[tbp]
-\begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/size_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/size_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/size_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/size_4.pdf}
-\subcaption{}\label{subfig:size_sim}
-\end{minipage}
-\begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/TMM_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/TMM_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/TMM_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/TMM_4.pdf}
-\subcaption{}\label{subfig:tmm_sim}
-\end{minipage}
-\begin{minipage}{0.33\textwidth}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{results/lib_1.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/lib_2.pdf}
-\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{results/lib_3.pdf}
-\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{results/lib_4.pdf}
-\subcaption{}\label{subfig:lib_sim}
-\end{minipage}
-\caption{
-    Performance of existing normalization methods on the simulated data with DE genes and stochastic zeroes.
-    The size factor estimates for all cells are plotted against the true values for (\subref{subfig:size_sim}) DESeq,
-        (\subref{subfig:tmm_sim}) TMM and (\subref{subfig:lib_sim}) library size normalization.
-    Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
-    Axes are shown on a log-scale.
-    For comparison, each set of size factors was scaled such that the same grand mean across cells was the same as that for the true values.
-    The red line represents equality between the rescaled estimates and true factors.
-    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
-}
-\label{fig:existing_sim}
-\end{figure}
 
 The presence of DE genes results in a further deterioration in performance of all methods (Figure~\ref{fig:existing_sim}).
 The divergence between the true and estimated size factors increases as the number of DE genes increases,
@@ -232,7 +427,7 @@ Size factors tend to be overestimated for subpopulations with more DE, as the in
 
 It is worth noting that library size normalization is not affected by stochastic zeroes.
 This is because the library size is stably computed by summing across all genes in each cell.
-This results in improved performance in the simple simulation with no DE (Figure~\ref{subfig:lib_sim}).
+This results in improved performance in the simple simulation with no DE (Figure~\ref{fig:existing_sim}c).
 However, as previously discussed, the use of the library size as a size factor assumes that all genes are non-DE in each cell.
 Violations of this assumption lead to substantial estimation errors, which can be seen in the results for the simulations involving any DE.
 
@@ -243,9 +438,9 @@ This is because any ratio of two counts will approach unity when the same pseudo
 A slightly different approach scales the pseudo-count to match the library size of each cell to avoid the unity bias.
 This results in behaviour similar to library size normalization, along with its associated problems.
 
-\section{Improving normalization accuracy with deconvolution}
+\section*{Improving normalization accuracy with deconvolution}
 
-\subsection{Overview of the deconvolution strategy}
+\subsection*{Overview of the deconvolution strategy}
 The aim of the deconvolution strategy is to normalize on summed expression values from pools of cells.
 Summation across cells results in fewer zeroes, which means that the ensuing normalization is less susceptible to the errors observed for existing methods.
 While normalization accuracy is improved, the estimated size factors are only relevant to the pools of cells.
@@ -261,53 +456,24 @@ This includes an outline of the mathematical framework;
     the use of clustering to weaken the assumption of a non-DE majority of genes;
     and a description of the strategy used to choose the cells in each pool prior to constructing the linear system (see also Supplementary Figure~\suppring{}).
 
-\subsection{Performance of the deconvolution approach on simulated data}
+\subsection*{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
 This is consistent with the reduced number of zero counts in the summed counts for each set of cells.
 The median ratio for each set is more accurately computed, which improves the accuracy of the size factor estimates for the individual cells upon deconvolution.
 Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
-Some inaccuracy is observed in Figure~\ref{subfig:sumclust_3}, where the non-DE assumption is partially violated by large numbers of DE genes between subpopulations.
+Some inaccuracy is observed in Figure~\ref{fig:sim_cluster_DE}c, where the non-DE assumption is partially violated by large numbers of DE genes between subpopulations.
 However, the deconvolution method is still more accurate than the existing methods in the third row of Figure~\ref{fig:existing_sim}
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
-\begin{figure}[btp]
-\begin{center}
-\begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_1.pdf}
-    \subcaption{}\label{subfig:sumclust_1}
-\end{minipage}
-\begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_2.pdf}
-    \subcaption{}\label{subfig:sumclust_2}
-\end{minipage}  \\ 
-\begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_3.pdf}
-    \subcaption{}\label{subfig:sumclust_3}
-\end{minipage}
-\begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{results/sumClust_4.pdf}
-    \subcaption{}\label{subfig:sumclust_4}
-\end{minipage}
-\end{center}
-    \caption{
-        Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes,
-        shown against the true values for scenarios with (\subref{subfig:sumclust_1}) no DE, (\subref{subfig:sumclust_2}) moderate DE, 
-                (\subref{subfig:sumclust_3}) strong DE and (\subref{subfig:sumclust_4}) varying magnitude of DE.
-        Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
-        Axes are shown on a log-scale, and the red line represents equality with the true factors.
-    }
-    \label{fig:sim_cluster_DE}
-\end{figure}
+\section*{Differences in normalization are recapitulated in real data}
 
-\section{Differences in normalization are recapitulated in real data}
-
-\subsection{Overview of the data sets}
+\subsection*{Overview of the data sets}
 We also examined the behaviour of the deconvolution method in real scRNA-seq data.
 The first data set was taken from a study of the somatosensory cortex and hippocampal region of the mouse brain \cite{zeisel2015brain}.
 Libraries were prepared for over 3000 brain-derived single cells using the Fluidigm C1 system.
 Gene expression was quantified for each cell by counting UMIs after sequencing.
-Counts for all cells were obtained from \url{http://linnarssonlab.org/cortex}.
+Counts for all cells were obtained from {http://linnarssonlab.org/cortex}.
 The second data set was generated using the inDrop protocol on mouse embryonic stem cells \cite{klein2015droplet}.
 Libraries were prepared for over 10000 cells, and quantification was performed with UMIs.
 Counts were obtained from the NCBI Gene Expression Omnibus with the accession GSE65525.
@@ -320,7 +486,7 @@ For the inDrop data set, counts were only used for cells before withdrawal of le
 This resulted in a final set consisting of approximately 1700 cells.
 Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 3000 for each cell.
 
-\subsection{Deconvolution yields a wider spread of size factors}
+\subsection*{Deconvolution yields a wider spread of size factors}
 Each normalization method was applied on the counts for cells in both data sets.
 In both cases, deconvolution yields a wider range of size factor estimates compared to DESeq and TMM normalization (Figure~\ref{fig:real_comp}).
 This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for these two methods.
@@ -347,33 +513,7 @@ This avoids bias towards unity in the simulations and increases the range of the
 %    \label{fig:real_spread}   
 %\end{figure}
 
-\newcommand{\cellwidth}{0.32\textwidth}
-\begin{figure}[btp]
-    \begin{tabular}{p{\cellwidth}@{}p{\cellwidth}@{}p{\cellwidth}@{}l}
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_SFvDeconv.pdf}} & 
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_TMMvDeconv.pdf}} &
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Zeisel_LibvDeconv.pdf}} & 
-         {\small\rotatebox[origin=c]{270}{\textsf{Brain}}} \\
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_SFvDeconv.pdf}}
-        \subcaption{}\label{subfig:comp_sf} &
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_TMMvDeconv.pdf}}
-        \subcaption{}\label{subfig:comp_tmm} &
-        \raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{realdata/Klein_LibvDeconv.pdf}} 
-        \subcaption{}\label{subfig:comp_lib} &
-        {\small\rotatebox[origin=c]{270}{\textsf{inDrop}}} \\
-    \end{tabular}
-    \caption{
-        Comparisons between the estimated size factors from the deconvolution method to those from (\subref{subfig:comp_sf}) DESeq,  (\subref{subfig:comp_tmm}) TMM 
-            or (\subref{subfig:comp_lib}) library size normalization.
-        This is shown for the brain (top) and inDrop data sets (bottom).
-        Axes are on a log-scale, and the red line represents equality between the two sets of factors.
-        All sets of factors were centered to a median of unity prior to comparison.
-        For the brain data, cells classified by Zeisel \textit{et al.} as oligodendrocytes or pyramidal CA1 are shown here in orange and blue, respectively.
-    }   
-    \label{fig:real_comp}
-\end{figure}
-
-Deconvolution also yields different size factors from library size normalization in the brain data (Figure~\ref{subfig:comp_lib}).
+Deconvolution also yields different size factors from library size normalization in the brain data (Figure~\ref{fig:real_comp}c).
 Specifically, a substantial number of cells have size factor estimates from library size normalization that are larger than those from deconvolution.
 This is attributable to the likely presence of DE genes between different cell types -- specifically, between oligodendrocytes and the other neuronal cells.
 Any upregulation will increase the size factors from library size normalization for affected cells by increasing the library sizes.
@@ -388,7 +528,7 @@ This is largely attributable to the differences in the assumptions between spike
     as well as the insensitivity of the latter methods to differences in cell size and total RNA content.
 A more detailed explanation is provided in Section~\suppspikesec{} of the Supplementary Materials.
 
-\subsection{Different normalization schemes change the DE profile}
+\subsection*{Different normalization schemes change the DE profile}
 To gauge the impact of employing different normalization methods, a DE analysis was performed with edgeR (v3.12.0) on both data sets with the different size factor estimates.
 For the brain data set, the count data was subsetted to contain only cells classified as pyramidal CA1 or oligodendrocytes \cite{zeisel2015brain}.
 Size factors from each method were used as the effective library sizes.
@@ -406,8 +546,152 @@ The set of DE genes detected in either direction also tends to be a superset or 
 This is consistent with a difference in overall scaling of the average expression values between different biological conditions, 
     such that the DE log-fold changes from deconvolution are shifted in one direction relative to those from the existing methods.
 For example, consider the differences in the numbers of DE genes between deconvolution and library size normalization.
-The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{subfig:comp_lib}.
+The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{fig:real_comp}c.
 This is because any increase in gene expression in oligodendrocytes is incorporated into the library size and is weakened upon library size normalization.
+
+In summary, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
+This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
+    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
+To demonstrate, a gene set enrichment analysis was conducted with topGO \cite{alexa2010topgo} on the unique DE genes detected by either library size normalization or deconvolution.
+Enrichment of GO terms in each unique set was determined using Fisher's exact test, for all terms containing at least 10 genes.
+Genes unique to deconvolution were associated with expected biological processes for oligodendrocytes, e.g., amide and lipid metabolism, cell adhesion and membrane organization.
+In contrast, genes unique to library size normalization were associated with more varied processes including meiosis and spermatogenesis.
+Thus, changes in DE between the different normalization strategies will influence the biological conclusions of the analysis.
+
+The different normalization strategies also affect the ranking of the top set of genes in the brain data.
+Of the top genes with the lowest $p$-values, around 20-50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).
+This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
+Modest changes were also observed in the ranking of highly variable genes detected by the distance-to-median approach \cite{kolod2015single}.
+Approximately 10 to 30-40\% of the most variable genes were altered if deconvolution was used instead of the existing methods in either data set (Supplementary Table~\suppHVG{}).
+Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong DE and variability.
+Thus, the top-ranked genes are often prioritized for further investigation.
+Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
+
+Smaller differences are observed for the inDrop data set where fewer DE genes are present (Table~\ref{tab:real_de}, Supplementary Table~\supprank{}).
+Here, the similar performances of deconvolution and library size normalization are attributable to their mutual robustness to stochastic zeroes and, for the latter, a relative lack of DE within a cell type.
+This suggests that library size normalization may be satisfactory for homogeneous data sets.
+
+\section*{Conclusions}
+Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
+This approach provides improved performance for size factor estimation compared to existing methods on simulated data.
+In particular, it avoids estimation inaccuracy in the presence of stochastic zeroes and is robust to DE in the data set.
+Similar differences in the size factors across methods were also observed in analyses of real data,
+    where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
+This indicates that the choice of normalization method has a substantial impact on the results of downstream analyses.
+Any increase in accuracy from our deconvolution approach is likely to have some beneficial effect on the validity of the biological conclusions.
+We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
+It is publicly available as part of the scran package on GitHub ({https://github.com/MarioniLab/scran}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Backmatter begins here                   %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{backmatter}
+
+\section*{Competing interests}
+The authors declare that they have no competing interests.
+
+\section*{Author's contributions}
+ATTL proposed the deconvolution method and performed the simulations.
+KB performed the real data analyses.
+JCM provided guidance on method development and testing.
+All authors wrote and approved the final manuscript.
+
+\section*{Acknowledgements}
+The authors would like to thank Antonio Scialdone for useful discussions and help with testing on real data.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                  The Bibliography                       %%
+%%                                                         %%
+%%  Bmc_mathpys.bst  will be used to                       %%
+%%  create a .BBL file for submission.                     %%
+%%  After submission of the .TEX file,                     %%
+%%  you will be prompted to submit your .BBL file.         %%
+%%                                                         %%
+%%                                                         %%
+%%  Note that the displayed Bibliography will not          %%
+%%  necessarily be rendered by Latex exactly as specified  %%
+%%  in the online Instructions for Authors.                %%
+%%                                                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% if your bibliography is in bibtex format, use those commands:
+\bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
+\bibliography{references}      % Bibliography file (usually '*.bib' )
+% for author-year bibliography (bmc-mathphys or spbasic)
+% a) write to bib file (bmc-mathphys only)
+% @settings{label, options="nameyear"}
+% b) uncomment next line
+%\nocite{label}
+
+% or include bibliography directly:
+% \begin{thebibliography}
+% \bibitem{b1}
+% \end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Figures                       %%
+%%                               %%
+%% NB: this is for captions and  %%
+%% Titles. All graphics must be  %%
+%% submitted separately and NOT  %%
+%% included in the Tex document  %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
+%% Do not use \listoffigures as most will included as separate files
+
+\section*{Figures}
+
+\begin{figure}[tbp]
+\caption{
+    \csentence{Performance of existing normalization methods on the simulated data with DE genes and stochastic zeroes.}
+    The size factor estimates for all cells are plotted against the true values for (a) DESeq,
+        (b) TMM and (c) library size normalization.
+    Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
+    Axes are shown on a log-scale.
+    For comparison, each set of size factors was scaled such that the same grand mean across cells was the same as that for the true values.
+    The red line represents equality between the rescaled estimates and true factors.
+    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+}
+\label{fig:existing_sim}
+\end{figure}
+
+\begin{figure}[btp]
+\caption{
+    \csentence{Size factor estimates from the deconvolution method in the simulation with DE genes and stochastic zeroes,
+    shown against the true values for scenarios with (a) no DE, (b) moderate DE, (c) strong DE and (d) varying magnitude of DE.}
+    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+    Axes are shown on a log-scale, and the red line represents equality with the true factors.
+}
+\label{fig:sim_cluster_DE}
+\end{figure}
+
+\begin{figure}[btp]
+\caption{
+    \csentence{Comparisons between the estimated size factors from the deconvolution method to those from (a) DESeq,  (b) TMM or (c) library size normalization.}
+    This is shown for the brain (top) and inDrop data sets (bottom).
+    Axes are on a log-scale, and the red line represents equality between the two sets of factors.
+    All sets of factors were centered to a median of unity prior to comparison.
+    For the brain data, cells classified by Zeisel \textit{et al.} as oligodendrocytes or pyramidal CA1 are shown here in orange and blue, respectively.
+}   
+\label{fig:real_comp}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Tables                        %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use of \listoftables is discouraged.
+%%
+\section*{Tables}
 
 \begin{table}[bt]
 \caption{
@@ -437,41 +721,17 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \label{tab:real_de}
 \end{table}
 
-In summary, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
-This is likely to have some effect on the conclusions due to changes in detection power and FDR control, 
-    especially if log-fold changes are distorted by incomplete removal of cell-specific biases.
-To demonstrate, a gene set enrichment analysis was conducted with topGO \cite{alexa2010topgo} on the unique DE genes detected by either library size normalization or deconvolution.
-Enrichment of GO terms in each unique set was determined using Fisher's exact test, for all terms containing at least 10 genes.
-Genes unique to deconvolution were associated with expected biological processes for oligodendrocytes, e.g., amide and lipid metabolism, cell adhesion and membrane organization.
-In contrast, genes unique to library size normalization were associated with more varied processes including meiosis and spermatogenesis.
-Thus, changes in DE between the different normalization strategies will influence the biological conclusions of the analysis.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Additional Files              %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The different normalization strategies also affect the ranking of the top set of genes in the brain data.
-Of the top genes with the lowest $p$-values, around 20-50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}).
-This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
-Modest changes were also observed in the ranking of highly variable genes detected by the distance-to-median approach \cite{kolod2015single}.
-Approximately 10 to 30-40\% of the most variable genes were altered if deconvolution was used instead of the existing methods in either data set (Supplementary Table~\suppHVG{}).
-Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong DE and variability.
-Thus, the top-ranked genes are often prioritized for further investigation.
-Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
+\section*{Additional Files}
+\subsection*{Additional file 1 --- Supplementary Materials}
+This file contains additional details on the theory behind the deconvolution method, as well as some real data and simulation results.
 
-Smaller differences are observed for the inDrop data set where fewer DE genes are present (Table~\ref{tab:real_de}, Supplementary Table~\supprank{}).
-Here, the similar performances of deconvolution and library size normalization are attributable to their mutual robustness to stochastic zeroes and, for the latter, a relative lack of DE within a cell type.
-This suggests that library size normalization may be satisfactory for homogeneous data sets.
-
-\section{Conclusions}
-Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
-This approach provides improved performance for size factor estimation compared to existing methods on simulated data.
-In particular, it avoids estimation inaccuracy in the presence of stochastic zeroes and is robust to DE in the data set.
-Similar differences in the size factors across methods were also observed in analyses of real data,
-    where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
-This indicates that the choice of normalization method has a substantial impact on the results of downstream analyses.
-Any increase in accuracy from our deconvolution approach is likely to have some beneficial effect on the validity of the biological conclusions.
-We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
-It is publicly available as part of the scran package on GitHub (\url{https://github.com/MarioniLab/scran}).
-
-\bibliographystyle{unsrt}
-\bibliography{references}
+\end{backmatter}
 
 \end{document}
 
