@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage[margin=0cm,
+papersize={160mm,190mm}]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\begin{document}
+
+\newcommand{\results}{../simulations/results}
+
+\begin{figure}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/size_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/size_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/size_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/size_4.pdf}
+\subcaption{}\label{subfig:size_sim}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/TMM_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/TMM_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/TMM_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/TMM_4.pdf}
+\subcaption{}\label{subfig:tmm_sim}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/lib_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/lib_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/lib_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/lib_4.pdf}
+\subcaption{}\label{subfig:lib_sim}
+\end{minipage}
+\end{figure}
+
+\end{document}
