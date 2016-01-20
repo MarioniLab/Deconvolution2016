@@ -16,6 +16,11 @@ manuscript/suppmat.pdf
 
 manuscript/dependency_break.aux
 manuscript/dependency_break.log
+manuscript/dependency_break.pdf
+
+manuscript/figure*.aux
+manuscript/figure*.log
+manuscript/figure*.pdf
 
 data/
 results/
