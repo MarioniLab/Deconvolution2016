@@ -322,7 +322,7 @@ It first constructs an ``average'' reference library, in which the ``count'' for
 Each real library is then normalized against this average.
 Specifically, for each gene, the ratio of the count in each library to that in the average library is computed.
 The size factor for each library is defined as the median of this ratio across all genes.
-The counts in that library are then scaled by the inverse of the size factor,
+The counts in that library are then scaled by the reciprocal of the size factor,
     in order to eliminate systematic differences in expression between libraries for the majority of (assumed) non-DE genes.
 
 TMM normalization was introduced as part of the edgeR package for DE testing \cite{robinson2010edgeR}.
@@ -335,7 +335,8 @@ This is used to define the normalization factor for each library as $2^x$, where
 The normalization factor represents the scaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
 
-Both DESeq and TMM normalization assume that most genes are not DE between libraries.
+Both DESeq and TMM normalization assume that some minimal proportion of genes are not DE between libraries.
+For DESeq, the proportion is 50\% of all genes, whereas for TMM, it is 40--70\% depending on the direction of DE (for simplicity, this will be referred to as a non-DE majority for both methods).
 Consequently, any systematic difference in expression across the majority of genes is treated as bias, which is incorporated into the size/normalization factors and removed upon scaling.
 If the non-DE assumption does not hold, the computed factors will not be accurate.
 In addition, both methods perform poorly in the presence of a large number of zeroes.
@@ -448,15 +449,14 @@ This ensures that cell-specific biases can be properly normalized.
 
 The deconvolution method consists of several key steps --
     defining a pool of cells;
-    summing counts across all cells in the pool;
-    normalizing the cell pool against an average reference, using the count sums;
+    summing expression values across all cells in the pool;
+    normalizing the cell pool against an average reference, using the summed expression values;
     repeating this for many different pools of cells to construct a linear system;
-    and deconvolving the pool-based size factors to cell-based factors (Figure~\ref{fig:deconvolution}).
-This can be applied directly to all cells in the data set, but in practice, it is more appropriately used after clustering cells based on their expression profiles.
-Deconvolution is performed separately on each cluster of cells, followed by pairwise normalization between clusters to yield the final factor estimates.
+    and deconvolving the pool-based size factors to their cell-based counterparts (Figure~\ref{fig:deconvolution}).
+The following section will describe the implementation of the deconvolution method, as well as its use in conjunction with clustering for optimal performance.
 
 \subsubsection*{Summation and deconvolution with linear equations}
-Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (usually the library size).
+Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below).
 This means that $E(\pi_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.
 Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
 Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
@@ -486,7 +486,7 @@ The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates f
 A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
 by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
 The constant $C$ can be set to unity and ignored, as it does not contribute to the relative differences between size factors.
-Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{ik}$ will generate an overdetermined system of linear equations, 
+Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
     in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
 This system can be solved with standard least-squares methods to obtain estimates of $\theta_j T_j^{-1}$ for all cells 
     (this represents ``deconvolution'' of the cell pool factors to the factors for the individual cells, hence the name).
@@ -495,7 +495,7 @@ Multiplication by $T_j$ for each cell will yield an estimate of $\theta_j$.
 This approach may seem somewhat circuitous, given that $\theta_j$ could be estimated directly from the counts for each individual cell.
 However, summation reduces the number of stochastic zeroes that cause problems in existing methods.
 As a result, ratios computed from pooled expression profiles are more accurate.
-This improvement will propagate back to the $\theta_j$ estimates for each $j$ when the linear system is solved.
+This improvement will propagate back to the estimates of $\theta_j$ when the linear system is solved.
 
 \subsubsection*{Constructing the linear system by selecting cell pools}
 The pool of cells in each $\mathcal{S}_{k}$ is chosen to consist of similar library sizes.
@@ -514,7 +514,7 @@ Specifically, the library size is used as a rough proxy for cell similarity.
 This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, 
     e.g., due to type-specific differences in total RNA or capture efficiency.
 Summation of cells with similar library sizes (and by implication, similar expression profiles) reduces the number of DE genes in each cell pool relative to the reference pseudo-cell.
-This weakens the assumption of a non-DE majority that is required for deconvolution -- see below for more details.
+This weakens the assumption of a non-DE majority that is required for normalization -- see below for more details.
 
 % In small samples, it mightn't matter whether or not the cells have similar expression profiles;
 % DE anywhere in the data set will contaminate the average reference anyway, so the amount of DE in each cell pool relative to the pseudo-cell would be the same.
@@ -524,12 +524,12 @@ This weakens the assumption of a non-DE majority that is required for deconvolut
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
 By using different values of $w$, additional equations can be added to improve the precision of the estimates. 
-Specifically, values of $w$ are set to 20, 40, 60, 80 and 100.
+Specifically, values of $w$ are set to 20, 40, 60, 80 and 100 by default.
 These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
 This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
 
 An additional set of equations is added to ensure that the system is solvable.
-In each equation, the $\theta_jT_j^{-1}$ for each cell is equated to the size factor estimated directly from its single-cell counts.
+In each extra equation, the $\theta_jT_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
 These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ and unity respectively.
 A weighted least-squares approach is then applied to solve the linear system.
 In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
@@ -541,7 +541,7 @@ See Section~\supplineardep{} in Additional file~1 for a more detailed discussion
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
 However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
-Such values are obviously nonsensical as counts cannot be scaled to negative values.
+Such values are obviously nonsensical as counts should not be scaled to yield negative expression values.
 One situation in which this might occur involves data with a large spread of $\theta_jT_j^{-1}$ values, 
     such that the true value of $\theta_jT_j^{-1}$ is already close to zero for some cells.
 Errors in estimation may then be sufficient to push the estimated $\theta_j$ below zero.
@@ -554,7 +554,7 @@ This ensures that the sum $s_{ik}$ is not dominated by a small number of very la
 Information from each cell will be weighted equally when computing the median ratio for each set, regardless of library size.
 It also reduces the risk of obtaining negative estimates for small libraries.
 Such libraries have small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
-The fact that the observed library size is variable is largely irrelevant, as the deconvolution procedure is valid for arbitrary positive values of $T_j$.
+Note that there are no problems from treating the observed library size as a fixed quantity, as the deconvolution procedure is valid for arbitrary positive values of $T_j$.
 
 \subsubsection*{Clustering to weaken the non-DE assumption}
 The deconvolution method makes some moderately strong assumptions regarding the nature of DE across the data set.
@@ -589,7 +589,9 @@ The use of within-cluster normalization reduces the amount of DE between cells, 
 This avoids inaccurate estimation of the size factors due to violations of the non-DE assumption.
 Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
 This weakens the assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
-For example, in the simulation with varying magnitude of DE, only 60\% of genes are DE between any two subpopulations, while 90\% of genes are DE across all subpopulations.
+For example, consider five subpopulations where each has a unique set of DE genes comprising 20\% of all genes.
+Only 40\% of genes would be DE between any two subpopulations, while 100\% of genes would exhibit some DE across all subpopulations.
+In this situation, pairwise normalization would clearly be safer as a non-DE majority would be present.
 Clustering is also complemented by the library size-ordered pooling described above, which protects against any residual DE within each cluster.
 This is especially relevant for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
 
@@ -598,7 +600,7 @@ We favour hierarchical clustering on correlation-based distances -- see Section~
 
 \subsubsection*{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
-This is consistent with the reduced number of zero counts in the summed counts for each set of cells.
+This is consistent with the reduced number of stochastic zeros in the summed counts for each set of cells.
 The median ratio for each set is more accurately computed, which improves the accuracy of the size factor estimates for the individual cells upon deconvolution.
 Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
 Some inaccuracy is observed in Figure~\ref{fig:sim_cluster_DE}c, where the non-DE assumption is partially violated by large numbers of DE genes between subpopulations.
