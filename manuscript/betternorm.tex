@@ -190,11 +190,25 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{First part title} %if any
-Text for this section.
+\parttitle{Background} 
+Single-cell RNA sequencing is widely used to profile gene expression in individual cells.
+Analysis of this data provides biological insights at the single cell level, e.g., by identifying novel cellular subpopulations or in detecting differentially expressed or highly variable genes within populations.
+However, all of these applications depend on proper normalization to eliminate cell-specific biases prior to conducting quantitative comparisons between cells.
+Calculation of size factors for normalization is not straightforward for noisy single-cell data where many counts are zero.
 
-\parttitle{Second part title} %if any
-Text for this section.
+\parttitle{Results} 
+Existing normalization methods such as DESeq, TMM or library size normalization yield inaccurate size factor estimates in simulations with many zeroes and differentially expressed genes. 
+We propose a new method for normalization that where expression values are summed across pools of cells, and the summed values are used for median-based normalization.
+Pool-based size factors are then deconvolved to yield cell-based factors.
+This reduces the incidence of zeroes while also protecting against differential expression.
+Our deconvolution approach provides accurate estimates for the size factors in analyses of simulated data.
+Similar behaviour is observed in real data where deconvolution yields a wider range of size factors.
+The use of deconvolution also alters the number and ranking of differentially expressed and highly variable genes.
+
+\parttitle{Conclusions} 
+The deconvolution method overcomes the deficiencies of existing methods for normalization of RNA sequencing data.
+We anticipate that increased normalization accuracy will improve the performance of downstream analyses and the validity of biological conclusions derived from the data.
+
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
