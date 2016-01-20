@@ -1,0 +1,32 @@
+\documentclass{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\pagenumbering{gobble}
+
+\begin{document}
+
+\newcommand{\results}{../simulations/results}
+
+\begin{figure}[btp]
+\begin{center}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_1.pdf}
+\subcaption{}\label{subfig:sumclust_1}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_2.pdf}
+\subcaption{}\label{subfig:sumclust_2}
+\end{minipage}  \\ 
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_3.pdf}
+\subcaption{}\label{subfig:sumclust_3}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_4.pdf}
+\subcaption{}\label{subfig:sumclust_4}
+\end{minipage}
+\end{center}
+\end{figure}
+
+\end{document}
