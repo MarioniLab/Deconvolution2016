@@ -77,8 +77,9 @@
 %%% Put your definitions there:
 \startlocaldefs
 
-\newcommand{\suppclustering}{1}
-\newcommand{\suppspikesec}{2}
+\newcommand{\supplineardep}{1}
+\newcommand{\suppclustering}{2}
+\newcommand{\suppspikesec}{3}
 
 \newcommand{\supppseudo}{S1}
 \newcommand{\suppring}{S2}
@@ -531,6 +532,7 @@ In the matrix containing the coefficients of the linear system, the incorporatio
 This ensures that a single solution can be obtained.
 Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
 This means that the estimated values will be driven primarily by the equations for the summed cells.
+See Section~\supplineardep{} in Additional file~1 for a more detailed explanation of the effect of these additional equations on the system.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
@@ -587,8 +589,8 @@ For example, in the simulation with varying magnitude of DE, only 60\% of genes 
 Clustering is also complemented by the library size-ordered pooling described above, which protects against any residual DE within each cluster.
 This is especially relevant for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
 
-Any clustering technique can be used to group cells with similar expression profiles.
-We favour a correlation-based approach -- see Section~\suppclustering{} in Additional file~1 for more details.
+Any clustering technique can be used to group cells with similar expression profiles prior to deconvolution.
+We favour hierarchical clustering on correlation-based distances -- see Section~\suppclustering{} in Additional file~1 for more details.
 
 \subsubsection*{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
