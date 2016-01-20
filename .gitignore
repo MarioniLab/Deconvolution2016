@@ -14,11 +14,8 @@ manuscript/suppmat.aux
 manuscript/suppmat.log
 manuscript/suppmat.pdf
 
-manuscript/dependency_break.aux
-manuscript/dependency_break.log
-manuscript/dependency_break.pdf
-
 manuscript/Figure*.pdf
+manuscript/AdditionalFile*
 manuscript/pics/figure*.aux
 manuscript/pics/figure*.log
 manuscript/pics/figure*.pdf
