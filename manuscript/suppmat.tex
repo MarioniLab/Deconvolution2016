@@ -188,8 +188,8 @@ The end result is that differences between all cells in all clusters are removed
 This is equivalent to the outcome of a hypothetical one-step method that does not use cluster information (and is robust to DE and stochastic zeroes, unlike existing methods).
 Moreover, normalization accuracy in Figure~\figdeconv{} is unaffected by the use of clustering prior to deconvolution, which suggests that this approach is valid.
 
-Systematic zeroes within each cluster are also removed prior to deconvolution in that cluster.
-This removes genes that have only zero counts across all cells in the cluster.
+Semi-systematic zeroes may be removed prior to deconvolution in each cluster.
+In particular, genes are removed if they only have zero counts across all cells in the cluster.
 Such genes provide no information for normalizing between cells in the same cluster, and their removal will not affect the cluster-specific size factor estimates.
 However, these genes are retained during rescaling of the size factors between clusters.
 This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
