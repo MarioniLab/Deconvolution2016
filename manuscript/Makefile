@@ -1,7 +1,8 @@
-all: betternorm.pdf suppmat.pdf Figure1.pdf Figure2.pdf Figure3.pdf Figure4.pdf Figure5.pdf
+all: betternorm.pdf AdditionalFile1.pdf Figure1.pdf Figure2.pdf Figure3.pdf Figure4.pdf Figure5.pdf AdditionalFile2.tsv AdditionalFile3.tsv
 
 clean:
 	rm *.pdf
+	rm *.tsv
 
 betternorm.pdf: betternorm.tex references.bib 
 	pdflatex betternorm.tex
@@ -9,8 +10,9 @@ betternorm.pdf: betternorm.tex references.bib
 	pdflatex betternorm.tex
 	pdflatex betternorm.tex
 
-suppmat.pdf: betternorm.pdf suppmat.tex ../simulations/results/sizeP_*.pdf pics/library_ring.pdf ../realdata/Zeisel_*.pdf
-	pdflatex suppmat.tex
+AdditionalFile1.pdf: betternorm.pdf suppmat.tex ../simulations/results/sizeP_*.pdf pics/library_ring.pdf ../realdata/Zeisel_*.pdf
+	pdflatex suppmat.tex 
+	mv suppmat.pdf $@
 
 pics/library_ring.pdf: pics/library_ring.svg
 	inkscape -D -A $@ $<
@@ -36,3 +38,9 @@ Figure4.pdf: pics/figure_deconv_sim.tex ../simulations/results/sumClust_*.pdf
 Figure5.pdf: pics/figure_realdata.tex ../realdata/Zeisel_*.pdf ../realdata/Klein_*.pdf
 	cd pics; pdflatex `basename $<`
 	pdfcrop pics/figure_realdata.pdf $@
+
+AdditionalFile2.tsv: ../realdata/GOresults/GOoutputUQinDecon_BP.tsv
+	cp $< $@
+
+AdditionalFile3.tsv: ../realdata/GOresults/GOoutputUQinLib_BP.tsv
+	cp $< $@
