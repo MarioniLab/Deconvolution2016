@@ -657,7 +657,7 @@ In such cases, an alternative normalization strategy can be performed to equaliz
 However, the size factors from spike-in normalization and those from deconvolution and the existing methods show no similarity (Supplementary Figure~\suppspikefig{}, Additional file~1).
 This is largely attributable to the differences in the assumptions between spike-in normalization and that of deconvolution and the other existing methods,
     as well as the insensitivity of the latter methods to differences in cell size and total RNA content.
-A more detailed explanation is provided in Section~\suppspikesec{} in Additional file~1.
+A more detailed discussion of the behaviour of spike-in normalization is provided in Section~\suppspikesec{} in Additional file~1.
 
 \subsubsection*{Different normalization schemes change the DE profile}
 To gauge the impact of employing different normalization methods, edgeR was used to perform a DE analysis on both data sets with the different size factor estimates. 
@@ -668,10 +668,10 @@ This process was repeated for the inDrop data to test for DE after LIF withdrawa
 The most noticeable difference between methods is observed in the number of DE genes and the signs of their log-fold changes for the brain data set (Table~\ref{tab:real_de}).
 Deconvolution yields a more balanced set of DE genes than DESeq, TMM or library size normalization, with smaller differences between the numbers of up- and downregulated genes.
 The set of DE genes detected in either direction also tends to be a superset or subset of that detected by the existing methods.
-This is consistent with a difference in overall scaling of the average expression values between different biological conditions, 
+This is consistent with a difference in global scaling of the average expression values for each cell type, 
     such that the DE log-fold changes from deconvolution are shifted in one direction relative to those from the existing methods.
 For example, consider the differences in the numbers of DE genes between deconvolution and library size normalization.
-The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{fig:real_comp}c.
+The increase in the number of oligodendrocyte-upregulated genes (i.e., ``Down'' relative to pyramidal cells) for deconvolution is consistent with the smaller size factors for these cells in Figure~\ref{fig:real_comp}c relative to the factors from library size normalization.
 This is because any increase in gene expression in oligodendrocytes is incorporated into the library size and is weakened upon library size normalization.
 
 In summary, over a thousand genes are lost or gained in the brain data when deconvolution is used instead of the other methods.
