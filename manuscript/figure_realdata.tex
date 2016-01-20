@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\pagenumbering{gobble}
+
+\begin{document}
+
+\newcommand{\realdata}{../realdata}
+
+\newcommand{\cellwidth}{0.32\textwidth}
+\begin{figure}[btp]
+\begin{tabular}{p{\cellwidth}@{}p{\cellwidth}@{}p{\cellwidth}@{}l}
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Zeisel_SFvDeconv.pdf}} & 
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Zeisel_TMMvDeconv.pdf}} &
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Zeisel_LibvDeconv.pdf}} & 
+ {\small\rotatebox[origin=c]{270}{\textsf{Brain}}} \\
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Klein_SFvDeconv.pdf}}
+\subcaption{}\label{subfig:comp_sf} &
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Klein_TMMvDeconv.pdf}}
+\subcaption{}\label{subfig:comp_tmm} &
+\raisebox{-.5\height}{\includegraphics[width=\cellwidth,trim=0mm 5mm 0mm 15mm,clip]{\realdata/Klein_LibvDeconv.pdf}} 
+\subcaption{}\label{subfig:comp_lib} &
+{\small\rotatebox[origin=c]{270}{\textsf{inDrop}}} \\
+\end{tabular}
+\end{figure}
+
+\end{document}
