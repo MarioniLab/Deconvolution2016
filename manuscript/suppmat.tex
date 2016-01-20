@@ -84,7 +84,7 @@ $^2$EMBL European Bioinformatics Institute, Wellcome Genome Campus, Hinxton, Cam
         A pseudo-count of unity was added to all counts directly (\subref{subfig:size_prior}) or after scaling the pseudo-count by the relative library size (\subref{subfig:size_libprior}), i.e., the pseudo-count added to each cell was equal to the ratio of its library size to the mean library size.
         Simulations were performed with no DE (first row) and varying magnitudes of DE (second row).
         Axes are shown on a log-scale.
-        For comparison, each set of size factors was scaled such that the same grand mean across cells was the same as that for the true values.
+        For comparison, each set of size factors was scaled such that the grand mean across cells was the same as that for the true values.
         The red line represents equality between the rescaled estimates and true factors.
         Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
     }
@@ -289,7 +289,7 @@ If spike-ins are not available, normalization of cell-specific biases must be pe
     \caption{ 
         Proportion of the top set of highly variable genes that were shared between deconvolution and each existing normalization method.
         Top genes were identified as those with the largest distance-to-median values. 
-        For both data sets, top sets of size between 500 and 2000 were compared between methods.
+        For both data sets, top sets of size ranging from 100 to 2000 were compared between methods.
     }
     \begin{center}
         \begin{tabular}{l r r r r}
