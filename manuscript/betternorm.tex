@@ -868,8 +868,9 @@ The authors would like to thank Antonio Scialdone for useful discussions and hel
     \csentence{Diagram of the deconvolution method.}
     All cells in the data set are averaged to make a reference pseudo-cell.
     Expression values for cells in pool A are summed together and normalized against the reference to yield a pool-based size factor $\theta_A$.
-    This is equal to the sum of the cell-based factors for cells 1-4 and can be used to formulate a linear equation.
-    Repeating this for multiple pools (e.g., pool B) constructs a linear system that can be solved to estimate $\theta_j$ for each cell $j$.
+    This is equal to the sum of the cell-based factors $\theta_j$ for cells $j=1$-4 and can be used to formulate a linear equation.
+    (For simplicity, the $T_j$ term is assumed to be unity here.)
+    Repeating this for multiple pools (e.g., pool B) leads to the construction of a linear system that can be solved to estimate $\theta_j$ for each cell $j$.
 }
 \label{fig:deconvolution}
 \end{figure}
