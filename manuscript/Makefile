@@ -39,8 +39,8 @@ Figure5.pdf: pics/figure_realdata.tex ../realdata/Zeisel_*.pdf ../realdata/Klein
 	cd pics; pdflatex `basename $<`
 	pdfcrop pics/figure_realdata.pdf $@
 
-AdditionalFile2.tsv: ../realdata/GOresults/GOoutputUQinDecon_BP.tsv
+AdditionalFile2.tsv: ../realdata/GOresults/topGO_Decon_BP.tsv
 	cp $< $@
 
-AdditionalFile3.tsv: ../realdata/GOresults/GOoutputUQinLib_BP.tsv
+AdditionalFile3.tsv: ../realdata/GOresults/topGO_Lib_BP.tsv
 	cp $< $@

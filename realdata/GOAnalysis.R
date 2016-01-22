@@ -1,4 +1,6 @@
 require("topGO")
+library(goseq)
+library(org.Mm.eg.db)
 
 # ---- Data ----
 
@@ -27,7 +29,7 @@ set.uq.sf <- as.integer(rownames(decon) %in% uq.sf)
 set.uq.decon <- as.integer(rownames(decon) %in% uq.decon)
 names(set.uq.lib) <- names(set.uq.TMM) <- names(set.uq.sf) <- names(set.uq.decon) <- rownames(decon)
 
-#prepare Data for topGO
+## prepare Data for topGO
 
 list.uq <- list("Lib"=set.uq.lib,"TMM"=set.uq.TMM,"SF"=set.uq.sf,"Decon"=set.uq.decon)
 ontologies <- c("BP","CC","MF")
@@ -42,6 +44,27 @@ for (i in seq_along(list.uq)) {
                       annot=annFUN.org, mapping="org.Mm.eg.db", nodeSize=10, ID="symbol")
         result.classic <- runTest(GO.data, algorithm="classic", statistic="Fisher")
         output <- GenTable(GO.data, Fisher.classic=result.classic, orderBy="Fisher.classic", topNodes=200, numChar=10000)
-        write.table(output, file.path(output.dir, paste0("GOoutputUQin", names(list.uq)[i], "_", x, ".tsv")), quote=FALSE, row.names=FALSE, sep="\t")
+        write.table(output, file.path(output.dir, paste0("topGO_", names(list.uq)[i], "_", x, ".tsv")), quote=FALSE, row.names=FALSE, sep="\t")
     }
 }
+
+## prepare data for goseq
+
+renamed <- select(org.Mm.eg.db, keys=rownames(decon), keytype="SYMBOL", column="ENSEMBL")
+renames <- renamed$ENSEMBL[match(rownames(decon), renamed$SYMBOL)]
+keep <- !is.na(renames) & !duplicated(renames)
+
+for (i in seq_along(list.uq)) {
+    curset <- list.uq[[i]]
+    names(curset) <- renames
+    curset <- curset[keep]
+    pwf <- nullp(curset, 'mm10', 'ensGene')
+    pvals <- goseq(pwf, 'mm10','ensGene')
+
+    for (x in ontologies) {
+        output <- pvals[pvals$ontology==x,]
+        output <- output[1:200,]
+        write.table(output, file.path(output.dir, paste0("goseq_", names(list.uq)[i], "_", x, ".tsv")), quote=FALSE, row.names=FALSE, sep="\t")
+    }
+}
+
