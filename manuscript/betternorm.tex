@@ -198,7 +198,7 @@ Calculation of size factors for normalization is not straightforward for noisy s
 
 \parttitle{Results} 
 Existing normalization methods such as DESeq, TMM or library size normalization yield inaccurate size factor estimates in simulations with many zeroes and differentially expressed genes. 
-We propose a new method for normalization that where expression values are summed across pools of cells, and the summed values are used for median-based normalization.
+We propose a new method for normalization where expression values are summed across pools of cells, and the summed values are used for median-based normalization.
 Pool-based size factors are then deconvolved to yield cell-based factors.
 This reduces the incidence of zeroes while also protecting against differential expression.
 Our deconvolution approach provides accurate estimates for the size factors in analyses of simulated data.
@@ -206,7 +206,7 @@ Similar behaviour is observed in real data where deconvolution yields a wider ra
 The use of deconvolution also alters the number and ranking of differentially expressed and highly variable genes.
 
 \parttitle{Conclusions} 
-The deconvolution method overcomes the deficiencies of existing methods for normalization of RNA sequencing data.
+The deconvolution method overcomes the deficiencies of existing methods for normalization of single-cell RNA sequencing data.
 We anticipate that increased normalization accuracy will improve the performance of downstream analyses and the validity of biological conclusions derived from the data.
 
 \end{abstract}
@@ -685,6 +685,7 @@ This process was repeated for the inDrop data to test for DE after LIF withdrawa
 
 The most noticeable difference between methods is observed in the number of DE genes and the signs of their log-fold changes for the brain data set (Table~\ref{tab:real_de}).
 Deconvolution yields a more balanced set of DE genes than DESeq, TMM or library size normalization, with smaller differences between the numbers of up- and downregulated genes.
+% How about noting that neurons contained more RNA. As DESeq and TMM fail to account for this difference in library size, i.e., size factors are all ~1, they vastly overestimate the number of neuronal upregulated genes.
 The set of DE genes detected in either direction also tends to be a superset or subset of that detected by the existing methods.
 This is consistent with a difference in global scaling of the average expression values for each cell type, 
     such that the DE log-fold changes from deconvolution are shifted in one direction relative to those from the existing methods.
@@ -749,7 +750,7 @@ The set of ERCC spike-ins in the brain data set was also removed.
 This ensures that normalization is only performed using the counts for the cellular genes.
 For the inDrop data set, counts were only used for cells before withdrawal of LIF and those 7 days after withdrawal.
 This resulted in a final set consisting of approximately 1700 cells.
-Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 3000 for those cells.
+Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 5000 for those cells.
 
 \subsection*{Downstream analyses on real data}
 A DE analysis was performed on each data set using the statistical methods in edgeR.
