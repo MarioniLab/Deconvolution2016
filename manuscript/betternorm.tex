@@ -750,7 +750,7 @@ The set of ERCC spike-ins in the brain data set was also removed.
 This ensures that normalization is only performed using the counts for the cellular genes.
 For the inDrop data set, counts were only used for cells before withdrawal of LIF and those 7 days after withdrawal.
 This resulted in a final set consisting of approximately 1700 cells.
-Cells in the intervening time points were not considered as the library sizes were too small -- the average total count across all genes was around 5000 for those cells.
+For simplicity, cells in the intervening time points were not used.
 
 \subsection*{Downstream analyses on real data}
 A DE analysis was performed on each data set using the statistical methods in edgeR.
