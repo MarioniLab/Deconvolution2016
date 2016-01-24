@@ -1,6 +1,8 @@
 simulations/results
 simulations/results_high
 simulations/highcounts.R
+simulations/results_low
+simulations/lowcounts.R
 
 manuscript/betternorm.aux
 manuscript/betternorm.bbl
