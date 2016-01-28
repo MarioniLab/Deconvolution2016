@@ -20,7 +20,7 @@
 \renewcommand{\thefigure}{S\@arabic\c@figure} 
 \renewcommand{\thetable}{S\@arabic\c@table} 
 
-\newcommand{\figdeconv}{2}
+\newcommand{\figdeconv}{4}
 
 \externalcitedocument{betternorm}
 
@@ -124,12 +124,12 @@ The addition of equations relating each $\theta_j$ with its direct estimate $\th
 In this example, the residual sum of squares for the possible solutions can be written as
 \[
 \sum_{j \in J_1} (\theta_j +x - \theta'_j)^2+ \sum_{j \in J_2} (\theta_j -x - \theta'_j)^2 
-= \sum_{j \in \{J_1, J_2\}} x^2 + 2x\left[ \sum_{j \in J_1} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \theta'_j)^2
+= 4 x^2 + 2x\left[ \sum_{j \in J_1} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \theta'_j)^2
 \]
 where $J_1 = \{1, 3\}$ and $J_2=\{2, 4\}$.
-For $n=4$ cells in the data set, the above expression is minimized at
+For these 4 cells, the above expression is minimized in terms of $x$ at
 \[
-x = - \frac{1}{n}\left[ \sum_{j \in J_1} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] \;.
+x = - \frac{1}{4}\left[ \sum_{j \in J_1} (\theta_j - \theta'_j) - \sum_{j \in J_2} (\theta_j - \theta'_j)\right] \;.
 \]
 The direct estimate of each size factor is unbiased as stochastic zeroes are not removed, i.e., $E(\theta_j - \theta'_j)=0$.
 
@@ -162,7 +162,7 @@ In this manner, a distance matrix is constructed between all pairs of cells.
 Hierarchical clustering is performed on this matrix using Ward's clustering criterion.
 A dynamic tree cut is used to define clusters of cells using the dynamicTreeCut package v1.62 ({https://cran.r-project.org/web/packages/dynamicTreeCut/index.html}).
 This ensures that each cluster contains a minimum number of cells (200 by default) required for stable deconvolution.
-Correlation-based clustering is appealing as they are insensitive to global scaling of the expression values in each cell.
+Correlation-based clustering is appealing as it is insensitive to global scaling of the expression values in each cell.
 Prior normalization is not required, which avoids a circular dependence between normalization and clustering.
 Alternatively, one can use known aspects of the data set as clusters, e.g., groupings, batches.
 Empirical clustering may not be required if such information is available, which reduces computational work and avoids potential errors.
@@ -182,8 +182,8 @@ In general, cluster-specific normalization requires some caution.
 Done incorrectly, this may introduce artificial differences between cells in different clusters, 
     such that the statistical rigour of downstream analyses (e.g., to detect DE between clusters) would be compromised.
 However, such problems are avoided here by using a two-step normalization strategy.
-The first normalization step removes any systematic differences between cells in each cluster, 
-    while the second normalization between pseudo-cells removes any differences between clusters.
+The first normalization step removes any systematic differences between cells \textit{within} each cluster, 
+    while the second normalization between pseudo-cells removes any differences \textit{between} clusters.
 The end result is that differences between all cells in all clusters are removed.
 This is equivalent to the outcome of a hypothetical one-step method that does not use cluster information (and is robust to DE and stochastic zeroes, unlike existing methods).
 Moreover, normalization accuracy in Figure~\figdeconv{} is unaffected by the use of clustering prior to deconvolution, which suggests that this approach is valid.
@@ -253,8 +253,8 @@ For other applications, cell size may be a confounding variable that needs to be
 For these data sets, normalization should be performed with the deconvolution method.
 
 Ideally, the decision to use spike-ins or not should be driven by biology, i.e., whether cell size is relevant to the study.
-In practice, though, issues such as cost and convenience dictate whether spike-ins are added in the experiment.
-This is especially true for the droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
+In practice, however, issues such as cost and convenience dictate whether spike-ins are added in the experiment.
+This is especially true for droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
 If spike-ins are not available, normalization of cell-specific biases must be performed with methods that assume a non-DE majority, e.g., TMM, deconvolution.
 
 \begin{table}[p]
