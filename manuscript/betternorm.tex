@@ -460,7 +460,7 @@ The aim of the deconvolution strategy is to normalize on summed expression value
 Summation across cells results in fewer zeroes, which means that the ensuing normalization is less susceptible to the errors observed for existing methods.
 While normalization accuracy is improved, the estimated size factors are only relevant to the pools of cells.
 This is not particularly interesting for downstream analyses which typically focus on single cells.
-To resolve this problem, the size factor for each pool is deconvolved into the size factors for its constituent cells.
+To obtain relevant estimates, the size factor for each pool is deconvolved into the size factors for its constituent cells.
 This ensures that cell-specific biases can be properly normalized.
 
 The deconvolution method consists of several key steps --
@@ -527,9 +527,10 @@ In contrast, sliding a window across a linear ordering of cells will result in t
 
 The pooling of cells with similar library sizes is designed to provide some robustness to estimation errors for small $\theta_j T_j^{-1}$.
 If cells with very small and very large values for $\theta_j T_j^{-1}$ are pooled together, the pool-based factor $r_{ik}$ is likely to be large. 
-Small relative errors in estimation of $r_{ik}$ will manifest as large absolute errors for small $\theta_j T_j^{-1}$ when the linear system is solved.
+Small relative errors in estimation of large $r_{ik}$ will manifest as large relative errors for small $\theta_j T_j^{-1}$ when the linear system is solved.
 To mitigate this effect, we assume that the library size is approximately correlated (positively or negatively) with $\theta_j T_j^{-1}$.
 For example, upregulation of a subset of genes in a particular cell will drive an increase in its library size and a simultaneous decrease in $\theta_j T_j^{-1}$ as $T_j$ increases.
+This results in a negative association between library size and $\theta_j T_j^{-1}$.
 Summing adjacent cells in the ring will then yield pools of cells with roughly similar $\theta_j T_j^{-1}$.
 This reduces the risk of small errors in $r_{ik}$ being transformed into large errors for $\theta_j T_j^{-1}$.
 
