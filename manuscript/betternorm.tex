@@ -349,7 +349,7 @@ The normalization factor represents the scaling required to eliminate systematic
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
 
 Both DESeq and TMM normalization assume that some minimal proportion of genes are not DE between libraries.
-For DESeq, the proportion is 50\% of all genes, whereas for TMM, it is 40--70\% depending on the direction of DE (for simplicity, this will be referred to as a non-DE majority for both methods).
+For DESeq, the proportion is 50\% of all genes, whereas for TMM, it is 40-70\% depending on the direction of DE \cite{robinson2010scaling} (for simplicity, this will be referred to as a non-DE majority for both methods).
 Consequently, any systematic difference in expression across the majority of genes is treated as bias, which is incorporated into the size/normalization factors and removed upon scaling.
 If the non-DE assumption does not hold, the computed factors will not be accurate.
 In addition, both methods perform poorly in the presence of a large number of zeroes.
@@ -381,7 +381,7 @@ The $\theta_{j}$ term represents cell-specific biases (e.g., in capture efficien
 \log_2(\theta_j) \sim \mathcal{N}(0, 0.25) \;.
 \]
 The $\lambda_{is}$ term denotes the expected number of transcripts of gene $i$ for cells in subpopulation $s$.
-It is defined as $\lambda_{is}=\phi_{is}\lambda_{i0}$ where $\phi_{is}$ represents the DE for this gene in this subpopulation, and 
+It is defined as $\lambda_{is}=\phi_{is}\lambda_{i0}$ where $\phi_{is}$ represents the DE fold change for this gene in this subpopulation, and 
 \[
 \log_2(\lambda_{i0}) \sim \mbox{Uniform}(3, 6) \;.
 \]
@@ -398,14 +398,16 @@ This is similar to real data where around 60\% of the counts in each cell are st
 
 The simulation design involved 10000 genes for three subpopulations of 250 cells each.
 For each subpopulation, a unique set of $G$ genes was randomly chosen.
-DE was introduced by setting $\phi_{is}$ to some constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
+DE was introduced by setting $\phi_{is}$ to some above-unity constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
 This provides each subpopulation with a unique expression signature containing different numbers of DE genes in each direction.
+For all genes that were not chosen, $\phi_{is}$ was set to unity to represent the absence of DE.
 Simulations were performed for $G = 0$ (no DE), 1000 (moderate DE) and 3000 (strong DE).
 The simulation was also repeated with $G$ set to 3000, $p_s$ set to 50\% for all $s$ and $\phi_{s}$ set to 2, 5 and 10 for the first, second and third subpopulations, respectively.
 This represents an alternative scenario where the number of DE genes in either direction is the same but the magnitude of DE is different between subpopulations.
-In each simulation scenario, the count for each gene in each cell was sampled from the above NB distribution,
-    the mean of which was modified according to the parameter settings of that scenario.
+In each simulation scenario, the count for each gene in each cell was sampled from a NB distribution as previously described.
+The mean of this distribution was defined according to the parameter settings of that scenario (i.e., whether that gene was chosen as DE in the corresponding subpopulation, and if so, the direction and magnitude of DE).
+A summary of the simulation parameters is provided in Table~\ref{tab:sim_param}.    
 
 DESeq, TMM and library size normalization were applied to this data.
 Zero counts were removed prior to or during DESeq and TMM normalization -- see Methods for more details.
@@ -544,7 +546,7 @@ This increases the total number of equations in the system and means that each $
 
 An additional set of equations is added to ensure that the system is solvable.
 In each extra equation, the $\theta_jT_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
-These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ and unity respectively.
+These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ (though any small value can be used) and unity respectively.
 A weighted least-squares approach is then applied to solve the linear system.
 In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
 This ensures that a single solution can be obtained.
@@ -910,6 +912,29 @@ The authors would like to thank Antonio Scialdone for useful discussions and hel
 %% Use of \listoftables is discouraged.
 %%
 \section*{Tables}
+
+\begin{table}[!h]
+\caption{
+    Description of the simulation parameters.
+}
+\begin{center}
+\begin{tabular}{l l}
+    \hline
+\textit{Symbol} & \textit{Description} \\   
+    \hline
+    $\theta_j$ &  Cell-specific bias for cell $j$ \\
+    $\lambda_{is}$ & Expected number of transcripts for gene $i$ in subpopulation $s$ \\
+    $\phi_{is}$ & DE fold change in gene $i$ of subpopulation $s$ \\
+    $\lambda_{i0}$ & Baseline expectation for the number of transcripts (i.e., without DE) for gene $i$ \\
+    $\varphi_i$ & NB dispersion for gene $i$ \\
+    $\phi_{s}$ & DE fold change for all DE genes in subpopulation $s$ \\
+    $G$ & Number of unique DE genes in each subpopulation \\
+    $p_s$ & Proportion of DE genes that are upregulated in subpopulation $s$ \\
+    \hline
+\end{tabular}
+\end{center}
+\label{tab:sim_param}
+\end{table}
 
 \begin{table}[!h]
 \caption{
