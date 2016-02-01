@@ -502,7 +502,7 @@ The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates f
 A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
 by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
 The constant $C$ can be set to unity and ignored, as it does not contribute to the relative differences between size factors.
-Repeating the estimation of $E(r_{ik})$ for different sets of cells in $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
+Repeating the estimation of $E(r_{ik})$ for different sets of cells as $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
     in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
 This system can be solved with standard least-squares methods to obtain estimates of $\theta_j T_j^{-1}$ for all cells 
     (this represents ``deconvolution'' of the cell pool factors to the factors for the individual cells, hence the name).
@@ -525,17 +525,13 @@ Thus, each window defines a separate equation in the linear system.
 The use of a ring means that the window is still defined at the smallest and largest libraries.
 In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
 
-The pooling of cells with similar library sizes is designed to provide some robustness to DE.
-Specifically, the library size is used as a rough proxy for cell similarity.
-This is motivated by the fact that different cell types tend to have systematic differences in the library sizes, 
-    e.g., due to type-specific differences in total RNA or capture efficiency.
-Summation of cells with similar library sizes (and by implication, similar expression profiles) reduces the number of DE genes in each cell pool relative to the reference pseudo-cell.
-This weakens the assumption of a non-DE majority that is required for normalization -- see below for more details.
-
-% In small samples, it mightn't matter whether or not the cells have similar expression profiles;
-% DE anywhere in the data set will contaminate the average reference anyway, so the amount of DE in each cell pool relative to the pseudo-cell would be the same.
-% However, if the cluster is large enough, minor DE will average out in the pseudo-cell.
-% Then we definitely can see an advantage from summing similar cells at a time in each cell pool. 
+The pooling of cells with similar library sizes is designed to provide some robustness to estimation errors for small $\theta_j T_j^{-1}$.
+If cells with very small and very large values for $\theta_j T_j^{-1}$ are pooled together, the pool-based factor $r_{ik}$ is likely to be large. 
+Small relative errors in estimation of $r_{ik}$ will manifest as large absolute errors for small $\theta_j T_j^{-1}$ when the linear system is solved.
+To mitigate this effect, we assume that the library size is approximately correlated (positively or negatively) with $\theta_j T_j^{-1}$.
+For example, upregulation of a subset of genes in a particular cell will drive an increase in its library size and a simultaneous decrease in $\theta_j T_j^{-1}$ as $T_j$ increases.
+Summing adjacent cells in the ring will then yield pools of cells with roughly similar $\theta_j T_j^{-1}$.
+This reduces the risk of small errors in $r_{ik}$ being transformed into large errors for $\theta_j T_j^{-1}$.
 
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
@@ -613,8 +609,6 @@ This weakens the assumption as a non-DE majority is only required across pairs o
 For example, consider five subpopulations where each has a unique set of DE genes comprising 20\% of all genes.
 Only 40\% of genes would be DE between any two subpopulations, while 100\% of genes would exhibit some DE across all subpopulations.
 In this situation, pairwise normalization would clearly be safer as a non-DE majority would be present.
-Clustering is also complemented by the library size-ordered pooling described above, which protects against any residual DE within each cluster.
-This is especially relevant for heterogeneous populations that are difficult to partition, or in cases where larger clusters must be formed due to low numbers of cells.
 
 Any clustering technique can be used to group cells with similar expression profiles prior to deconvolution.
 We favour hierarchical clustering on correlation-based distances as it avoids any circularity between normalization and clustering
