@@ -385,9 +385,10 @@ Approximately 40-50\% of all counts are sampled as zero in each simulated librar
 This is similar to real data where around 60\% of the counts in each cell are stochastic or semi-systematic zeroes.
 
 The simulation design involved 10000 genes for three subpopulations of 250 cells each.
-For each subpopulation, a unique set of $G$ genes was randomly chosen, i.e., the genes chosen for one subpopulation will not be chosen for another subpopulation.
+For each subpopulation, a set of $G$ genes was randomly chosen.
 DE was introduced for the chosen genes by setting $\phi_{is}$ to some above-unity constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
+Sets were also mutually exclusive between subpopulations, i.e., any genes chosen for one subpopulation were not chosen for another subpopulation.
 This provides each subpopulation with a unique expression signature containing different numbers of DE genes in each direction.
 For all genes that were not chosen, $\phi_{is}$ was set to unity to represent the absence of DE.
 Simulations were performed for $G = 0$ (no DE), 1000 (moderate DE) and 3000 (strong DE).
