@@ -159,13 +159,13 @@ Thus, the additional equations will not affect accurate estimation of the size f
 Let $\rho_{xy}$ denote Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
 We define the distance between these cells as $1-\rho_{xy}$.
 In this manner, a distance matrix is constructed between all pairs of cells.
-Hierarchical clustering is performed on this matrix using Ward's clustering criterion.
-A dynamic tree cut is used to define clusters of cells using the dynamicTreeCut package v1.62 ({https://cran.r-project.org/web/packages/dynamicTreeCut/index.html}).
+Hierarchical clustering is performed on this matrix using the hclust function with Ward's clustering criterion.
+Clusters of cells are defined using a dynamic tree cut from the dynamicTreeCut package v1.62 ({https://cran.r-project.org/web/packages/dynamicTreeCut/index.html}).
 This ensures that each cluster contains a minimum number of cells (200 by default) required for stable deconvolution.
 Correlation-based clustering is appealing as it is insensitive to global scaling of the expression values in each cell.
 Prior normalization is not required, which avoids a circular dependence between normalization and clustering.
 Alternatively, one can use known aspects of the data set as clusters, e.g., groupings, batches.
-Empirical clustering may not be required if such information is available, which reduces computational work and avoids potential errors.
+Empirical clustering may not be required if such information is available, which reduces computational work and reduces the potential for errors.
 
 % While PCA does mean-centering of each gene, this is probably unwise for correlation-based clustering. 
 % Two cells that are similar to the mean expression profile will have uncorrelated residuals and would appear to be unrelated. 
