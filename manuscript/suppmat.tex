@@ -195,67 +195,67 @@ However, these genes are retained during rescaling of the size factors between c
 This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
 Removal of such genes will distort the median ratio between pseudo-cells and lead to biased size factor estimates, as described previously for the existing methods.
 
-\section{Deconvolution is inconsistent with spike-in normalization}
-The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
-Briefly, a constant quantity of spike-in RNA is added to each cell and processed with the cellular RNA \cite{stegle2015computational}.
-Upon sequencing and quantification, differences in the coverage of spike-in genes between cells are interpreted as cell-specific biases and removed.
-At its simplest, spike-in normalization uses the total count across the spike-in genes as the size factor for each cell.
-This is similar to library size normalization with the counts for the cellular genes, but is more robust as no DE is expected across cells for a constant spike-in set.
-Problems with stochastic zeroes are avoided, and the assumption of a non-DE majority is not required.
-However, spike-in normalization does assume that the same quantity of spike-in RNA can be added to each cell \cite{robinson2010scaling,marinov2014singlecell}.
-It also assumes that the spike-ins behave similarly to the cellular transcripts \cite{grun2015design}.
-Violations of these assumptions may compromise performance, as observed in some bulk RNA-seq data sets \cite{risso2014normalization}.
-
-Examination of the data indicates that no correlation -- qualitative or quantitative -- 
-    exists between the sets of size factors from spike-in and the other normalization methods (Figure~\ref{fig:real_spike}).
-This is attributable to the differences in the underlying assumptions of each method.
-If most genes are DE, deconvolution and the existing methods will be incorrect and spike-in normalization will be more accurate.
-Conversely, spike-in normalization will be incorrect if spike-ins are not added precisely or if spike-in and cellular transcripts behave differently during library preparation.
-These results suggest that the validity of each assumption requires some consideration before normalization.
-For example, the similarity of the input cell types can be used to gauge the appropriateness of the non-DE assumption. 
-Here, over half of the cells are classified as neuronal \cite{zeisel2015brain}, so a non-DE majority of genes is not entirely unreasonable.
-Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
-
-\begin{figure}[btp]
-\begin{center}
-    \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvSF.pdf}
-        \subcaption{}\label{subfig:spike_sf}
-    \end{minipage}
-    \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvTMM.pdf}
-        \subcaption{}\label{subfig:spike_tmm}
-    \end{minipage} \\ 
-    \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvLib.pdf}
-        \subcaption{}\label{subfig:spike_lib}
-    \end{minipage} 
-    \begin{minipage}{0.33\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvDeconv.pdf}
-        \subcaption{}\label{subfig:spike_sum}
-    \end{minipage}
-\end{center}
-    \caption{
-        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) DESeq, (\subref{subfig:spike_tmm}) TMM,
-            (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
-        All sets of size factors were scaled to have a median of unity.
-        Axes are shown on a log-scale.
-    }
-    \label{fig:real_spike}  
-\end{figure}
-
-Of greater biological relevance is the fact that spike-in normalization preserves differences in cell size and total RNA content.
-In contrast, deconvolution and the existing methods will remove such differences.
-This is because they affect all genes within each cell and are subsequently treated as part of the cell-specific bias.
-Whether or not this is appropriate depends on whether cell size differences are of interest to the researcher.
-In some scenarios, this may be the case such that spike-ins should be used, e.g., when studying cycling cells with differences in total RNA.
-For other applications, cell size may be a confounding variable that needs to be removed.
-For these data sets, normalization should be performed with the deconvolution method.
-
-Ideally, the decision to use spike-ins or not should be driven by biology, i.e., whether cell size is relevant to the study.
-In practice, however, issues such as cost and convenience dictate whether spike-ins are added in the experiment.
-This is especially true for droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
-If spike-ins are not available, normalization of cell-specific biases must be performed with methods that assume a non-DE majority, e.g., TMM, deconvolution.
+%\section{Deconvolution is inconsistent with spike-in normalization}
+%The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
+%Briefly, a constant quantity of spike-in RNA is added to each cell and processed with the cellular RNA \cite{stegle2015computational}.
+%Upon sequencing and quantification, differences in the coverage of spike-in genes between cells are interpreted as cell-specific biases and removed.
+%At its simplest, spike-in normalization uses the total count across the spike-in genes as the size factor for each cell.
+%This is similar to library size normalization with the counts for the cellular genes, but is more robust as no DE is expected across cells for a constant spike-in set.
+%Problems with stochastic zeroes are avoided, and the assumption of a non-DE majority is not required.
+%However, spike-in normalization does assume that the same quantity of spike-in RNA can be added to each cell \cite{robinson2010scaling,marinov2014singlecell}.
+%It also assumes that the spike-ins behave similarly to the cellular transcripts \cite{grun2015design}.
+%Violations of these assumptions may compromise performance, as observed in some bulk RNA-seq data sets \cite{risso2014normalization}.
+%
+%Examination of the data indicates that no correlation -- qualitative or quantitative -- 
+%    exists between the sets of size factors from spike-in and the other normalization methods (Figure~\ref{fig:real_spike}).
+%This is attributable to the differences in the underlying assumptions of each method.
+%If most genes are DE, deconvolution and the existing methods will be incorrect and spike-in normalization will be more accurate.
+%Conversely, spike-in normalization will be incorrect if spike-ins are not added precisely or if spike-in and cellular transcripts behave differently during library preparation.
+%These results suggest that the validity of each assumption requires some consideration before normalization.
+%For example, the similarity of the input cell types can be used to gauge the appropriateness of the non-DE assumption. 
+%Here, over half of the cells are classified as neuronal \cite{zeisel2015brain}, so a non-DE majority of genes is not entirely unreasonable.
+%Obviously, the truth of each assumption is largely unknown, so it is difficult to definitively determine the correct method for any given data set.
+%
+%\begin{figure}[btp]
+%\begin{center}
+%    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvSF.pdf}
+%        \subcaption{}\label{subfig:spike_sf}
+%    \end{minipage}
+%    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvTMM.pdf}
+%        \subcaption{}\label{subfig:spike_tmm}
+%    \end{minipage} \\ 
+%    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvLib.pdf}
+%        \subcaption{}\label{subfig:spike_lib}
+%    \end{minipage} 
+%    \begin{minipage}{0.33\textwidth}
+%        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 15mm,clip]{../realdata/Zeisel_ERCCvDeconv.pdf}
+%        \subcaption{}\label{subfig:spike_sum}
+%    \end{minipage}
+%\end{center}
+%    \caption{
+%        Comparisons between the estimated size factors from spike-in normalization to those from (\subref{subfig:spike_sf}) DESeq, (\subref{subfig:spike_tmm}) TMM,
+%            (\subref{subfig:spike_lib}) library size normalization or (\subref{subfig:spike_sum}) the deconvolution method for all cells in the brain data set.                  
+%        All sets of size factors were scaled to have a median of unity.
+%        Axes are shown on a log-scale.
+%    }
+%    \label{fig:real_spike}  
+%\end{figure}
+%
+%Of greater biological relevance is the fact that spike-in normalization preserves differences in cell size and total RNA content.
+%In contrast, deconvolution and the existing methods will remove such differences.
+%This is because they affect all genes within each cell and are subsequently treated as part of the cell-specific bias.
+%Whether or not this is appropriate depends on whether cell size differences are of interest to the researcher.
+%In some scenarios, this may be the case such that spike-ins should be used, e.g., when studying cycling cells with differences in total RNA.
+%For other applications, cell size may be a confounding variable that needs to be removed.
+%For these data sets, normalization should be performed with the deconvolution method.
+%
+%Ideally, the decision to use spike-ins or not should be driven by biology, i.e., whether cell size is relevant to the study.
+%In practice, however, issues such as cost and convenience dictate whether spike-ins are added in the experiment.
+%This is especially true for droplet-based protocols \cite{macosko2015highly,klein2015droplet} for which the consistent incorporation of spike-ins is not straightforward.
+%If spike-ins are not available, normalization of cell-specific biases must be performed with methods that assume a non-DE majority, e.g., TMM, deconvolution.
 
 \begin{table}[p]
     \caption{

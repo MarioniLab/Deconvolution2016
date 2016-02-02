@@ -83,7 +83,7 @@
 
 \newcommand{\supppseudo}{S1}
 \newcommand{\suppring}{S2}
-\newcommand{\suppspikefig}{S3}
+%\newcommand{\suppspikefig}{S3}
 
 \newcommand{\supprank}{S1}
 \newcommand{\suppHVG}{S2}
@@ -266,7 +266,7 @@ Moreover, the capture efficiency often varies from cell to cell, such that count
 
 Normalization of the scRNA-seq counts is a critical step that corrects for cell-to-cell differences in capture efficiency, sequencing depth and other technical confounders.
 This ensures that downstream comparisons of relative expression between cells are valid.
-Two broad classes of normalization approaches are available -- those using spike-in RNA sets, and those using the counts from the profiled cellular RNA.
+Two broad classes of methods for scaling normalization are available -- those using spike-in RNA sets, and those using the counts from the profiled cellular RNA.
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
 Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency between cells.
 Normalization is then performed by scaling the counts to equalize spike-in coverage between cells.
@@ -306,7 +306,7 @@ Such variability can result in zero counts for lowly expressed genes.
 It is also technically difficult to process low quantities of input RNA into sequenceable libraries.
 This results in high dropout rates whereby low-abundance transcripts are not captured during library preparation \cite{brennecke2013accounting}.
 
-At this point, it is important to distinguish between stochastic and systematic zeroes.
+At this point, it is important to distinguish between systematic, semi-systematic and stochastic zeroes.
 Systematic zeroes refer to genes that are constitutively silent across all cells in the data set, such that the count will be zero for each cell.
 These are generally not problematic as they contain no information and can be removed prior to normalization.
 Stochastic zeroes are found in genes that are actively expressed but obtain counts of zero in some cells due to sampling stochasticity.
@@ -344,7 +344,7 @@ In addition, both methods perform poorly in the presence of a large number of ze
 For DESeq normalization, the geometric mean will be equal to zero for genes with a zero count in any library, such that the ratios for that gene become undefined.
 Moreover, a library with zero counts for a majority of genes will have a size factor of zero, which precludes any sensible scaling.
 For TMM normalization, M-values are undefined when the count in either library is zero.
-In such conditions, both methods typically require \textit{ad hoc} workarounds such as the removal of zero counts.
+In such conditions, both methods require \textit{ad hoc} workarounds such as the removal of zero counts (this is done automatically by their respective implementations).
 
 Finally, library size normalization is another commonly used approach for normalizing RNA-seq data.
 This involves scaling the counts such that the library size is the same across libraries,
@@ -385,8 +385,8 @@ Approximately 40-50\% of all counts are sampled as zero in each simulated librar
 This is similar to real data where around 60\% of the counts in each cell are stochastic or semi-systematic zeroes.
 
 The simulation design involved 10000 genes for three subpopulations of 250 cells each.
-For each subpopulation, a unique set of $G$ genes was randomly chosen.
-DE was introduced by setting $\phi_{is}$ to some above-unity constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
+For each subpopulation, a unique set of $G$ genes was randomly chosen, i.e., the genes chosen for one subpopulation will not be chosen for another subpopulation.
+DE was introduced for the chosen genes by setting $\phi_{is}$ to some above-unity constant $\phi_s$ for $p_s$ of the $G$ genes (i.e., upregulated) and to $0$ for the rest (downregulated, corresponding to semi-systematic zeroes).
 The value of $\phi_s$ was set to 5 for all $s$, while $p_s$ was set to 20, 50 and 80\% for the first, second and third subpopulations, respectively.
 This provides each subpopulation with a unique expression signature containing different numbers of DE genes in each direction.
 For all genes that were not chosen, $\phi_{is}$ was set to unity to represent the absence of DE.
@@ -462,7 +462,7 @@ The following section will describe the implementation of the deconvolution meth
 \subsubsection*{Summation and deconvolution with linear equations}
 Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below).
 This means that $E(\pi_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.
-Further assume that we have an arbitrary set of cells $\mathcal{S}_k$.
+Further assume that we have a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
 Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
 The values of $s_{ik}$ across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
 The expectation of $s_{ik}$ is equal to 
@@ -471,7 +471,7 @@ The expectation of $s_{ik}$ is equal to
 \]
 Define $u_{i}$ as the mean of expression values for gene $i$ across all $N$ cells in the entire data set.
 The values of $u_{i}$ across all genes represent the expression profile for an averaged reference pseudo-cell.
-The cell pool for set $\mathcal{S}_k$ is then normalized against this reference pseudo-cell.
+The cell pool $k$ is then normalized against this reference pseudo-cell.
 Let $r_{ik}$ denote the ratio of $s_{ik}$ to $u_{i}$ for a non-DE gene $i$.
 The expectation of $r_{ik}$ represents the size factor for the pooled cells in $\mathcal{S}_k$, and is written as
 \begin{equation}
@@ -490,7 +490,7 @@ The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates f
 A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
 by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
 The constant $C$ can be set to unity and ignored, as it does not contribute to the relative differences between size factors.
-Repeating the estimation of $E(r_{ik})$ for different sets of cells as $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
+Repeating the estimation of $E(r_{ik})$ by defining different sets of cells as $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
     in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
 This system can be solved with standard least-squares methods to obtain estimates of $\theta_j T_j^{-1}$ for all cells 
     (this represents ``deconvolution'' of the cell pool factors to the factors for the individual cells, hence the name).
@@ -600,8 +600,9 @@ Only 40\% of genes would be DE between any two subpopulations, while 100\% of ge
 In this situation, pairwise normalization would clearly be safer as a non-DE majority would be present.
 
 Any clustering technique can be used to group cells with similar expression profiles prior to deconvolution.
-We favour hierarchical clustering on correlation-based distances as it avoids any circularity between normalization and clustering
+We favour hierarchical clustering on rank correlation-based distances as it avoids any circularity between normalization and clustering
     -- see Section~\suppclustering{} in Additional file~1 for more details.
+All uses of deconvolution in the following text will be performed in conjunction with this clustering approach.
 
 \subsubsection*{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
@@ -619,7 +620,7 @@ However, the deconvolution method is still more accurate than the existing metho
 We also examined the behaviour of the deconvolution method in real scRNA-seq data.
 The first data set involves over 3000 cells from the somatosensory cortex and hippocampal region of the mouse brain \cite{zeisel2015brain}.
 This includes a number of different cell types such as oligodendrocytes, microglia and various neuronal subtypes.
-External RNA Controls Consortium (ERCC) spike-ins are also available in each library.
+%External RNA Controls Consortium (ERCC) spike-ins are also available in each library.
 The second data set was generated using the inDrop protocol on mouse embryonic stem cells, before and after withdrawal of leukemia inhibitory factor (LIF) \cite{klein2015droplet}.
 
 \subsubsection*{Deconvolution yields a wider spread of size factors}
@@ -650,19 +651,20 @@ This avoids bias towards unity in the simulations and increases the range of the
 %\end{figure}
 
 Deconvolution also yields different size factors from library size normalization in the brain data (Figure~\ref{fig:real_comp}c).
-Specifically, a substantial number of cells have size factor estimates from library size normalization that are larger than those from deconvolution.
-This is attributable to the likely presence of DE genes between different cell types -- specifically, between oligodendrocytes and the other neuronal cells.
-Any upregulation will increase the size factors from library size normalization for affected cells by increasing the library sizes.
+Specifically, the majority of oligodendrocytes have size factor estimates from library size normalization that are larger than those from deconvolution,
+    while the opposite is true for the majority of pyramidal CA1 cells.
+This is attributable to the likely presence of DE genes between the different cell types.
+For example, any upregulation of genes in oligodendrocytes will increase the size factor estimates from library size normalization for those cells by increasing their library sizes.
 In contrast, deconvolution uses a median-based approach that is robust to extreme ratios caused by DE.
 The two methods are more similar for the inDrop data where less DE is expected between cells from the same, theoretically homogeneous population.
 
-The brain data set also contains counts for ERCC spike-in genes.
-In such cases, an alternative normalization strategy can be performed to equalize spike-in coverage across cells, 
-    under the assumption that the same amount of spike-in is added to each cell \cite{stegle2015computational}.
-However, the size factors from spike-in normalization and those from deconvolution and the existing methods show no similarity (Supplementary Figure~\suppspikefig{}, Additional file~1).
-This is largely attributable to the differences in the assumptions between spike-in normalization and that of deconvolution and the other existing methods,
-    as well as the insensitivity of the latter methods to differences in cell size and total RNA content.
-A more detailed discussion of the behaviour of spike-in normalization is provided in Section~\suppspikesec{} in Additional file~1.
+%The brain data set also contains counts for ERCC spike-in genes.
+%In such cases, an alternative normalization strategy can be performed to equalize spike-in coverage across cells, 
+%    under the assumption that the same amount of spike-in is added to each cell \cite{stegle2015computational}.
+%However, the size factors from spike-in normalization and those from deconvolution and the existing methods show no similarity (Supplementary Figure~\suppspikefig{}, Additional file~1).
+%This is largely attributable to the differences in the assumptions between spike-in normalization and that of deconvolution and the other existing methods,
+%    as well as the insensitivity of the latter methods to differences in cell size and total RNA content.
+%A more detailed discussion of the behaviour of spike-in normalization is provided in Section~\suppspikesec{} in Additional file~1.
 
 \subsubsection*{Different normalization schemes change the DE profile}
 To gauge the impact of employing different normalization methods, edgeR was used to perform a DE analysis on both data sets with the different size factor estimates. 
@@ -733,7 +735,7 @@ Counts were obtained from the NCBI Gene Expression Omnibus with the accession GS
 
 For both data sets, low-abundance genes were defined as those with an average count below 0.2 across all cells.
 These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further analysis.
-The set of ERCC spike-ins in the brain data set was also removed.
+%The set of ERCC spike-ins in the brain data set was also removed.
 This ensures that normalization is only performed using the counts for the cellular genes.
 For the inDrop data set, counts were only used for cells before withdrawal of LIF and those 7 days after withdrawal.
 This resulted in a final set consisting of approximately 1700 cells.
@@ -783,7 +785,7 @@ JCM provided guidance on method development and testing.
 All authors wrote and approved the final manuscript.
 
 \section*{Acknowledgements}
-The authors would like to thank Antonio Scialdone for useful discussions and help with testing on real data.
+The authors would like to thank Antonio Scialdone and Catalina Vallejos for useful discussions and comments on the manuscript.
 This work was supported by core funding from Cancer Research UK.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -956,10 +958,10 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 
 \section*{Additional Files}
 \subsection*{Additional file 1 --- Supplementary Materials}
-This file contains a discussion of linear dependencies (Section~\supplineardep{}), 
-    details on the clustering algorithm (Section~\suppclustering{}) 
-    and an elaboration of the spike-in results (Section~\suppspikesec{}).
-It also contains Supplementary Figures~S1-3 and Supplementary Tables~S1-2.
+This file contains a discussion of linear dependencies (Section~\supplineardep{}) 
+    and details on the clustering algorithm (Section~\suppclustering{}).
+%    and an elaboration of the spike-in results (Section~\suppspikesec{}).
+It also contains Supplementary Figures~S1-2 and Supplementary Tables~S1-2.
 
 \subsection*{Additional file 2 -- Enriched GO terms for deconvolution}
 This file is in a tab-separated format and contains the top 200 GO terms that were enriched in the set of DE genes unique to deconvolution.
