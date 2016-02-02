@@ -124,6 +124,7 @@
 
 \author[
    addressref={aff1},
+   corref={aff1},
    email={aaron.lun@cruk.cam.ac.uk}   
 ]{\inits{ATL}\fnm{Aaron TL} \snm{Lun}}
 \author[
@@ -132,7 +133,6 @@
 ]{\inits{KB}\fnm{Karsten} \snm{Bach}}
 \author[
     addressref={aff1,aff2},
-    corref={aff1},
     email={marioni@ebi.ac.uk}
 ]{\inits{JCM}\fnm{John C} \snm{Marioni}}
 
@@ -190,24 +190,12 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{Background} 
-Single-cell RNA sequencing is widely used to profile gene expression in individual cells.
-Analysis of this data provides biological insights at the single cell level, e.g., by identifying novel cellular subpopulations or in detecting differentially expressed or highly variable genes within populations.
-However, all of these applications depend on proper normalization to eliminate cell-specific biases prior to conducting quantitative comparisons between cells.
-Calculation of size factors for normalization is not straightforward for noisy single-cell data where many counts are zero.
-
-\parttitle{Results} 
-Existing normalization methods such as DESeq, TMM or library size normalization yield inaccurate size factor estimates in simulations with many zero counts and differentially expressed genes. 
-We propose a novel approach where expression values are summed across pools of cells, and the summed values are used for median-based normalization.
-This improves normalization accuracy by reducing the incidence of zero counts in each pool.
+Normalization of single-cell RNA sequencing data is necessary to eliminate cell-specific biases prior to downstream analyses.
+However, this is not straightforward for noisy single-cell data where many counts are zero.
+We propose a novel approach where expression values are summed across pools of cells, and the summed values are used for normalization.
 Pool-based size factors are then deconvolved to yield cell-based factors.
 Our deconvolution approach outperforms existing methods for accurate normalization of cell-specific biases in simulated data.
-Similar behaviour is observed in real data where deconvolution yields a wider range of size factors.
-The use of deconvolution also changes the number and ranking of differentially expressed and highly variable genes.
-
-\parttitle{Conclusions} 
-The deconvolution method overcomes the deficiencies of existing methods for normalization of single-cell RNA sequencing data.
-We anticipate that increased normalization accuracy will improve the performance of downstream analyses and the validity of the resulting biological conclusions.
+Similar behaviour is observed in real data, where deconvolution also changes the results of downstream analyses.
 
 \end{abstract}
 
@@ -796,6 +784,7 @@ All authors wrote and approved the final manuscript.
 
 \section*{Acknowledgements}
 The authors would like to thank Antonio Scialdone for useful discussions and help with testing on real data.
+This work was supported by core funding from Cancer Research UK.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
