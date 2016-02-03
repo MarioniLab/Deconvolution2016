@@ -515,8 +515,11 @@ The use of a ring means that the window is still defined at the smallest and lar
 In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
 
 The pooling of cells with similar library sizes is designed to provide some robustness to estimation errors for small $\theta_j T_j^{-1}$.
-If cells with very small and very large values for $\theta_j T_j^{-1}$ are pooled together, the pool-based factor $r_{ik}$ is likely to be large. 
-Small relative errors in estimation of large $r_{ik}$ will manifest as large relative errors for small $\theta_j T_j^{-1}$ when the linear system is solved.
+For any pool $k$, estimation errors will be present in the pool-based size factor $r_{ik}$.
+This will lead to errors in the estimates of $\theta_j T_j^{-1}$ when the linear system is solved.
+A pool comprised of cells with larger $\theta_j T_j^{-1}$ will have larger $r_{ik}$ and thus larger estimation errors for $r_{ik}$ and each $\theta_j T_j^{-1}$ (compared to a pool of cells with smaller $\theta_j T_j^{-1}$).
+In and of itself, this is not a problem as the errors will be small relative to the large $\theta_j T_j^{-1}$.
+However, if a cell with small $\theta_j T_j^{-1}$ were also present in the pool, the same errors would become large relative to the small true $\theta_j T_j^{-1}$ for that cell.
 To mitigate this effect, we assume that the library size is approximately correlated (positively or negatively) with $\theta_j T_j^{-1}$.
 For example, upregulation of a subset of genes in a particular cell will drive an increase in its library size and a simultaneous decrease in $\theta_j T_j^{-1}$ as $T_j$ increases.
 This results in a negative association between library size and $\theta_j T_j^{-1}$.
