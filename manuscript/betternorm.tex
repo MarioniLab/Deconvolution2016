@@ -540,6 +540,9 @@ Due to their low weights, the additional equations will not contribute substanti
 This means that the estimated values will be driven primarily by the equations for the summed cells.
 See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
 
+% Implicit weighting on the number of cells, as larger pools will yield larger values of r_{ik} with larger absolute (but smaller relative) errors.
+% So, minimizing the sum of squares will prioritize equations with more cells in them - rightly so, as these should have more counts and be more reliable.
+
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
 However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
