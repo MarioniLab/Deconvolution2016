@@ -111,7 +111,6 @@ for (scenario in 1:4) {
 
     # Size factors with clustering prior to summation:
     emp.clusters <- quickCluster(counts)
-    if (any(is.na(emp.clusters))) { emp.clusters[is.na(emp.clusters)] <- "0" }
     final2.sf <- normalizeBySums(counts, clusters=emp.clusters)
     make.plot(final2.sf, true.facs, paste0("sumClust_", scenario), main="Deconvolution with clustering")
 }
