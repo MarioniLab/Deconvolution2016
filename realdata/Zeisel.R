@@ -64,7 +64,7 @@ erccfactor <- colSums(countsHE[featuresHE$spike,])
 
 #Deconvoluted
 szfCluster <- quickCluster(countsHEnoSpike)
-szf_alClust <- normalizeBySums(countsHEnoSpike, clusters = szfCluster)
+szf_alClust <- computeSumFactors(countsHEnoSpike, clusters = szfCluster)
 
 # ---- SF-Difference ----
 

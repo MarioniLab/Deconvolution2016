@@ -54,7 +54,7 @@ libfactor <- colSums(countsHE) / 10000
 
 #Deconvoluted
 szfCluster <- quickCluster(countsHE)
-szf_alClust <- normalizeBySums(countsHE, cluster=szfCluster, positive = TRUE)
+szf_alClust <- computeSumFactors(countsHE, cluster=szfCluster, positive = TRUE)
 
 # ---- SF-Difference ----
 cellCols <- rainbow(nlevels(szfCluster))[as.integer(szfCluster)]

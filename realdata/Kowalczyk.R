@@ -39,7 +39,7 @@ libfactor <- colSums(countsHE)
 
 #Deconvoluted
 szfCluster <- quickCluster(countsHE,deepSplit = 1)
-szf_alClust <- normalizeBySums(countsHE,cluster=szfCluster)
+szf_alClust <- computeSumFactors(countsHE,cluster=szfCluster)
 
 # ---- SF-Difference ----
 
