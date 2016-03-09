@@ -37,7 +37,7 @@ for (x in c("Zeisel", "Klein")) {
             res <- glmLRT(fit)
             out <- decideTestsDGE(res)
             write.table(file=fhandle, data.frame(Group=group, Covariate="Deconvolution", Offset=method, DE=sum(out!=0), Total=length(out), Proportion=sum(out!=0)/length(out)*100), 
-                        sep="\t", quote=FALSE, append=written, col.names=(!written))
+                        sep="\t", quote=FALSE, append=written, col.names=(!written), row.names=FALSE)
             written <- TRUE
             gc()
 
@@ -48,7 +48,7 @@ for (x in c("Zeisel", "Klein")) {
             res <- glmLRT(fit)
             out <- decideTestsDGE(res)
             write.table(file=fhandle, data.frame(group, method, "Deconvolution", sum(out!=0), length(out), sum(out!=0)/length(out)*100), 
-                        sep="\t", quote=FALSE, append=TRUE, col.names=FALSE)
+                        sep="\t", quote=FALSE, append=TRUE, col.names=FALSE, row.names=FALSE)
             gc()
         }
     }
