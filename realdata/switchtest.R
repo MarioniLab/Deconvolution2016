@@ -2,7 +2,7 @@ require(edgeR)
 de.dir <- "DEresults/edgeR"
 dir.create(de.dir, recursive=TRUE)
 
-for (x in c("Zeisel")) { #, "Klein")) {
+for (x in c("Zeisel", "Klein")) {
     cur.data <- readRDS(sprintf("%sData.rds", x))
     counts <- cur.data$Counts
     size.facs <- cur.data$SF
