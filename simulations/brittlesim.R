@@ -10,7 +10,7 @@ popsize <- 250
 
 ###########################################################################
 
-output.dir <- "results"
+output.dir <- "results_mid"
 dir.create(output.dir, showWarning=FALSE)
 
 make.plot <- function(sf, truth, name, main="") {
