@@ -19,6 +19,8 @@ y <- estimateDisp(y, design, prior.df=0, trend='none')
 pdf("Klein_Dispersions.pdf")
 par(mar=c(5.1, 5.1, 1.1, 1.1))
 smoothScatter(log2(rwm), log2(y$tagwise.dispersion), xlab=expression(Log[2]~"average count per gene"), ylab=expression(Log[2]~"NB dispersion estimate"), cex.axis=1.2, cex.lab=1.4)
+o <- order(rwm)
+lines(log2(rwm)[o], log2(y$trended.dispersion)[o], col="red", lwd=2, lty=2)
 abline(h=log2(0.1), col="red", lwd=2)
 dev.off()
 
