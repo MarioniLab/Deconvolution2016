@@ -1,7 +1,7 @@
 # This checks the time complexity of the computeSumFactors.
 
 require(scran)
-        
+set.seed(100)        
 ngenes <- 10000
 all.sizes <- 200*(1:4)
 all.times.raw <- all.times.clust <- list()
@@ -32,4 +32,5 @@ for (it in seq_along(all.times.raw)) {
     points(all.sizes, all.times.clust[[it]], pch=16, col=rgb(0,0,1,0.2))
     lines(all.sizes, all.times.clust[[it]], col=rgb(0,0,1,0.2), lwd=2)
 }
+legend("bottomright", lwd=2, col=c("red", "blue"), legend=c("Without clustering", "With clustering"), cex=1.4)
 dev.off()
