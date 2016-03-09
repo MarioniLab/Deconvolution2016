@@ -41,7 +41,7 @@ for (x in c("Zeisel", "Klein")) {
             written <- TRUE
             gc()
 
-            # Re-using same dispersion and p-value threshold.
+            # Re-using same dispersion and p-value threshold, for a valid comparison.
             pval <- max(res$table$PValue[abs(out) > 1e-8])
             disp <- y$tagwise.dispersion
 
@@ -55,4 +55,33 @@ for (x in c("Zeisel", "Klein")) {
             gc()
         }
     }
+}
+
+# Making a bar plot.
+
+de.dir <- "DEresults/edgeR"
+legended <- FALSE
+for (x in c("Zeisel", "Klein")) {
+    curfile <- file.path(de.dir, paste0(x, "_switched.tsv")) 
+    xxx <- read.table(curfile, header=TRUE, sep="\t", stringsAsFactors=TRUE)
+
+    allgroups <- unique(xxx$Group)
+    for (g in allgroups) {
+        gname <- sub(" ", "", g)
+        chosen <- xxx$Group==g
+
+        pdf(file.path(de.dir, paste0(x, "_", gname, ".pdf")))
+        par(mar=c(4.1, 5.1, 2.1, 1.1))
+        out <- barplot(xxx$Proportion[chosen], ylim=c(0, 100), space=rep(c(0.5, 0), 3), col=rep(c("grey80", "grey20"), 3), ylab="Proportion of genes DE (%)", 
+                       cex.axis=1.2, cex.lab=1.4, main=paste0(x, " (", g, ")"), cex.main=1.4)
+        mids <- colMeans(matrix(out, nrow=2))
+        axis(side=1, at=mids, c("DESeq", "TMM", "Library size"), cex.axis=1.4)
+
+        if (!legended) {
+            legended <- TRUE
+            legend("topright", fill=c("grey80", "grey20"), legend=c("As offset", "As covariate"), cex=1.4)
+        }
+        dev.off()
+    }
+
 }
