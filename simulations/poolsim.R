@@ -7,8 +7,8 @@ for (it in 1:10) {
 
 ngenes <- 10000L
 ncells <- 200L
-true.means <- 2^runif(ngenes, 0, 3)
-dispersions <- 1
+true.means <- rgamma(ngenes, 2, 2)
+dispersions <- 0.1
 
 all.facs <- runif(ncells, 0.1, 1)
 effective.means <- outer(true.means, all.facs, "*")

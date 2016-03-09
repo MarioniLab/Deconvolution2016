@@ -1,0 +1,183 @@
+
+R Under development (unstable) (2016-02-24 r70217) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # This describes performance when pooling is random.
+> 
+> require(scran)
+Loading required package: scran
+Loading required package: BiocParallel
+Loading required package: scater
+Loading required package: Biobase
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
+    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
+    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
+    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unsplit
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: ggplot2
+
+Attaching package: ‘scater’
+
+The following objects are masked from ‘package:Biobase’:
+
+    fData<-, pData<-
+
+> set.seed(100)
+> 
+> for (it in 1:10) { 
++ 
++ ngenes <- 10000L
++ ncells <- 200L
++ true.means <- rgamma(ngenes, 2, 2)
++ dispersions <- 0.1
++ 
++ all.facs <- runif(ncells, 0.1, 1)
++ effective.means <- outer(true.means, all.facs, "*")
++ counts <- matrix(rnbinom(ngenes*ncells, mu=effective.means, size=1/dispersions), ncol=ncells)
++ lib.sizes <- colSums(counts)
++ exprs <- t(t(counts)/lib.sizes)
++ 
++ size <- 20L
++ use.ave.cell <- rowMeans(exprs)
++ sphere <- scran:::.generateSphere(lib.sizes) - 1L
++ out <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
++ 
++ out.ex <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, 1L, use.ave.cell)
++ design <- c(out[1], out.ex[1])
++ output <- c(out[2], out.ex[2])
++ design <- do.call(rbind, design)
++ output <- unlist(output)
++ 
++ weights <- rep(c(1, 0.00001), c(nrow(design)-ncells, ncells))
++ root.weights <- sqrt(weights)
++ design <- design * root.weights
++ output <- output * root.weights
++ est <- solve(qr(design), output) * lib.sizes
++ 
++ # Trying with the opposite case, where everyone is mixed together.
++ sphere <- sample(ncells)
++ sphere <- as.integer(c(sphere, sphere) - 1)
++ out2 <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
++ design2 <- c(out2[1], out.ex[1])
++ output2 <- c(out2[2], out.ex[2])
++ design2 <- do.call(rbind, design2)
++ output2 <- unlist(output2)
++ design2 <- design2 * root.weights
++ output2 <- output2 * root.weights
++ est2 <- solve(qr(design2), output2) * lib.sizes
++ 
++ cat("Ordered:", mad(log(est/all.facs)), "\n")
++ cat("Random:", mad(log(est2/all.facs)), "\n")
++ cat("\n")
++ 
++ }
+Ordered: 0.04478844 
+Random: 0.06950971 
+
+Ordered: 0.05424527 
+Random: 0.07599569 
+
+Ordered: 0.0561501 
+Random: 0.06797143 
+
+Ordered: 0.04640929 
+Random: 0.09590134 
+
+Ordered: 0.05354758 
+Random: 0.08063292 
+
+Ordered: 0.04209941 
+Random: 0.08720299 
+
+Ordered: 0.05195684 
+Random: 0.08407942 
+
+Ordered: 0.04689556 
+Random: 0.07080725 
+
+Ordered: 0.06008771 
+Random: 0.07258454 
+
+Ordered: 0.05078381 
+Random: 0.08468694 
+
+> 
+> sessionInfo()
+R Under development (unstable) (2016-02-24 r70217)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 14.04.4 LTS
+
+locale:
+ [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] scran_0.99.0        scater_0.99.5       ggplot2_2.1.0      
+[4] Biobase_2.31.3      BiocGenerics_0.17.3 BiocParallel_1.5.19
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.3          plyr_1.8.3           bitops_1.0-6        
+ [4] viridis_0.3.3        tools_3.3.0          zlibbioc_1.17.0     
+ [7] biomaRt_2.27.2       lattice_0.20-33      RSQLite_1.0.0       
+[10] gtable_0.2.0         rhdf5_2.15.4         DBI_0.3.1           
+[13] gridExtra_2.2.1      dplyr_0.4.3          stringr_1.0.0       
+[16] S4Vectors_0.9.41     IRanges_2.5.39       stats4_3.3.0        
+[19] grid_3.3.0           data.table_1.9.6     R6_2.1.2            
+[22] AnnotationDbi_1.33.7 XML_3.98-1.4         limma_3.27.13       
+[25] reshape2_1.4.1       magrittr_1.5         edgeR_3.13.4        
+[28] scales_0.4.0         matrixStats_0.50.1   dynamicTreeCut_1.62 
+[31] tximport_0.99.6      assertthat_0.1       colorspace_1.2-6    
+[34] stringi_1.0-1        RCurl_1.95-4.8       munsell_0.4.3       
+[37] chron_2.3-47         rjson_0.2.15         zoo_1.7-12          
+> 
+> proc.time()
+   user  system elapsed 
+ 12.472   0.129  12.599 
