@@ -88,6 +88,8 @@
 \newcommand{\supprank}{S1}
 \newcommand{\suppHVG}{S2}
 
+\newcommand{\revised}[1]{\textcolor{red}{#1}}
+
 \endlocaldefs
 
 
@@ -357,6 +359,11 @@ However, this will introduce spurious differences between libraries for all of t
 This will occur even if the libraries are sequenced to the same depth 
     -- more reads will be spent in sequencing the upregulated gene in the first library, such that the coverage of non-DE genes will be reduced relative to other libraries.
 The likely presence of DE in real data means that library size normalization is often inappropriate.
+
+\revised{Each of these three normalization methods was initially developed for analysis of bulk RNA-seq data.
+Nonetheless, they have been used extensively in the scRNA-seq literature \cite{saraiva2015hierarchical, kolod2015single, llorens2015singlecell, li2016singlecell, deng2014singlecell, freeman2015singlecell}.
+Thus, an assessment of the suitability of these methods for single-cell data is not irrelevant.
+}
 
 \subsubsection*{Simulating scRNA-seq data with stochastic zeroes and DE}
 To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeros.
