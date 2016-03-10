@@ -81,7 +81,7 @@ $^2$EMBL European Bioinformatics Institute, Wellcome Genome Campus, Hinxton, Cam
     \end{center}
     \caption{
         Performance of DESeq normalization after addition of a pseudo-count.
-        A pseudo-count of unity was added to all counts directly (\subref{subfig:size_prior}) or after scaling the pseudo-count by the relative library size (\subref{subfig:size_libprior}), i.e., the pseudo-count added to each cell was equal to the ratio of its library size to the mean library size.
+        A pseudo-count of unity was added to (\subref{subfig:size_prior}) all counts directly, or (\subref{subfig:size_libprior}) after scaling the pseudo-count by the relative library size, i.e., the pseudo-count added to each cell was equal to the ratio of its library size to the mean library size.
         Simulations were performed with no DE (first row) and varying magnitudes of DE (second row).
         Axes are shown on a log-scale.
         For comparison, each set of size factors was scaled such that the grand mean across cells was the same as that for the true values.
@@ -144,7 +144,7 @@ The performance of a ring arrangement and sliding window can be compared to sele
 Count data was simulated as described in the main text, with some modifications -- specifically, true values of $\theta_j$ for all cells were sampled from a Uniform(0.1, 1) distribution instead, to provide a larger range of size factors; counts were only generated for a single subpopulation of 200 cells; and no DE genes were introduced.
 To estimate the size factors, deconvolution was performed using pools of 20 cells, assembled either with the ring arrangement in Figure~\ref{fig:library_ring} or after randomly permuting the order of cells in the ring.
 (For demonstration purposes, only one pool size was used to construct the linear system.
-This ensures that any estimation error is large enough so that changes in precision can be observed.)
+This ensures that the estimation errors are large enough to reliably observe any changes in precision.)
 Precision was quantified as the median absolute deviation (MAD) of the log-fold differences between the estimated and true $\theta_j$.
 A completely precise method should have a MAD of zero, as the estimated and true $\theta_j$ would be proportionally identical for all $j$.
 In this simulation, using the ring arrangement yields a MAD of 0.051 while using random pools yields a MAD of 0.079 (standard errors of 0.002 and 0.003, respectively, across 10 simulation iterations).
