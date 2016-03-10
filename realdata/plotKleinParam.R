@@ -14,7 +14,7 @@ require(edgeR)
 y <- DGEList(counts)
 y$samples$norm.factors <- size.facs$Deconvolution/y$samples$lib.size
 design <- model.matrix(~grouping$Time)
-y <- estimateDisp(y, design, prior.df=0, trend='none')
+y <- estimateDisp(y, design, prior.df=0)
 
 pdf("Klein_Dispersions.pdf")
 par(mar=c(5.1, 5.1, 1.1, 1.1))
