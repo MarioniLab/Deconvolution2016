@@ -239,20 +239,24 @@ In particular, we redefine the sampling distribution of $\lambda_{i0}$ such that
 \[
     \log_2(\lambda_{i0}) \sim \mbox{Uniform}(3, 6) \;.
 \]
-This provides a wider spread of abundances than in the original simulation, as the dynamic range of sequencing counts increases with coverage.
+This provides a wider spread of abundances than in the original simulation, as the dynamic range of sequencing technologies increases with coverage.
 The NB dispersion is also re-defined for each gene as 
 \[
     \varphi_i = 2 + \frac{100}{\lambda_{i0}}
 \]
 to represent a decreasing mean-dispersion trend.
-Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq data, and ensure that a large number of stochastic zeroes are generated.
-Counts are then sampled for a NB distribution with a mean of $\theta_{j}\lambda_{is}$ and dispersion $\varphi_i$.}
+Note that the dispersion estimates are larger here than in the low-coverage simulations.
+This is because zeroes are generally caused by dropouts during RNA capture.
+Increasing the coverage will only increase the counts in cells where the transcript is captured, while the counts in other cells remain at zero.
+Thus, as sequencing depth increases (and capture efficiency remains the same), there will be a concomitant increase in the mean and variability of the counts.
+This is represented in the simulation by a larger dispersion value, especially at low abundances where dropouts are more likely.}
 
-\revised{Simulated data were generated using the same experimental designs as described in the main text.
-For the existing methods, similar performance was observed here compared to the original simulations.
-DESeq and TMM normalization are consistently biased (Figures~\ref{subfig:sizehighcov} and \ref{subfig:tmmhighcov}), suggesting that zero counts are still problematic in high coverage data sets.
-Library size normalization continues to fail in the presence of DE genes (Figure~\ref{subfig:libhighcov}).
-In contrast, deconvolution performs well in all simulation scenarios (Figure~\ref{fig:highcovdeconv}).
+\revised{The count for each gene in each cell was sampled from a NB distribution with a mean of $\theta_{j}\lambda_{is}$ and dispersion $\varphi_i$, using the same experimental design as described in the main text, i.e., three subpopulations of 250 cells with varying levels of DE.
+Size factors were then computed from the counts using the available methods.
+For the existing methods, similar performance was observed compared to the original simulations.
+DESeq and TMM normalization were consistently biased (Figures~\ref{subfig:sizehighcov} and \ref{subfig:tmmhighcov}), suggesting that zero counts are still problematic in high coverage data sets.
+Library size normalization continued to fail in the presence of DE genes (Figure~\ref{subfig:libhighcov}).
+In contrast, deconvolution performed well in all simulation scenarios (Figure~\ref{fig:highcovdeconv}).
 Greater divergence from the true size factors is observed in Figure~\ref{subfig:sumclust_3}, but deconvolution is still more accurate than the existing methods in the equivalent scenario (Figure~\ref{fig:highcovexisting}, third row).
 These results suggest that the increase in normalization accuracy from deconvolution is still present in higher-coverage experiments.
 }
@@ -500,7 +504,7 @@ In contrast, using $\log(\hat\theta'_j)$ as the offset and $\log(\hat\theta_j)$ 
     \log(\mu_{ij}) &= E[\log(\hat\theta'_j) + \hat\beta'_{i0} + \log(\hat\theta_j)\hat\beta'_{i1}] \\
     \log(\theta_j) + \log(\lambda_{i0}) &=  b\log(\theta_j) + \hat\beta'_{i0} + \hat\beta'_{i1} \\
     \log(\theta_j) &=  b\log(\theta_j) + \hat\beta'_{i1} \qquad\mbox{as $\hat\beta'_{i0}$ absorbs all terms without $j$}\\
-    \hat\beta_{i1} &= 1- b
+    \hat\beta'_{i1} &= 1- b
 \end{align*}
 where $\hat\beta'_{i0}$ and $\hat\beta'_{i1}$ are the corresponding estimates for the coefficients in this switched configuration.
 Repeating the LRT by dropping the covariate term should yield more DE genes as $\hat\beta_{i1}$ is non-zero when $b\neq1$.}
@@ -543,13 +547,13 @@ This suggests that the deconvolution size factors are equivalent to the unbiased
     \label{fig:assessment_results}
 \end{figure}
 
-\revised{There are a number of caveats that should be mentioned for these results.
+\revised{For these results, there are a number of caveats that should be mentioned. 
 Firstly, we assume one set of size factor estimates is unbiased, while the other set is not.
 The performance of deconvolution in the simulations suggests that it can be treated as the unbiased method.
 However, this is unlikely to be completely true as both sets will exhibit some bias.
 The above evaluation will be less effective when large biases are present in both the offsets and covariates.
-Secondly, we assume that the estimated size factors follow a power relationship with respect to the true values.
-This is justified based on our simulations, but real data may conceivably exhibit other trends in the bias.
+Secondly, we assume that the biased size factors follow a power relationship with respect to the true values.
+The effect of other relationships is less predictable, though we would still expect them to yield non-zero values for $\hat\beta'_{i1}$.
 Finally, we assume that there is no DE within the group of cells -- or, at least, no DE that is associated with the size factors.
 We select cells in homogeneous groups to weaken this assumption, but there may be additional DE within each group that we have not considered.
 }
