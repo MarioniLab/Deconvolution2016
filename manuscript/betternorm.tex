@@ -77,22 +77,21 @@
 %%% Put your definitions there:
 \startlocaldefs
 
-\newcommand{\supplineardep}{1}
-\newcommand{\supppoolsim}{2}
+\newcommand{\supppoolsim}{1}
+\newcommand{\supplineardep}{2}
 \newcommand{\suppclustering}{3}
 \newcommand{\supphighcov}{4}
 \newcommand{\supptimecomp}{5}
 \newcommand{\supprealassess}{6}
 %\newcommand{\suppspikesec}{3}
 
-\newcommand{\suppkleinmeans}{S1}
-\newcommand{\suppkleindisp}{S2}
-\newcommand{\supppseudo}{S3}
-\newcommand{\suppring}{S4}
-\newcommand{\supphighcovex}{S5}
-\newcommand{\supphighcovde}{S6}
-\newcommand{\supptimings}{S7}
-\newcommand{\suppdeassess}{S8}
+\newcommand{\suppkleinparam}{S1}
+\newcommand{\supppseudo}{S2}
+\newcommand{\suppring}{S3}
+\newcommand{\supphighcovex}{S4}
+\newcommand{\supphighcovde}{S5}
+\newcommand{\supptimings}{S6}
+\newcommand{\suppdeassess}{S7}
 %\newcommand{\suppspikefig}{S3}
 
 \newcommand{\supprank}{S1}
@@ -387,8 +386,8 @@ The $\theta_{j}$ term represents cell-specific biases (e.g., in capture efficien
 \]
 The $\lambda_{is}$ term denotes the expected number of transcripts of gene $i$ for cells in subpopulation $s$.
 It is defined as $\lambda_{is}=\phi_{is}\lambda_{i0}$ where $\phi_{is}$ represents the DE fold change for this gene in this subpopulation, and \revised{$\lambda_{i0}$ is a gene-specific constant sampled from a Gamma distribution with shape and rate parameters set to 2.
-The NB dispersion is also set for each gene as $\varphi_i = 0.1$.
-These parameter values were chosen to recapitulate aspects of real data \cite{klein2015droplet} (see Supplementary Figures \suppkleinmeans{} and \suppkleindisp{} in Additional file~1).}
+The NB dispersion is also set for each gene at $\varphi_i = 0.1$.
+These parameter values were chosen to recapitulate aspects of real data \cite{klein2015droplet} (see Supplementary Figure~\suppkleinparam{} in Additional file~1).}
 Approximately 40-50\% of all counts are sampled as zero in each simulated library.
 This is similar to real data where around 60\% of the counts in each cell are stochastic or semi-systematic zeroes.
 
@@ -998,10 +997,14 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 
 \section*{Additional Files}
 \subsection*{Additional file 1 --- Supplementary Materials}
-This file contains a discussion of linear dependencies (Section~\supplineardep{}) 
-    and details on the clustering algorithm (Section~\suppclustering{}).
+This file contains \revised{a justification of the choice of pooling strategy (Section~\supppoolsim{}),
+    a discussion of how to resolve linear dependencies (Section~\supplineardep{}),
+    details on the clustering algorithm (Section~\suppclustering{}),
+    a description of the high-coverage simulations (Section~\supphighcov{}),
+    an outline of the computational complexity of deconvolution (Section~\supptimecomp{}),
+    and a description of the offset/covariate method to assess normalization accuracy on real data (Section~\supprealassess{}).}
 %    and an elaboration of the spike-in results (Section~\suppspikesec{}).
-It also contains Supplementary Figures~S1-2 and Supplementary Tables~S1-2.
+It also contains Supplementary Figures~S1-7 and Supplementary Tables~S1-2.
 
 \subsection*{Additional file 2 -- Enriched GO terms for deconvolution}
 This file is in a tab-separated format and contains the top 200 GO terms that were enriched in the set of DE genes unique to deconvolution.
