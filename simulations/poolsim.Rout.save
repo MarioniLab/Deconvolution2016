@@ -64,6 +64,7 @@ The following objects are masked from ‘package:Biobase’:
 
 > set.seed(100)
 > 
+> collected.order <- collected.random <- list()
 > for (it in 1:10) { 
 + 
 + ngenes <- 10000L
@@ -106,8 +107,11 @@ The following objects are masked from ‘package:Biobase’:
 + output2 <- output2 * root.weights
 + est2 <- solve(qr(design2), output2) * lib.sizes
 + 
-+ cat("Ordered:", mad(log(est/all.facs)), "\n")
-+ cat("Random:", mad(log(est2/all.facs)), "\n")
++ collected.order[[it]] <- mad(log(est/all.facs))
++ collected.random[[it]] <- mad(log(est2/all.facs))
++ 
++ cat("Ordered:", collected.order[[it]], "\n")
++ cat("Random:", collected.random[[it]], "\n")
 + cat("\n")
 + 
 + }
@@ -142,6 +146,15 @@ Ordered: 0.05078381
 Random: 0.08468694 
 
 > 
+> mean(unlist(collected.order))
+[1] 0.0506964
+> mean(unlist(collected.random))
+[1] 0.07893722
+> sd(unlist(collected.order))/sqrt(length(collected.order))
+[1] 0.001769801
+> sd(unlist(collected.random))/sqrt(length(collected.random))
+[1] 0.002872694
+> 
 > sessionInfo()
 R Under development (unstable) (2016-02-24 r70217)
 Platform: x86_64-pc-linux-gnu (64-bit)
@@ -160,7 +173,7 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] scran_0.99.0        scater_0.99.5       ggplot2_2.1.0      
+[1] scran_0.99.1        scater_0.99.5       ggplot2_2.1.0      
 [4] Biobase_2.31.3      BiocGenerics_0.17.3 BiocParallel_1.5.19
 
 loaded via a namespace (and not attached):
@@ -180,4 +193,4 @@ loaded via a namespace (and not attached):
 > 
 > proc.time()
    user  system elapsed 
- 12.472   0.129  12.599 
+ 14.008   0.158  19.669 

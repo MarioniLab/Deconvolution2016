@@ -139,6 +139,17 @@ With more cells, the sum of the errors $\theta_j - \theta'_j$ will approach the 
 This means that the minimum residual sum of squares will be obtained at $x=0$, i.e., solving the linear system will yield the true values of the size factors.
 Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
 
+\revised{\section{Justifying the choice of pooling strategy}
+The performance of a ring arrangement and sliding window can be compared to selection of random pools of cells.
+Count data was simulated as described in the main text, with some modifications -- specifically, true values of $\theta_j$ for all cells were sampled from a Uniform(0.1, 1) distribution instead, to provide a larger range of size factors; counts were only generated for a single subpopulation of 200 cells; and no DE genes were introduced.
+To estimate the size factors, deconvolution was performed using pools of 20 cells, assembled either with the ring arrangement in Figure~\ref{fig:library_ring} or after randomly permuting the order of cells in the ring.
+(For demonstration purposes, only one pool size was used to construct the linear system.
+This ensures that any estimation error is large enough so that changes in precision can be observed.)
+Precision was quantified as the median absolute deviation (MAD) of the log-fold differences between the estimated and true $\theta_j$.
+A completely precise method should have a MAD of zero, as the estimated and true $\theta_j$ would be proportionally identical for all $j$.
+In this simulation, using the ring arrangement yields a MAD of 0.051 while using random pools yields a MAD of 0.079 (standard errors of 0.002 and 0.003, respectively, across 10 simulation iterations).
+This suggests that the ring arrangement provides a modest improvement in estimation precision.
+}
 
 
 \begin{figure}[bt]

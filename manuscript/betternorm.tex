@@ -78,8 +78,9 @@
 \startlocaldefs
 
 \newcommand{\supplineardep}{1}
-\newcommand{\suppclustering}{2}
-\newcommand{\suppspikesec}{3}
+\newcommand{\supppoolsim}{2}
+\newcommand{\suppclustering}{3}
+%\newcommand{\suppspikesec}{3}
 
 \newcommand{\supppseudo}{S1}
 \newcommand{\suppring}{S2}
@@ -532,6 +533,7 @@ For example, upregulation of a subset of genes in a particular cell will drive a
 This results in a negative association between library size and $\theta_j T_j^{-1}$.
 Summing adjacent cells in the ring will then yield pools of cells with roughly similar $\theta_j T_j^{-1}$.
 This reduces the risk of small errors in $r_{ik}$ being transformed into large errors for $\theta_j T_j^{-1}$.
+\revised{A simple simulation in Section~\supppoolsim{} of the Supplementary Materials demonstrates that the selection of cell pools through the ring arrangement provides a modest improvement in estimation precision compared to the use of random pools.}
 
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.

@@ -3,6 +3,7 @@
 require(scran)
 set.seed(100)
 
+collected.order <- collected.random <- list()
 for (it in 1:10) { 
 
 ngenes <- 10000L
@@ -45,10 +46,18 @@ design2 <- design2 * root.weights
 output2 <- output2 * root.weights
 est2 <- solve(qr(design2), output2) * lib.sizes
 
-cat("Ordered:", mad(log(est/all.facs)), "\n")
-cat("Random:", mad(log(est2/all.facs)), "\n")
+collected.order[[it]] <- mad(log(est/all.facs))
+collected.random[[it]] <- mad(log(est2/all.facs))
+
+cat("Ordered:", collected.order[[it]], "\n")
+cat("Random:", collected.random[[it]], "\n")
 cat("\n")
 
 }
+
+mean(unlist(collected.order))
+mean(unlist(collected.random))
+sd(unlist(collected.order))/sqrt(length(collected.order))
+sd(unlist(collected.random))/sqrt(length(collected.random))
 
 sessionInfo()
