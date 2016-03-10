@@ -12,9 +12,12 @@
 \renewcommand{\textfraction}{1.0}
 \renewcommand{\floatpagefraction}{.9}
 \newcommand\revised[1]{\textcolor{red}{#1}}
-\renewcommand{\topfraction}{0.9}    % max fraction of floats at top
-\renewcommand{\bottomfraction}{0.8} % max fraction of floats at bottom
-\renewcommand{\textfraction}{0.07}  % allow minimal text w. figs
+\usepackage[nomarkers,nofiglist,notablist]{endfloat}
+
+%\def \@largefloatcheck{\ht\@currbox 0.5\textheight}
+%\renewcommand{\topfraction}{0.9}    % max fraction of floats at top
+%\renewcommand{\bottomfraction}{0.8} % max fraction of floats at bottom
+%\renewcommand{\textfraction}{0.01}  % allow minimal text w. figs
 
 \makeatletter 
 \renewcommand{\thefigure}{S\@arabic\c@figure} 
@@ -66,7 +69,28 @@ $^2$EMBL European Bioinformatics Institute, Wellcome Genome Campus, Hinxton, Cam
 \end{center}
 \end{titlepage}
 
-\begin{figure}[p]
+\begin{figure}[btp]
+    \begin{center}
+        \begin{minipage}{0.4\textwidth}
+            \includegraphics[width=\textwidth,trim=0mm 5mm 2mm 5mm,clip]{../realdata/Klein_Means.pdf}
+            \subcaption{}\label{subfig:kleinmean}
+        \end{minipage}
+        \begin{minipage}{0.4\textwidth}
+            \includegraphics[width=\textwidth,trim=0mm 5mm 2mm 5mm,clip]{../realdata/Klein_Dispersions.pdf}
+            \subcaption{}\label{subfig:kleindisp}
+        \end{minipage}
+    \end{center}
+    \caption{
+        Parameter estimates for the Klein \textit{et al.} data set \cite{klein2015droplet}.
+        (\subref{subfig:kleinmean}) Histogram of average counts for all genes. 
+        The red curve represents the probability density of a Gamma$(2, 2)$ distribution.
+        (\subref{subfig:kleindisp}) Smoothed scatter plot of NB dispersion estimates from edgeR, plotted against the average count.
+        Axes are log-transformed for visibility.
+        The dashed line represents the fitted trend from edgeR, while the unbroken line is drawn at 0.1.
+    }
+\end{figure}
+
+\begin{figure}[btp]
     \begin{center}
         \begin{minipage}{0.33\textwidth}
             \includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{../simulations/results/sizeP_1.pdf}
@@ -152,7 +176,7 @@ This suggests that the ring arrangement provides a modest improvement in estimat
 }
 
 
-\begin{figure}[bt]
+\begin{figure}[btp]
     \begin{center}
         \includegraphics[width=0.5\textwidth]{pics/library_ring.pdf}
     \end{center}
@@ -237,6 +261,96 @@ Thus, no additional time is added by normalization.}
     }
     \label{fig:timings}
 \end{figure}
+
+\revised{\section{Assessing normalization in high-coverage simulations}
+The simulations in the main text represent low-coverage experiments similar to the Zeisel \textit{et al.} and Klein \textit{et al.} data sets.
+However, many scRNA-seq experiments involve higher sequencing coverage, e.g., over $2\times 10^5$ reads per cell \cite{kolod2015single}, compared to approximately $2\times10^4$ in low-coverage experiments.
+To test the performance of deconvotluion and the existing normalization methods in high-coverage scenarios, we repeat the simulations with some modifications.
+In particular, we redefine the sampling distribution of $\lambda_{i0}$ such that 
+\[
+    \log_2(\lambda_{i0}) \sim \mbox{Uniform}(3, 6) \;.
+\]
+This provides a wider spread of abundances than in the original simulation, as the dynamic range of sequencing counts increases with coverage.
+The NB dispersion is also re-defined for each gene as 
+\[
+    \varphi_i = 2 + \frac{100}{\lambda_{i0}}
+\]
+to represent a decreasing mean-dispersion trend.
+Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq data, and ensure that a large number of stochastic zeroes are generated.
+Counts are then sampled for a NB distribution with a mean of $\theta_{j}\lambda_{is}$ and dispersion $\varphi_i$.}
+
+\revised{Simulated data were generated using the same experimental designs as described in the main text.
+For the existing methods, similar performance was observed here compared to the original simulations.
+DESeq and TMM normalization are consistently biased (Figures~\ref{subfig:sizehighcov} and \ref{subfig:tmmhighcov}), suggesting that zero counts are still problematic in high coverage data sets.
+Library size normalization continues to fail in the presence of DE genes (Figure~\ref{subfig:libhighcov}).
+In contrast, deconvolution performs well in all simulation scenarios (Figure~\ref{fig:highcovdeconv}).
+Greater divergence from the true size factors is observed in Figure~\ref{subfig:sumclust_3}, but deconvolution is still more accurate than the existing methods in the equivalent scenario (Figure~\ref{fig:highcovexisting}, third row).
+These results suggest that the increase in normalization accuracy from deconvolution is still present in higher-coverage experiments.
+}
+
+\newcommand{\results}{../simulations/results_mid}
+
+\begin{figure}[btp]
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/size_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/size_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/size_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/size_4.pdf}
+\subcaption{}\label{subfig:sizehighcov}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/TMM_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/TMM_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/TMM_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/TMM_4.pdf}
+\subcaption{}\label{subfig:tmmhighcov}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm  5mm,clip]{\results/lib_1.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/lib_2.pdf}
+\includegraphics[width=\textwidth,trim=0mm 14mm 2mm 20mm,clip]{\results/lib_3.pdf}
+\includegraphics[width=\textwidth,trim=0mm  5mm 2mm 20mm,clip]{\results/lib_4.pdf}
+\subcaption{}\label{subfig:libhighcov}
+\end{minipage}
+\caption{
+    Performance of existing normalization methods in high-coverage simulations with DE genes and stochastic zeroes.
+    The size factor estimates for all cells are plotted against the true values for (\subref{subfig:sizehighcov}) DESeq, (\subref{subfig:tmmhighcov}) TMM and (\subref{subfig:libhighcov}) library size normalization.
+    Simulations were performed with no DE (first row), moderate DE (second row), strong DE (third row) and varying magnitudes of DE (fourth row).
+    Axes are shown on a log-scale.
+    For comparison, each set of size factors was scaled such that the grand mean across cells was the same as that for the true values.
+    The red line represents equality between the rescaled estimates and true factors.
+    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+}
+\label{fig:highcovexisting}
+\end{figure}
+
+\begin{figure}[btp]
+\begin{center}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_1.pdf}
+\subcaption{}\label{subfig:sumclust_1}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_2.pdf}
+\subcaption{}\label{subfig:sumclust_2}
+\end{minipage}  \\ 
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_3.pdf}
+\subcaption{}\label{subfig:sumclust_3}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\includegraphics[width=\textwidth,trim=0mm 5mm 0mm 17mm,clip]{\results/sumClust_4.pdf}
+\subcaption{}\label{subfig:sumclust_4}
+\end{minipage}
+\end{center}
+\caption{Size factor estimates from the deconvolution method in the high-coverage simulations,
+    shown against the true values for scenarios with (\subref{subfig:sumclust_1}) no DE, (\subref{subfig:sumclust_2}) moderate DE, (\subref{subfig:sumclust_3}) strong DE and (\subref{subfig:sumclust_4}) varying magnitude of DE.
+    Cells in the first, second and third subpopulations are shown in black, blue and orange, respectively.
+    Axes are shown on a log-scale, and the red line represents equality with the true factors.
+}
+\label{fig:highcovdeconv}
+\end{figure}
+
 
 %\section{Deconvolution is inconsistent with spike-in normalization}
 %The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
@@ -359,7 +473,7 @@ Thus, no additional time is added by normalization.}
 Consider two sets of size factor estimates, $\hat\theta_j$ and $\hat\theta'_j$ for each cell $j$.
 We assume that $\log(\hat\theta_j)$ is an unbiased estimator of the true log-value, i.e., $E[\log(\hat\theta_j)] = \log(\theta_j)$ for the true size factor $\theta_j$ in cell $j$.
 In contrast, we define $\hat\theta'_j$ to exhibit estimation bias such that a power relationship exists between the estimates and true values.
-This is not unreasonable given the simulation results (Figure~\ref{whee}), and can be written as
+This is not unreasonable given the simulation results (Figure~\ref{fig:highcovexisting}), and can be written as
 \[
     E[\log(\hat\theta_j)] = b \log(\theta'_j) + c
 \]

@@ -80,13 +80,19 @@
 \newcommand{\supplineardep}{1}
 \newcommand{\supppoolsim}{2}
 \newcommand{\suppclustering}{3}
-\newcommand{\supptimecomp}{4}
-\newcommand{\supprealassess}{5}
+\newcommand{\supphighcov}{4}
+\newcommand{\supptimecomp}{5}
+\newcommand{\supprealassess}{6}
 %\newcommand{\suppspikesec}{3}
 
-\newcommand{\supppseudo}{S1}
-\newcommand{\suppring}{S2}
-\newcommand{\suppdeassess}{S3}
+\newcommand{\suppkleinmeans}{S1}
+\newcommand{\suppkleindisp}{S2}
+\newcommand{\supppseudo}{S3}
+\newcommand{\suppring}{S4}
+\newcommand{\supphighcovex}{S5}
+\newcommand{\supphighcovde}{S6}
+\newcommand{\supptimings}{S7}
+\newcommand{\suppdeassess}{S8}
 %\newcommand{\suppspikefig}{S3}
 
 \newcommand{\supprank}{S1}
@@ -380,18 +386,9 @@ The $\theta_{j}$ term represents cell-specific biases (e.g., in capture efficien
 \log_2(\theta_j) \sim \mathcal{N}(0, 0.25) \;.
 \]
 The $\lambda_{is}$ term denotes the expected number of transcripts of gene $i$ for cells in subpopulation $s$.
-It is defined as $\lambda_{is}=\phi_{is}\lambda_{i0}$ where $\phi_{is}$ represents the DE fold change for this gene in this subpopulation, and 
-\[
-\log_2(\lambda_{i0}) \sim \mbox{Uniform}(3, 6) \;.
-\]
-This recapitulates the spread of abundances in real data.
-The NB dispersion is defined for each gene as 
-\[
-    \varphi_i = 2 + \frac{100}{\lambda_{i0}}
-\]
-to represent a decreasing mean-dispersion trend.
-Large values for $\varphi_i$ are consistent with the high levels of technical noise and biological heterogeneity in scRNA-seq data,
-    and ensure that a large number of stochastic zeroes are generated.
+It is defined as $\lambda_{is}=\phi_{is}\lambda_{i0}$ where $\phi_{is}$ represents the DE fold change for this gene in this subpopulation, and \revised{$\lambda_{i0}$ is a gene-specific constant sampled from a Gamma distribution with shape and rate parameters set to 2.
+The NB dispersion is also set for each gene as $\varphi_i = 0.1$.
+These parameter values were chosen to recapitulate aspects of real data \cite{klein2015droplet} (see Supplementary Figures \suppkleinmeans{} and \suppkleindisp{} in Additional file~1).}
 Approximately 40-50\% of all counts are sampled as zero in each simulated library.
 This is similar to real data where around 60\% of the counts in each cell are stochastic or semi-systematic zeroes.
 
@@ -536,7 +533,7 @@ For example, upregulation of a subset of genes in a particular cell will drive a
 This results in a negative association between library size and $\theta_j T_j^{-1}$.
 Summing adjacent cells in the ring will then yield pools of cells with roughly similar $\theta_j T_j^{-1}$.
 This reduces the risk of small errors in $r_{ik}$ being transformed into large errors for $\theta_j T_j^{-1}$.
-\revised{A simple simulation in Section~\supppoolsim{} of the Supplementary Materials demonstrates that the selection of cell pools through the ring arrangement provides a modest improvement in estimation precision compared to the use of random pools.}
+\revised{We demonstrate this effect with a simple simulation in Section~\supppoolsim{} of Additional file~1, in which the selection of cell pools through the ring arrangement provides a modest improvement in estimation precision compared to the use of random pools.}
 
 The total number of equations in the linear system is equal to the number of cells.
 The $\theta_jT_j^{-1}$ term for each cell is represented in $w$ equations, where $w$ denotes the size of the window.
@@ -633,7 +630,10 @@ However, the deconvolution method is still more accurate than the existing metho
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
-\revised{A discussion of the time complexity of the method is also provided in Section~\supptimecomp{} of the Supplementary Materials.}
+\revised{The simulations described above focus on low-coverage experiments where zeroes are expected to be prevalent.
+However, similar results are observed in high-coverage simulations with larger counts (Section~\supphighcov{}, Supplementary Figures~\supphighcovex{} and \supphighcovde{}, Additional file~1).
+This suggests that the advantages provided by deconvolution are still relevant in scRNA-seq experiments with greater sequencing depth.
+A description of the time complexity of the method is also provided in Section~\supptimecomp{} and Supplementary Figure~\supptimings{} of Additional file~1.}
 
 \subsection*{Differences in normalization are recapitulated in real data}
 
