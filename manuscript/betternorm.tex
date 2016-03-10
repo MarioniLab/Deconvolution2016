@@ -729,19 +729,20 @@ Here, the similar performances of deconvolution and library size normalization a
 This suggests that library size normalization may be satisfactory for homogeneous data sets.
 
 \revised{\subsubsection*{Deconvolution increases normalization accuracy on real data}
-We use a simple GLM-based simulation approach to assess the accuracy of deconvolution compared to each existing method.
+We use a simple offset/covariate approach based on generalized linear models (GLMs) to assess the accuracy of deconvolution compared to each existing method.
 Briefly, we subset each real data set to contain only cells from one group, e.g., oligodendrocytes in the Zeisel \emph{et al.} data set.
-We fit a GLM to these counts, using the log-size factors from deconvolution as offsets and the log-size factors from the existing method as a covariate in the model.
-If deconvolution is accurate, the offsets will recapitulate all of the differences in means between cells in the group (assuming that no DE is present within the group).
+We assume that no DE is present within the group, such that the only differences in the mean counts between cells are due to cell-specific biases.
+We fit a GLM to these counts, using the log-size factors from deconvolution as offsets and the log-size factors from an existing method as a covariate in the model.
+If deconvolution is accurately estimating the cell-specific biases, the offsets will recapitulate all of the differences in means between cells in the group.
 Additional fitting from the covariate term is unnecessary, such that the corresponding coefficient will be zero.
 This means that no DE genes will be detected upon dropping this covariate from the model.
 On the other hand, if deconvolution is not accurate, the offsets alone will fail to recapitulate the differences in means.
 To improve the fit, the estimated coefficient for the covariate term will become non-zero, such that more DE genes will be detected when the covariate is dropped.}
 
 \revised{We repeat this process after switching the size factors, i.e., using size factors from the existing method as the offsets and those from deconvolution as the covariates. 
-We assess the relative accuracy of deconvolution based on the number of DE genes detected in the original and switched fits.
+We assess the relative accuracy of deconvolution based on the number of DE genes detected in the original and switched GLM fits.
 If deconvolution is more accurate than the existing method, there should be fewer DE genes when the deconvolution size factors are used as offsets, compared to when they are used in the switched fit as covariates.
-This is observed for all groups in all tested data sets (Figure~\suppdeassess{}) which is consistent with increased accuracy in the simulations.
+This is observed for all groups in all tested data sets (Figure~\suppdeassess{}), consistent with increased accuracy in the simulations.
 A more detailed explanation of this evaluation framework is provided in Section~\supprealassess{} of the Supplementary Materials.
 }
 
@@ -789,7 +790,7 @@ Cells in the intervening time points were not considered as the library sizes we
 A DE analysis was performed on each data set using the statistical methods in edgeR.
 Size factors from each method were used as the effective library sizes.
 The estimateDisp function was used to estimate a gene-specific NB dispersion for each gene \cite{chen2014differential} without any empirical Bayes shrinkage.
-A generalized linear model was fitted for each gene using a one-way layout with the two groups of interest \cite{mccarthy2012differential}.
+A \revised{GLM} was fitted for each gene using a one-way layout with the two groups of interest \cite{mccarthy2012differential}.
 For the brain data set, the groups are defined according to the cell type, while for the inDrop data set, the groups refer to the time before/after LIF withdrawal.
 The glmTreat function was used to detect genes with a DE log-fold change significantly greater than 1 between the groups \cite{mccarthy2009testing}.
 DE genes were defined at a FDR threshold of 5\% after applying the Benjamini-Hochberg correction to the $p$-values.
