@@ -206,6 +206,38 @@ However, these genes are retained during rescaling of the size factors between c
 This is because they will have non-zero counts in at least one cluster (assuming that systematic zeroes across the entire data set have already been removed).
 Removal of such genes will distort the median ratio between pseudo-cells and lead to biased size factor estimates, as described previously for the existing methods.
 
+\revised{\section{Computational complexity of the deconvolution method}
+The computational time and memory required by deconvolution depend on the number of cells.
+An equation is constructed for each cell, so the size of the linear system (in terms of the number of equations and coefficients) will increase quadratically with the number of cells.
+Furthermore, common implementations of the QR decomposition have $O(n^3)$ time complexity for $n$ cells.
+This is roughly consistent with our empirical timings (Figure~\ref{fig:timings}).
+In practice, the cubic time complexity is mitigated by the use of clustering to break up the linear system.
+As deconvolution is performed within each cluster, it is cubic only with respect to the size of each cluster, and is linear with respect to the number of clusters.
+The overall time complexity lies between the linear and cubic extremes, depending on the number of clusters and size of each cluster 
+    -- a few large clusters will result in cubic complexity, while many small clusters will result in linear complexity.}
+
+\revised{Memory usage of the deconvolution method is harder to assess due to the unpredictability of garbage collection in R.
+We expect that usage will increase quadratically with the number of cells, due to the size of the linear system.
+Again, this can be mitigated by clustering for large data sets.
+Further savings may be possible by using sparse matrices given that most of the entries in the system are likely to be zero.}
+
+\revised{We note that most clustering algorithms have quadratic time complexity with respect to the number of cells, e.g., when building the distance matrix.
+However, we expect that clustering would be performed anyway as a routine part of the scRNA-seq data analysis.
+Thus, no additional time is added by normalization.}
+   
+\begin{figure}[btp]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{../simulations/timings.pdf}
+    \end{center}
+    \caption{
+        Computational time used by deconvolution on a simulated data set with varying numbers of cells.
+        Counts were sampled from a Poisson distribution with a mean of 10, for 10000 genes across 200-800 cells.
+        Deconvolution was applied with and without separation into clusters of 200 cells.
+        This was repeated for 10 simulation iterations, where each line in the plot represents the timings for one iteration.
+    }
+    \label{fig:timings}
+\end{figure}
+
 %\section{Deconvolution is inconsistent with spike-in normalization}
 %The brain data set also contains counts for ERCC spike-in genes that are commonly used for normalizing scRNA-seq data.
 %Briefly, a constant quantity of spike-in RNA is added to each cell and processed with the cellular RNA \cite{stegle2015computational}.

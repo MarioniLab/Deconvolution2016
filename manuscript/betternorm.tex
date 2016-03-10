@@ -80,6 +80,7 @@
 \newcommand{\supplineardep}{1}
 \newcommand{\supppoolsim}{2}
 \newcommand{\suppclustering}{3}
+\newcommand{\supptimecomp}{4}
 %\newcommand{\suppspikesec}{3}
 
 \newcommand{\supppseudo}{S1}
@@ -629,6 +630,8 @@ Some inaccuracy is observed in Figure~\ref{fig:sim_cluster_DE}c, where the non-D
 However, the deconvolution method is still more accurate than the existing methods in the third row of Figure~\ref{fig:existing_sim}
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
+
+\revised{A discussion of the time complexity of the method is also provided in Section~\supptimecomp{} of the Supplementary Materials.}
 
 \subsection*{Differences in normalization are recapitulated in real data}
 
