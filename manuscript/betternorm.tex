@@ -81,10 +81,12 @@
 \newcommand{\supppoolsim}{2}
 \newcommand{\suppclustering}{3}
 \newcommand{\supptimecomp}{4}
+\newcommand{\supprealassess}{5}
 %\newcommand{\suppspikesec}{3}
 
 \newcommand{\supppseudo}{S1}
 \newcommand{\suppring}{S2}
+\newcommand{\suppdeassess}{S3}
 %\newcommand{\suppspikefig}{S3}
 
 \newcommand{\supprank}{S1}
@@ -722,6 +724,23 @@ Changes to the rank indicate that the choice of normalization strategy will affe
 Smaller differences are observed for the inDrop data set where fewer DE genes are present (Table~\ref{tab:real_de}, Supplementary Table~\supprank{}).
 Here, the similar performances of deconvolution and library size normalization are attributable to their mutual robustness to stochastic zeroes and, for the latter, a relative lack of DE within a cell type.
 This suggests that library size normalization may be satisfactory for homogeneous data sets.
+
+\revised{\subsubsection*{Deconvolution increases normalization accuracy on real data}
+We use a simple GLM-based simulation approach to assess the accuracy of deconvolution compared to each existing method.
+Briefly, we subset each real data set to contain only cells from one group, e.g., oligodendrocytes in the Zeisel \emph{et al.} data set.
+We fit a GLM to these counts, using the log-size factors from deconvolution as offsets and the log-size factors from the existing method as a covariate in the model.
+If deconvolution is accurate, the offsets will recapitulate all of the differences in means between cells in the group (assuming that no DE is present within the group).
+Additional fitting from the covariate term is unnecessary, such that the corresponding coefficient will be zero.
+This means that no DE genes will be detected upon dropping this covariate from the model.
+On the other hand, if deconvolution is not accurate, the offsets alone will fail to recapitulate the differences in means.
+To improve the fit, the estimated coefficient for the covariate term will become non-zero, such that more DE genes will be detected when the covariate is dropped.}
+
+\revised{We repeat this process after switching the size factors, i.e., using size factors from the existing method as the offsets and those from deconvolution as the covariates. 
+We assess the relative accuracy of deconvolution based on the number of DE genes detected in the original and switched fits.
+If deconvolution is more accurate than the existing method, there should be fewer DE genes when the deconvolution size factors are used as offsets, compared to when they are used in the switched fit as covariates.
+This is observed for all groups in all tested data sets (Figure~\suppdeassess{}) which is consistent with increased accuracy in the simulations.
+A more detailed explanation of this evaluation framework is provided in Section~\supprealassess{} of the Supplementary Materials.
+}
 
 \section*{Conclusions}
 Here, we have presented a normalization strategy for scRNA-seq data based on summation of expression values and deconvolution of pooled size factors.
