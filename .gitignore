@@ -3,6 +3,7 @@ simulations/results_high
 simulations/highcounts.R
 simulations/results_low
 simulations/lowcounts.R
+simulations/timings.pdf
 
 manuscript/betternorm.aux
 manuscript/betternorm.bbl
@@ -15,6 +16,9 @@ manuscript/pics/*.pdf
 manuscript/suppmat.aux
 manuscript/suppmat.log
 manuscript/suppmat.pdf
+manuscript/suppmat.fff
+manuscript/suppmat.lof
+manuscript/suppmat.ttt
 
 manuscript/Figure*.pdf
 manuscript/AdditionalFile*
