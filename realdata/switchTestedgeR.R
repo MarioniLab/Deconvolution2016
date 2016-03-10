@@ -77,6 +77,12 @@ for (x in c("Zeisel", "Klein")) {
         mids <- colMeans(matrix(out, nrow=2))
         axis(side=1, at=mids, c("DESeq", "TMM", "Library size"), cex.axis=1.4)
 
+        irked <- xxx[chosen,]$Offset=="LibSize"
+        toprow <- c(xxx[chosen,]$DE[irked], xxx[chosen,]$Total[irked]-xxx[chosen,]$DE[irked])
+        dirked <- xxx[chosen,]$Covariate=="LibSize"
+        bottomrow <- c(xxx[chosen,]$DE[dirked], xxx[chosen,]$Total[dirked]-xxx[chosen,]$DE[dirked])
+        print(fisher.test(rbind(toprow, bottomrow))$p.value)
+
         if (!legended) {
             legended <- TRUE
             legend("topright", fill=c("grey80", "grey20"), legend=c("As offset", "As covariate"), cex=1.4)
