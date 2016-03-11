@@ -84,9 +84,10 @@ $^2$EMBL European Bioinformatics Institute, Wellcome Genome Campus, Hinxton, Cam
         Parameter estimates for the Klein \textit{et al.} data set \cite{klein2015droplet}.
         (\subref{subfig:kleinmean}) Histogram of average counts for all genes. 
         The red curve represents the probability density of a Gamma$(2, 2)$ distribution.
-        (\subref{subfig:kleindisp}) Smoothed scatter plot of NB dispersion estimates from edgeR, plotted against the average count.
+        (\subref{subfig:kleindisp}) Smoothed scatter plot of NB dispersion estimates, plotted against the average count.
+        Dispersions were estimated using the estimateDisp function in edgeR, given a one-way layout with the before and after groups and using the log-transformed deconvolution size factors as the offsets.
         Axes are log-transformed for visibility.
-        The dashed line represents the fitted trend from edgeR, while the unbroken line is drawn at 0.1.
+        The dashed line represents the fitted trend from edgeR, while the unbroken line is drawn at the simulation value of 0.1.
     }
 \end{figure}
 
