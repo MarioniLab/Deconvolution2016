@@ -542,12 +542,12 @@ These are large enough to obtain stable sums yet small enough to maintain resolu
 This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
 
 An additional set of equations is added to ensure that the system is solvable.
-In each extra equation, the $\theta_jT_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
+In each \revised{additional} equation, the $\theta_jT_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
 These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ (though any small value can be used) and unity respectively.
 A weighted least-squares approach is then applied to solve the linear system.
 In the \revised{coefficient matrix} of the system, the incorporation of the additional equations ensures that the columns are linearly independent.
 This ensures that a single solution can be obtained.
-Due to their low weights, \revised{these} additional equations will not contribute substantially to the weighted least-squares solution.
+Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
 This means that the estimated values will be driven primarily by the equations for the summed cells.
 See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
 
