@@ -493,25 +493,25 @@ The fitted value would be $\log(\hat\theta_j) + \hat\beta_{i0} + \log(\hat\theta
 If we were to equate the expectation of the fitted value to the log-transformed true mean, we would obtain
 \begin{align*}
     \log(\mu_{ij}) &= E[\log(\hat\theta_j) + \hat\beta_{i0} + \log(\hat\theta'_j)\hat\beta_{i1}] \\
-    \log(\theta_j) + \log(\lambda_{i0}) &=  \log(\theta_j) + \hat\beta_{i0} + b \log(\theta_j) \hat\beta_{i1} \\
-    \log(\theta_j) &=  \log(\theta_j) + b \log(\theta_j)\hat\beta_{i1} \qquad\mbox{as $\hat\beta_{i0}$ absorbs all terms without $j$}\\
-    \hat\beta_{i1} &= 0 
+    \log(\theta_j) + \log(\lambda_{i0}) &=  \log(\theta_j) + E(\hat\beta_{i0}) + b \log(\theta_j) E(\hat\beta_{i1}) \\
+    \log(\theta_j) &=  \log(\theta_j) + b\log(\theta_j)E(\hat\beta_{i1}) \qquad\mbox{as $E(\hat\beta_{i0})$ absorbs all terms without $j$}\\
+    E(\hat\beta_{i1}) &= 0 
 \end{align*}
-assuming that $b' \log(\theta_j)$ are non-zero. 
+assuming that $b'\log(\theta_j)$ is non-zero. 
 Dropping the covariate term and performing a likelihood ratio test (LRT) should yield few DE genes.
 In contrast, using $\log(\hat\theta'_j)$ as the offset and $\log(\hat\theta_j)$ as the covariate yields 
 \begin{align*}
     \log(\mu_{ij}) &= E[\log(\hat\theta'_j) + \hat\beta'_{i0} + \log(\hat\theta_j)\hat\beta'_{i1}] \\
-    \log(\theta_j) + \log(\lambda_{i0}) &=  b\log(\theta_j) + \hat\beta'_{i0} + \hat\beta'_{i1} \\
-    \log(\theta_j) &=  b\log(\theta_j) + \hat\beta'_{i1} \qquad\mbox{as $\hat\beta'_{i0}$ absorbs all terms without $j$}\\
-    \hat\beta'_{i1} &= 1- b
+    \log(\theta_j) + \log(\lambda_{i0}) &=  b\log(\theta_j) + E(\hat\beta'_{i0}) + E(\hat\beta'_{i1}) \\
+    \log(\theta_j) &=  b\log(\theta_j) + E(\hat\beta'_{i1}) \qquad\mbox{as $E(\hat\beta'_{i0})$ absorbs all terms without $j$}\\
+    E(\hat\beta'_{i1}) &= 1- b
 \end{align*}
 where $\hat\beta'_{i0}$ and $\hat\beta'_{i1}$ are the corresponding estimates for the coefficients in this switched configuration.
-Repeating the LRT by dropping the covariate term should yield more DE genes as $\hat\beta_{i1}$ is non-zero when $b\neq1$.}
+Repeating the LRT by dropping the covariate term should yield more DE genes as $E(\hat\beta_{i1})$ is non-zero when $b\neq1$.}
 
 \revised{The reasoning above can be applied to assess the performance of each existing method compared to the deconvolution method on real data.
 For each data set, cells were partitioned into pre-defined groups in which no DE was expected.
-The deconvolution size factors was log-transformed and used as offsets, while the log-size factors from an existing method were used as the covariates.
+The deconvolution size factors were log-transformed and used as offsets, while the log-size factors from an existing method were used as the covariates.
 NB dispersion estimation and GLM fitting was performed on the counts for each group separately.
 The LRT was used to test for DE and the number of DE genes detected at a FDR of 5\% was counted.
 This was repeated after switching the size factors, i.e., using the deconvolution size factors as the covariates and the existing size factors as the offsets.
