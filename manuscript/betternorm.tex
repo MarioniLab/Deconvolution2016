@@ -545,18 +545,14 @@ An additional set of equations is added to ensure that the system is solvable.
 In each extra equation, the $\theta_jT_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
 These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ (though any small value can be used) and unity respectively.
 A weighted least-squares approach is then applied to solve the linear system.
-In the matrix containing the coefficients of the linear system, the incorporation of the additional equations ensures that the columns are linearly independent.
+In the \revised{coefficient matrix} of the system, the incorporation of the additional equations ensures that the columns are linearly independent.
 This ensures that a single solution can be obtained.
-Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
+Due to their low weights, \revised{these} additional equations will not contribute substantially to the weighted least-squares solution.
 This means that the estimated values will be driven primarily by the equations for the summed cells.
 See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
 
 % Implicit weighting on the number of cells, as larger pools will yield larger values of r_{ik} with larger absolute (but smaller relative) errors.
 % So, minimizing the sum of squares will prioritize equations with more cells in them - rightly so, as these should have more counts and be more reliable.
-
-\revised{Finally, the standard error of the estimated size factors can be obtained from the linear system.
-This provides a measure of the precision of the estimates and can be used in downstream analyses to account for normalization uncertainty.
-}
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
@@ -581,6 +577,9 @@ Note that there are no problems from treating the observed library size as a fix
 In the worst-case scenario, the time required will scale in a cubic manner to the number of cells.
 However, this can be substantially mitigated by clustering to break up the linear system prior to its solution.
 A description of the computational complexity of the method is provided in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
+
+\revised{Finally, the standard error of the estimated size factors can be obtained after solving the system.
+This provides a measure of estimation precision and can be used in downstream analyses to account for normalization uncertainty.}
 
 \subsubsection*{Clustering to weaken the non-DE assumption}
 The deconvolution method makes some moderately strong assumptions regarding the nature of DE across the data set.
