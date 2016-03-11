@@ -633,10 +633,13 @@ However, the deconvolution method is still more accurate than the existing metho
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
-\revised{The simulations described above focus on low-coverage experiments where zeroes are expected to be prevalent.
-However, similar results are observed in high-coverage simulations with larger counts (Section~\supphighcov{}, Supplementary Figures~\supphighcovex{} and \supphighcovde{}, Additional file~1).
-This suggests that the advantages provided by deconvolution are still relevant in scRNA-seq experiments with greater sequencing depth.
-A description of the time complexity of the method is also provided in Section~\supptimecomp{} and Supplementary Figure~\supptimings{} of Additional file~1.}
+\revised{Our simulation results describe the performance of the various methods on low-coverage data where zeroes are expected to be prevalent.
+However, similar behaviour is observed in high-coverage simulations with larger counts (Section~\supphighcov{}, Supplementary Figures~\supphighcovex{} and \supphighcovde{}, Additional file~1).
+DESeq and TMM normalization are still inaccurate in the presence of zero counts, while library size normalization fails in the presence of DE genes.
+Deconvolution remains the most accurate method in all scenarios.
+This suggests that the advantages provided by deconvolution are relevant in scRNA-seq experiments with greater sequencing depth.}
+
+\revised{A description of the time complexity of the deconvolution method is provided in Section~\supptimecomp{} and Supplementary Figure~\supptimings{} of Additional file~1.}
 
 \subsection*{Differences in normalization are recapitulated in real data}
 

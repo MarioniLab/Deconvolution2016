@@ -347,10 +347,10 @@ The overall time complexity lies between the linear and cubic extremes, dependin
     \label{fig:timings}
 \end{figure}
 
-\revised{Memory usage of the deconvolution method is harder to assess due to the unpredictability of garbage collection in R.
-We expect that usage will increase quadratically with the number of cells, due to the size of the linear system.
+\revised{Memory usage of the deconvolution method is harder to measure due to the unpredictability of garbage collection in R.
+We expect that usage will increase quadratically with the number of cells, due to increases to the size of the linear system.
 Again, this can be mitigated by clustering for large data sets.
-Further savings may be possible by using sparse matrices given that most of the entries in the system are likely to be zero.}
+Further savings may be possible by using sparse matrices given that most of the entries in the system are equal to zero.}
 
 \revised{We note that most clustering algorithms have quadratic time complexity with respect to the number of cells, e.g., when building the distance matrix.
 However, we expect that clustering would be performed anyway as a routine part of the scRNA-seq data analysis.
