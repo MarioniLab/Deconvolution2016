@@ -79,18 +79,18 @@
 
 \newcommand{\supppoolsim}{1}
 \newcommand{\supplineardep}{2}
-\newcommand{\supptimecomp}{3}
-\newcommand{\suppclustering}{4}
-\newcommand{\supphighcov}{5}
+\newcommand{\suppclustering}{3}
+\newcommand{\supphighcov}{4}
+\newcommand{\supptimecomp}{5}
 \newcommand{\supprealassess}{6}
 %\newcommand{\suppspikesec}{3}
 
 \newcommand{\suppkleinparam}{S1}
 \newcommand{\supppseudo}{S2}
 \newcommand{\suppring}{S3}
-\newcommand{\supptimings}{S4}
-\newcommand{\supphighcovex}{S5}
-\newcommand{\supphighcovde}{S6}
+\newcommand{\supphighcovex}{S4}
+\newcommand{\supphighcovde}{S5}
+\newcommand{\supptimings}{S6}
 \newcommand{\suppdeassess}{S7}
 %\newcommand{\suppspikefig}{S3}
 
@@ -573,11 +573,6 @@ It also reduces the risk of obtaining negative estimates for small libraries.
 Such libraries have small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
 Note that there are no problems from treating the observed library size as a fixed quantity, as the deconvolution procedure is valid for arbitrary positive values of $T_j$.
 
-\revised{The solution of the linear system is the most computationally intensive step in the deconvolution method.
-In the worst-case scenario, the time required will scale in a cubic manner to the number of cells.
-However, this can be substantially mitigated by clustering to break up the linear system prior to its solution.
-A description of the computational complexity of the method is provided in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
-
 \revised{Finally, the standard error of the estimated size factors can be obtained after solving the system.
 This provides a measure of estimation precision and can be used in downstream analyses to account for normalization uncertainty.}
 
@@ -642,6 +637,12 @@ However, similar behaviour is observed in high-coverage simulations with larger 
 DESeq and TMM normalization are still inaccurate in the presence of zero counts, while library size normalization fails in the presence of DE genes.
 Deconvolution remains the most accurate method in all scenarios.
 This suggests that the advantages provided by deconvolution are relevant in scRNA-seq experiments with greater sequencing depth.}
+
+\revised{Another measure of performance is the computational complexity of the deconvolution method.
+In the worst-case scenario, the time required will scale in a cubic manner to the number of cells.
+However, this can be substantially mitigated by clustering to break up the linear system prior to its solution.
+A description of the computational complexity of the method is provided in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
+
 
 \subsection*{Differences in normalization are recapitulated in real data}
 
@@ -1010,9 +1011,9 @@ $\quad$ shared with library size    & 3102 & 1176 & 1926 && 475 & 198 & 277 \\
 \subsection*{Additional file 1 --- Supplementary Materials}
 This file contains \revised{a justification of the choice of pooling strategy (Section~\supppoolsim{}),
     a discussion of how to resolve linear dependencies (Section~\supplineardep{}),
-    an outline of the computational complexity of deconvolution (Section~\supptimecomp{}),
     details on the clustering algorithm (Section~\suppclustering{}),
     a description of the high-coverage simulations (Section~\supphighcov{}),
+    an outline of the computational complexity of deconvolution (Section~\supptimecomp{}),
     and a description of the offset/covariate method to assess normalization accuracy on real data (Section~\supprealassess{}).}
 %    and an elaboration of the spike-in results (Section~\suppspikesec{}).
 It also contains Supplementary Figures~S1-7 and Supplementary Tables~S1-2.

@@ -12,6 +12,7 @@ betternorm.pdf: betternorm.tex references.bib
 
 AdditionalFile1.pdf: betternorm.pdf suppmat.tex ../simulations/results/sizeP_*.pdf pics/library_ring.pdf ../realdata/Zeisel_*.pdf
 	pdflatex suppmat.tex 
+	pdflatex suppmat.tex 
 	mv suppmat.pdf $@
 
 pics/library_ring.pdf: pics/library_ring.svg
