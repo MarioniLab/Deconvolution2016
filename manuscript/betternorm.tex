@@ -632,17 +632,16 @@ However, the deconvolution method is still more accurate than the existing metho
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
-\revised{Our simulation results describe the performance of the various methods on low-coverage data where zeroes are expected to be prevalent.
+\revised{Our simulations compare the performance of the various methods on low-coverage data where zeroes are expected to be prevalent.
 However, similar behaviour is observed in high-coverage simulations with larger counts (Section~\supphighcov{}, Supplementary Figures~\supphighcovex{} and \supphighcovde{}, Additional file~1).
 DESeq and TMM normalization are still inaccurate in the presence of zero counts, while library size normalization fails in the presence of DE genes.
 Deconvolution remains the most accurate method in all scenarios.
 This suggests that the advantages provided by deconvolution are relevant in scRNA-seq experiments with greater sequencing depth.}
 
-\revised{Another measure of performance is the computational complexity of the deconvolution method.
-In the worst-case scenario, the time required will scale in a cubic manner to the number of cells.
-However, this can be substantially mitigated by clustering to break up the linear system prior to its solution.
-A description of the computational complexity of the method is provided in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
-
+\revised{The performance of deconvolution can also be described in terms of its computational complexity.
+In the worst-case scenario, the time required by the method will scale in a cubic manner with respect to the number of cells.
+However, this can be substantially mitigated by clustering to break up the linear system.
+This is described in more detail in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
 
 \subsection*{Differences in normalization are recapitulated in real data}
 
