@@ -632,8 +632,8 @@ However, the deconvolution method is still more accurate than the existing metho
     -- unlike DESeq or TMM normalization, the estimates here are proportional to the true values within each subpopulation, 
        and the deviation from the diagonal is smaller than that for library size normalization.
 
-\revised{Our simulations compare the performance of the various methods on low-coverage data where zeroes are expected to be prevalent.
-To examine performance at higher coverage, we repeated the simulations with different parameters to obtain larger counts (Section~\supphighcov{}, Additional file~1).
+\revised{The simulations described above focus on low-coverage data where zeroes are expected to be prevalent.
+To examine the performance of the methods at higher coverage, we repeated the simulations with different parameters to obtain larger counts (Section~\supphighcov{}, Additional file~1).
 This yielded similar results to Figures~\ref{fig:existing_sim} and \ref{fig:sim_cluster_DE}.
 DESeq and TMM normalization were still inaccurate in the presence of zeroes, while library size normalization failed in the presence of DE genes (Supplementary Figure~\supphighcovex{}). 
 Deconvolution remained the most accurate method in all scenarios (Supplementary Figure~\supphighcovde{}).
