@@ -633,12 +633,13 @@ However, the deconvolution method is still more accurate than the existing metho
        and the deviation from the diagonal is smaller than that for library size normalization.
 
 \revised{Our simulations compare the performance of the various methods on low-coverage data where zeroes are expected to be prevalent.
-However, similar behaviour is observed in high-coverage simulations with larger counts (Section~\supphighcov{}, Supplementary Figures~\supphighcovex{} and \supphighcovde{}, Additional file~1).
-DESeq and TMM normalization are still inaccurate in the presence of zero counts, while library size normalization fails in the presence of DE genes.
-Deconvolution remains the most accurate method in all scenarios.
+To examine performance at higher coverage, we repeated the simulations with different parameters to obtain larger counts (Section~\supphighcov{}, Additional file~1).
+This yielded similar results to Figures~\ref{fig:existing_sim} and \ref{fig:sim_cluster_DE}.
+DESeq and TMM normalization were still inaccurate in the presence of zeroes, while library size normalization failed in the presence of DE genes (Supplementary Figure~\supphighcovex{}). 
+Deconvolution remained the most accurate method in all scenarios (Supplementary Figure~\supphighcovde{}).
 This suggests that the advantages provided by deconvolution are relevant in scRNA-seq experiments with greater sequencing depth.}
 
-\revised{The performance of deconvolution can also be described in terms of its computational complexity.
+\revised{Deconvolution can also be assessed in terms of its computational complexity.
 In the worst-case scenario, the time required by the method will scale in a cubic manner with respect to the number of cells.
 However, this can be substantially mitigated by clustering to break up the linear system.
 This is described in more detail in Section~\supptimecomp{} of Additional file~1, along with empirical timings in Supplementary Figure~\supptimings{}.}
@@ -724,7 +725,7 @@ The different normalization strategies also affect the ranking of the top set of
 Of the top genes with the lowest $p$-values, around 20-50\% are changed when deconvolution is used instead of the existing methods (Supplementary Table~\supprank{}, Additional file~1).
 This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
 Modest changes were also observed in the ranking of highly variable genes detected by the distance-to-median approach \cite{kolod2015single}.
-Approximately 10 to 30-40\% of the most variable genes were altered if deconvolution was used instead of the existing methods in either data set (Supplementary Table~\suppHVG{}, Additional file~1).
+Approximately 10 to 30-40\% of the most variable genes were altered if deconvolution was used instead of the existing methods in either data set (Supplementary Table~\suppHVG{}).
 Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong DE and variability.
 Thus, the top-ranked genes are often prioritized for further investigation.
 Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
