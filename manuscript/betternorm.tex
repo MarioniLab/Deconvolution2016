@@ -463,38 +463,43 @@ The deconvolution method consists of several key steps --
 The following section will describe the implementation of the deconvolution method, as well as its use in conjunction with clustering for optimal performance.
 
 \subsubsection*{Summation and deconvolution with linear equations}
-Define the adjusted expression of gene $i$ as $\pi_{ij} = y_{ij}T_j^{-1}$, where $T_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below).
-This means that $E(\pi_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.
+\revised{Consider that the count $y_{ij}$ of gene $i$ in cell $j$ is sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{is}$.}
+Define the adjusted expression value as \revised{$z_{ij} = y_{ij}T_j^{-1}$} where $T_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below).
+\revised{This means that $z_{ij} \sim Z_{ij} = Y_{ij}T_j^{-1}$ where $E(Z_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.}
 Further assume that we have a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
-Denote the sum of $\pi_{ij}$ across $\mathcal{S}_k$ as $s_{ik}$ for gene $i$.
-The values of $s_{ik}$ across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
-The expectation of $s_{ik}$ is equal to 
+Denote the sum of $z_{ij}$ across $\mathcal{S}_k$ as \revised{$v_{ik}$} for gene $i$.
+The values of \revised{$v_{ik}$} across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
+\revised{We consider that $v_{ik} \sim V_{ik}$ where $V_{ik}$ is defined as the sum of $Z_{ij}$ for $j \in \mathcal{S}_k$ and has an expectation of}
 \[
-    E(s_{ik}) = \lambda_{is} \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
+    E(V_{ik}) = \lambda_{is} \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
 \]
 Define $u_{i}$ as the mean of expression values for gene $i$ across all $N$ cells in the entire data set.
+\revised{This is sampled from $U_{i}$, defined as the mean of all $Z_{ij}$ such that
+\[
+    E(U_i)=N^{-1} \sum_{j \in \mathcal{S}_0} \theta_j T_j^{-1}
+\]
+where $\mathcal{S}_0$ refers to the set of all cells in the data set.}
 The values of $u_{i}$ across all genes represent the expression profile for an averaged reference pseudo-cell.
 The cell pool $k$ is then normalized against this reference pseudo-cell.
-Let $r_{ik}$ denote the ratio of $s_{ik}$ to $u_{i}$ for a non-DE gene $i$.
-The expectation of $r_{ik}$ represents the size factor for the pooled cells in $\mathcal{S}_k$, and is written as
+Let $r_{ik}$ denote the ratio of $v_{ik}$ to $u_{i}$ for a non-DE gene $i$\revised{, i.e., $r_{ik}\sim R_{ik} = V_{ik}/U_i$.}
+The expectation of \revised{$R_{ik}$} represents the size factor for the pooled cells in $\mathcal{S}_k$, and is written as 
 \begin{equation}
-    E(r_{ik}) \approx \frac{E(s_{ik})}{E(u_{i})} 
+    \revised{E(R_{ik}) \approx \frac{E(V_{ik})}{E(U_{i})} }
     = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{ N^{-1} \sum_{\mathcal{S}_0} \theta_j T_j^{-1}} 
     = \frac{\sum_{\mathcal{S}_k} \theta_j T_j^{-1}}{C}
     \label{eqn:linear_single}
 \end{equation}
 where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
-The approximation assumes that $u_{i}$ is a stable estimate of $E(u_i)$ 
+The approximation \revised{in Equation~\ref{eqn:linear_single}} assumes that the \revised{observed $u_{i}$ is close to $E(U_i)$}
     -- this is not unreasonable for data sets with hundreds of cells, where variability relative to the mean should decrease due to the law of large numbers.
-$E(r_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across $i$.
+\revised{$E(R_{ik})$} is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across \revised{all genes}.
 Robustness protects the average against a small number of DE genes with extreme ratios.
 
-The estimated value of $E(r_{ik})$ for the set can be used to obtain estimates for $\theta_j$ for each individual cell.
-A linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
-by replacing $E(r_{ik})$ with its estimate and treating the $\theta_j T_j^{-1}$ as unknown parameters to be estimated.
+\revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
+\revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
+by replacing \revised{$E(R_{ik})$} with its estimate and treating the $\theta_j T_j^{-1}$ \revised{for $j \in \mathcal{S}_k$} as unknown parameters.
 The constant $C$ can be set to unity and ignored, as it does not contribute to the relative differences between size factors.
-Repeating the estimation of $E(r_{ik})$ by defining different sets of cells as $\mathcal{S}_{k}$ will generate an overdetermined system of linear equations, 
-    in which the $\theta_j T_j^{-1}$ for each $j$ is represented at least once.
+\revised{This process is repeated after using different pools of cells to define} $\mathcal{S}_{k}$, \revised{yielding an} overdetermined system of linear equations in which the $\theta_j T_j^{-1}$ \revised{corresponding to} each \revised{cell} is represented at least once.
 This system can be solved with standard least-squares methods to obtain estimates of $\theta_j T_j^{-1}$ for all cells 
     (this represents ``deconvolution'' of the cell pool factors to the factors for the individual cells, hence the name).
 Multiplication by $T_j$ for each cell will yield an estimate of $\theta_j$.
@@ -562,7 +567,7 @@ This will not provide sensible estimates for the offending cells
     -- but will ensure that the estimates for other cells are not distorted by negative values elsewhere in the system.
 
 The value of $T_j$ is set to the observed library size for each cell.
-This ensures that the sum $s_{ik}$ is not dominated by a small number of very large libraries.
+This ensures that the sum \revised{$v_{ik}$} is not dominated by a small number of very large libraries.
 Information from each cell will be weighted equally when computing the median ratio for each \revised{pool}, regardless of library size.
 It also reduces the risk of obtaining negative estimates for small libraries.
 Such libraries have small $\theta_j$ and would be unduly influenced by (relatively) large estimation errors for cells with larger libraries.
