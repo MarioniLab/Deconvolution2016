@@ -581,9 +581,10 @@ This condition generally requires a proportion of genes to be constantly express
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
 This is similar to that required for DESeq normalization where an average reference is also used.
 
-% The only exception to the requirement for a non-DE set is if you have (a pool of) cells with expression equal to the average of many DE values.
-% This would give you non-DE ratios that would (hopefully) be the median. 
-% However, this seems coincidental to the extreme.
+% Specifically, the average expression will include some contribution from DE for each gene.
+% This means that the ratio of pool sum to average would no longer solely represent bias, as it would also include some arbitrary DE from cells in and out of the pool.
+% The only situation in which it would be okay is if the amount of DE is the same for each gene, such that the relative size factors are unchanged.
+% However, this seems like it would be unlikely.
 
 To reduce the strength of the non-DE assumption, cells can be clustered based on their expression profiles.
 The deconvolution method is then applied to the cells in each cluster $\mathcal{C}$ separately,
