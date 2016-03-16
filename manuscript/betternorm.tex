@@ -109,7 +109,7 @@
 \begin{frontmatter}
 
 \begin{fmbox}
-\dochead{Research}
+\dochead{Method}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -167,6 +167,13 @@
   \orgname{EMBL European Bioinformatics Institute},
   \street{Wellcome Genome Campus, Hinxton},
   \postcode{CB10 1SD}
+  \city{Cambridge},
+  \cny{UK}
+}
+\address[id=aff3]{
+  \orgname{Wellcome Trust Sanger Institute},
+  \street{Wellcome Genome Campus, Hinxton},
+  \postcode{CB10 1SA},
   \city{Cambridge},
   \cny{UK}
 }
@@ -279,7 +286,7 @@ Normalization of the scRNA-seq counts is a critical step that corrects for cell-
 This ensures that downstream comparisons of relative expression between cells are valid.
 Two broad classes of methods for scaling normalization are available -- those using spike-in RNA sets, and those using the counts from the profiled cellular RNA.
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
-Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency between cells.
+Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency \revised{or amplification biases} between cells.
 Normalization is then performed by scaling the counts to equalize spike-in coverage between cells.
 For the methods using cellular counts, the assumption is that most genes are not DE across the sampled cells.
 Counts are scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
@@ -342,9 +349,7 @@ This method selects one library as a reference and normalizes the remaining libr
 Specifically, for each remaining library, M-values (i.e., library size-adjusted log$_2$-ratios in expression) are computed against the reference for all genes.
 The genes with the most extreme M-values are trimmed away.
 High- or low-abundance genes are similarly removed.
-The weighted mean of the remaining M-values is computed, using precision weights that are calculated based on the asymptotic variance of each M-value.
-This is used to define the normalization factor for each library as $2^x$, where $x$ is the weighted mean for that library.
-The normalization factor represents the scaling required to eliminate systematic differences between libraries, additional to that required to equalize the library sizes.
+\revised{A} weighted mean of the remaining M-values is computed and used to define the normalization factor for each library.
 Taking the product of the normalization factor and library size for each library (i.e., the effective library size) yields a value that is functionally equivalent to the size factor.
 
 Both DESeq and TMM normalization assume that some minimal proportion of genes are not DE between libraries.
@@ -360,19 +365,12 @@ In such conditions, both methods require \textit{ad hoc} workarounds such as the
 Finally, library size normalization is another commonly used approach for normalizing RNA-seq data.
 This involves scaling the counts such that the library size is the same across libraries,
     and is the basis for measures of normalized expression like counts- or transcripts-per-million.
-While simple, this approach is not robust in the presence of DE genes \cite{robinson2010scaling}.
-One can imagine a scenario where a single gene is strongly upregulated in one library compared to another.
-This increases the size of the first library as more reads are generated from the upregulated gene.
-Normalization by library size will compensate by scaling up the counts for the second library.
-However, this will introduce spurious differences between libraries for all of the non-DE genes.
-This will occur even if the libraries are sequenced to the same depth 
-    -- more reads will be spent in sequencing the upregulated gene in the first library, such that the coverage of non-DE genes will be reduced relative to other libraries.
-The likely presence of DE in real data means that library size normalization is often inappropriate.
+While simple, this approach is not robust to the presence of DE genes \cite{anders2010differential,robinson2010scaling}.
+\revised{This means that library size normalization is often inappropriate for real data sets in which DE is likely to occur.}
 
 \revised{Each of the three methods described above was initially developed for normalization of bulk RNA-seq data.
 Nonetheless, they have been used extensively in the scRNA-seq literature \cite{saraiva2015hierarchical, kolod2015single, llorens2015singlecell, li2016singlecell, deng2014singlecell, freeman2015singlecell}.
-This motivates an assessment of the suitability of these existing methods for normalizing single-cell data.
-}
+This motivated us to assess the suitability of these existing methods for normalizing single-cell data.}
 
 \subsubsection*{Simulating scRNA-seq data with stochastic zeroes and DE}
 To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeros.
@@ -405,10 +403,10 @@ In each simulation scenario, the count for each gene in each cell was sampled fr
 The mean of this distribution was defined according to the parameter settings of that scenario (i.e., whether that gene was chosen as DE in the corresponding subpopulation, and if so, the direction and magnitude of DE).
 A summary of the simulation parameters is provided in Table~\ref{tab:sim_param}.    
 
-DESeq, TMM and library size normalization were applied to this data.
+DESeq, TMM and library size normalization were applied to \revised{these} data.
 Zero counts were removed prior to or during DESeq and TMM normalization -- see Methods for more details.
-The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove the cell-specific bias of $j$.
-Estimated size factors from each method were then compared to their true values for all cells.
+The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove the cell-specific bias.
+Estimated size factors from each method were then compared to their true values.
 
 \subsubsection*{Size factor estimates from existing methods are inaccurate}
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
@@ -429,10 +427,7 @@ The divergence between the true and estimated size factors increases as the numb
 To illustrate, consider the strong DE simulation.
 Across the three subpopulations, there are 9000 genes involved in subpopulation-specific signatures, i.e., 90\% of all genes exhibit DE within this data set.
 An assumption of a non-DE majority of genes is clearly invalid in this scenario.
-Any systematic differences in expression between cells of different subpopulations will now include genuine DE in addition to cell-specific biases.
-Subsequently, the magnitude of DE will be incorporated in the size factors computed from each method, such that they are no longer accurate estimates of $\theta_j$.
-Indeed, the estimates split into three distinct groups in Figure~\ref{fig:existing_sim}, each corresponding to a different subpopulation.
-Size factors are overestimated for subpopulations with more DE as the increased expression of upregulated genes drags up the median ratio/trimmed mean.
+\revised{As a result, the size factors computed from each method will no longer be accurate estimates of $\theta_j$, as any systematic difference in expression due to cell-specific biases cannot be distinguished from that due to widespread DE.}
 Normalization inaccuracy is also exacerbated by the removal of semi-systematic zeroes, which distorts the biases between subpopulations in the same way that the removal of stochastic zeroes distorts the biases between cells.
 
 It is worth noting that library size normalization is not affected by stochastic or semi-systematic zeroes.
