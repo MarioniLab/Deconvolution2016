@@ -490,8 +490,7 @@ The expectation of \revised{$R_{ik}$} represents the size factor for the pooled 
     \label{eqn:linear_single}
 \end{equation}
 where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
-The approximation \revised{in Equation~\ref{eqn:linear_single}} assumes that the \revised{observed $u_{i}$ is close to $E(U_i)$}
-    -- this is not unreasonable for data sets with hundreds of cells, where variability relative to the mean should decrease due to the law of large numbers.
+The approximation assumes that \revised{the variance of $U_i$ is small}, which is not unreasonable for data sets with hundreds of cells due to the law of large numbers.
 \revised{$E(R_{ik})$} is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across \revised{all genes}.
 Robustness protects the average against a small number of DE genes with extreme ratios.
 
