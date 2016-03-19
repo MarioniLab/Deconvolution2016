@@ -161,20 +161,20 @@ Assuming cells $j=1$ to $4$ were placed consecutively on the ring, this would yi
 \end{bmatrix}
 =
 \begin{bmatrix}
-\theta_A \\
-\theta_B \\
-\theta_C \\
-\theta_D 
+\hat\theta_A \\
+\hat\theta_B \\
+\hat\theta_C \\
+\hat\theta_D 
 \end{bmatrix}
 \]
-for pool-based size factor estimates $\theta_A$ to $\theta_D$. 
+for pool-based size factor estimates $\hat\theta_A$ to $\hat\theta_D$. 
 Assume that the pool-based factors are estimated accurately and precisely, such that the minimum value of the residual sum of squares for this system can be obtained near the set of true values for the cell-based factors.
-This system has no unique solution - for the true factors $(\theta_1, \theta_2, \theta_3, \theta_4)^T$, 
+This system has no unique solution -- for the true factors $(\theta_1, \theta_2, \theta_3, \theta_4)^T$, 
     an equally good fit can be obtained with $(\theta_1+x, \theta_2-x, \theta_3+x, \theta_4 - x)^T$ for any real $x$.
 
-The addition of equations relating each $\theta_j$ with its direct estimate $\hat\theta_j$ ensures identifiability, 
-    as a value of $x$ will be chosen that minimizes the residual sum of squares of the $(\theta_1+x, \theta_2-x, \theta_3+x, \theta_4 - x)^T$ from the direct estimates.
-In this example, the residual sum of squares for the possible solutions can be written as
+The addition of equations relating each \revised{size factor} with its direct estimate $\hat\theta_j$ ensures identifiability, 
+    as a value of $x$ will be chosen that minimizes the residual sum of squares of $(\theta_1+x, \theta_2-x, \theta_3+x, \theta_4 - x)^T$ from the direct estimates.
+In this example, the residual sum of squares for the possible solutions \revised{is} written as
 \[
 \sum_{j \in J_1} (\theta_j +x - \hat\theta_j)^2+ \sum_{j \in J_2} (\theta_j -x - \hat\theta_j)^2 
 = 4 x^2 + 2x\left[ \sum_{j \in J_1} (\theta_j - \hat\theta_j) - \sum_{j \in J_2} (\theta_j - \hat\theta_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \hat\theta_j)^2
