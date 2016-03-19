@@ -501,7 +501,7 @@ The systematic component of the GLM is written as
     \log(\mu_{ij}) = \log[E(\Theta_j)] + \beta_{i0} + \log[E(\Theta'_j)]\beta_{i1} 
 \]
 where $\beta_{i0}$ and $\beta_{i1}$ are the values of the coefficients for the intercept and covariate terms, respectively.
-Given the relationship between $E(\Theta_j)$ and $\theta_j$, a substitution can be performed to obtain
+Given the relationships between $E(\Theta_j)$, $E(\Theta'_j)$ and $\theta_j$, the above expression can be rewritten to obtain
 \begin{align*}
     \log(\theta_j) + \log(\lambda_{i0}) &= \log(\theta_j) + \beta_{i0} + b \log(\theta_j)\beta_{i1} \\
     \log(\lambda_{i0}) &= \beta_{i0} + b \log(\theta_j)\beta_{i1}  \;.
@@ -522,7 +522,7 @@ Repeating the LRT by dropping the covariate term should yield more DE genes than
 This assumes that the variances of $\Theta_j$ and $\Theta'_j$ are low such that any observed size factor estimate will be close to the expected value.
 The substitution is justified by the nature of the trends in Figures~\figexist{}, \figdeconv{}, \ref{fig:highcovexisting} and \ref{fig:highcovdeconv}.
 For most scenarios, the estimated size factors lie on a well-defined curve with little scatter which suggests that the estimation error is low.
-Indeed, we repeated the non-DE simulation in Figures~\figexist{} and \figdeconv{} and computed the MAD of the log-size factor estimates for each cell across 10 iterations.
+Indeed, we repeated the no-DE simulation in Figures~\figexist{} and \figdeconv{} and computed the MAD of the log-size factor estimates for each cell across 10 iterations.
 These MADs ranged from 0.007 to 0.021 for TMM normalization (using the interquartile range across all cells); 0.005 to 0.011 for DESeq normalization; 0.007 to 0.013 for library size normalization; and 0.025 to 0.043 for deconvolution. 
 In contrast, the MAD of the log-transformed size factors across cells was 0.39. 
 This indicates that the estimation error of the size factor for each cell is negligible relative to the variability of the size factors across cells.
