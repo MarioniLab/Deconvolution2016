@@ -491,7 +491,7 @@ The expectation of \revised{$R_{ik}$} represents the size factor for the pooled 
 \end{equation}
 where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
 The approximation assumes that \revised{the variance of $U_i$ is small}, which is not unreasonable for data sets with hundreds of cells due to the law of large numbers.
-\revised{$E(R_{ik})$} is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across \revised{all genes}.
+\revised{$E(R_{ik})$} is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across \revised{all genes, under the assumption that most genes are not DE between the pool and the average.}
 Robustness protects the average against a small number of DE genes with extreme ratios.
 
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
