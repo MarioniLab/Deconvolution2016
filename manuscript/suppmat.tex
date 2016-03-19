@@ -515,7 +515,7 @@ In contrast, using $\log[E(\Theta'_j)]$ as the offset and $\log[E(\Theta_j)]$ as
     \log(\theta_j) + \log(\lambda_{i0}) &= b\log(\theta_j) + \beta'_{i0} + \log(\theta_j)\beta'_{i1} \\
     \log(\lambda_{i0}) + (1-b)\log(\theta_j) &= \beta'_{i0} + \log(\theta_j)\beta'_{i1}  \;.
 \end{align*}
-The above relationship only holds for all cells when $\beta'_{i0}=\log(\lambda_{i0})$ and $\beta'_{i1} = 1-b$, where $\beta'_{i0}$ and $\beta'_{i1}$ are the values of the coefficients in the ``switched'' configuration.
+The above relationship only holds for all cells when $\beta'_{i0}=\log(\lambda_{i0})$ and $\beta'_{i1} = 1-b$, where $\beta'_{i0}$ and $\beta'_{i1}$ are the values of the coefficients in this ``switched'' configuration.
 Repeating the LRT by dropping the covariate term should yield more DE genes than in the original configuration, as $\beta'_{i1}$ is non-zero when $b\neq1$.}
 
 \revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we use $\theta_j$ and $\theta'_j$, respectively, to replace them in the GLM fit.
@@ -535,7 +535,7 @@ The deconvolution size factors were log-transformed and used as offsets, while t
 NB dispersion estimation and GLM fitting was performed on the counts for each group separately.
 The LRT was used to test for DE and the number of DE genes detected at a FDR of 5\% was counted.
 This was repeated after switching the size factors, i.e., using the deconvolution size factors as the covariates and the existing size factors as the offsets.
-To ensure a valid comparison, the dispersion estimates from the initial fit were re-used to fit the GLM after switching.
+To ensure a valid comparison, the dispersion estimates from the original fit were re-used to fit the GLM after switching.
 Similarly, the $p$-value corresponding to an FDR threshold of 5\% in the initial set of DE genes was used to define the set of DE genes in the switched fit.
 This means that the differences between $\beta_{i1}'$ and $\beta_{i1}$ are the sole cause of any difference in the number of DE genes.
 Examination of Figure~\ref{fig:assessment_results} indicates that fewer DE genes are consistently detected in each group when the deconvolution size factors are used as the offsets, relative to the number detected when they are used as covariates.
@@ -578,7 +578,7 @@ The effect of other relationships is less predictable, though we would still exp
 Large $\mbox{var}(\Theta_j)$ and $\mbox{var}(\Theta'_j)$ may also increase the noise in the expected relationships of $\beta_{i1}=0$ and $\beta'_{i1}=1-b$.
 Finally, we assume that there is no DE within the group of cells -- or, at least, no DE that is associated with the size factors.
 We select cells in homogeneous groups to weaken this assumption, but there may be additional DE within each group that we have not considered.
-In summary, a large number of assumptions are used here, but this is likely to be inevitable given that the true size factors (which would facilitate a direct comparison to the estimates) are unknown in real data.
+In summary, a large number of assumptions are used here, but this is likely to be inevitable given that the true size factors (which would facilitate a direct assessment of estimation accuracy) are unknown in real data.
 }
 
 \end{document}
