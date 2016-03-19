@@ -742,9 +742,10 @@ If deconvolution is accurately estimating the cell-specific biases, the offsets 
 Additional fitting from the covariate term is unnecessary, such that the corresponding coefficient will be zero.
 This means that no DE genes will be detected upon dropping this covariate from the model.
 On the other hand, if deconvolution is not accurate, the offsets alone will fail to recapitulate the differences in means.
-To improve the fit, the estimated coefficient for the covariate term will become non-zero, such that more DE genes will be detected when the covariate is dropped.}
+To capture the remaining differences, the estimated coefficient for the covariate term will become non-zero (assuming the normalization bias and covariate are correlated) such that more DE genes will be detected when the covariate is dropped.
+}
 
-\revised{We repeat this process after switching the size factors, i.e., using size factors from the existing method as the offsets and those from deconvolution as the covariates. 
+\revised{We perform this process twice -- once as described above, and again after switching the size factors, i.e., using size factors from the existing method as the offsets and those from deconvolution as the covariates. 
 We assess the relative accuracy of deconvolution based on the number of DE genes detected in the original and switched GLM fits.
 If deconvolution is more accurate than the existing method, there should be fewer DE genes when the deconvolution size factors are used as offsets, compared to when they are used in the switched fit as covariates.
 This is observed for all groups in all tested data sets (Supplementary Figure~\suppdeassess{}), consistent with increased accuracy in the simulations.
