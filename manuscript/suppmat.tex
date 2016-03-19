@@ -507,8 +507,10 @@ Given the relationships between $E(\Theta_j)$, $E(\Theta'_j)$ and $\theta_j$, th
     \log(\lambda_{i0}) &= \beta_{i0} + b \log(\theta_j)\beta_{i1}  \;.
 \end{align*}
 This relationship must hold for all cells as the systematic component of the GLM describes all contributions to $\mu_{ij}$ for all $j$.
-This means that $\beta_{i0}$ must be equal to $\log(\lambda_{i0})$ and $\beta_{i1} = 0$.
-As the value of the covariate coefficient is zero, dropping that covariate term and performing a likelihood ratio test (LRT) should yield few DE genes.
+This means that, if $b \neq 0$, $\beta_{i0}$ must be equal to $\log(\lambda_{i0})$ and $\beta_{i1}$ must be equal to zero.
+We then perform a likelihood ratio test (LRT) against the null hypothesis of $\beta_{i1}=0$ for the alternative hypothesis of $\beta_{i1}\neq 0$.
+We should obtain only a small number of rejections as the null hypothesis is true for each gene.
+(Similarly, if $b = 0$, few rejections should be observed as the null and alternative models are identical for an all-zero covariate.)
 In contrast, using $\log[E(\Theta'_j)]$ as the offset and $\log[E(\Theta_j)]$ as the covariate leads to
 \begin{align*}
     \log(\mu_{ij}) &= \log[E(\Theta'_j)] + \beta'_{i0} + \log[E(\Theta_j)]\beta'_{i1}  \\
@@ -516,7 +518,8 @@ In contrast, using $\log[E(\Theta'_j)]$ as the offset and $\log[E(\Theta_j)]$ as
     \log(\lambda_{i0}) + (1-b)\log(\theta_j) &= \beta'_{i0} + \log(\theta_j)\beta'_{i1}  \;.
 \end{align*}
 The above relationship only holds for all cells when $\beta'_{i0}=\log(\lambda_{i0})$ and $\beta'_{i1} = 1-b$, where $\beta'_{i0}$ and $\beta'_{i1}$ are the values of the coefficients in this ``switched'' configuration.
-Repeating the LRT by dropping the covariate term should yield more DE genes than in the original configuration, as $\beta'_{i1}$ is non-zero when $b\neq1$.}
+Repeating the LRT to test for a non-zero covariate term should yield more rejections than in the original configuration, as $\beta'_{i1} \neq 0$ when $b\neq1$.
+These rejections can also be treated as DE genes where the DE log-fold change represents the normalization bias.}
 
 \revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we use $\theta_j$ and $\theta'_j$, respectively, to replace them in the GLM fit.
 This assumes that the variances of $\Theta_j$ and $\Theta'_j$ are low such that any observed size factor estimate will be close to the expected value.
