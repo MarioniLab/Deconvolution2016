@@ -1,0 +1,192 @@
+
+R Under development (unstable) (2016-02-24 r70217) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # This checks the brittleness of the summation approach in the presence of DE genes.
+> 
+> require(scran)
+Loading required package: scran
+Loading required package: BiocParallel
+Loading required package: scater
+Loading required package: Biobase
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
+    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
+    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
+    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unsplit
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: ggplot2
+
+Attaching package: ‘scater’
+
+The following objects are masked from ‘package:Biobase’:
+
+    fData<-, pData<-
+
+> require(edgeR)
+Loading required package: edgeR
+Loading required package: limma
+
+Attaching package: ‘limma’
+
+The following object is masked from ‘package:scater’:
+
+    plotMDS
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    plotMA
+
+
+Attaching package: ‘edgeR’
+
+The following object is masked from ‘package:scater’:
+
+    cpm
+
+> require(DESeq2)
+Loading required package: DESeq2
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:base’:
+
+    colMeans, colSums, expand.grid, rowMeans, rowSums
+
+Loading required package: IRanges
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: SummarizedExperiment
+
+Attaching package: ‘DESeq2’
+
+The following object is masked from ‘package:scater’:
+
+    fpkm
+
+> 
+> set.seed(100)
+> ngenes <- 10000
+> popsize <- 250
+> 
+> ###########################################################################
+> 
+> recollect <- function(sf, collected) {
++     sf <- log(sf)
++     collected[[length(collected)+1]] <- exp(sf - mean(sf))    
++     return(collected)
++ }
+> 
+> ###########################################################################
+> 
+> true.means <- rgamma(ngenes, 2, 2)
+> dispersions <- 0.1
+> 
+> up.per.pop <- c(0.2, 0.5, 0.8)
+> fc.up <- c(5, 5, 5)
+> fc.down <- c(0, 0, 0)
+> nde <- 0 
+> 
+> collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- list()      
+> all.facs <- 2^rnorm(popsize, sd=0.5) # Constant factors!
+> 
+> for (it in 1:10) {
++     counts <- list()
++     true.facs <- list()
++     for (x in seq_along(up.per.pop)) { 
++         true.facs[[x]] <- all.facs
++         effective.means <- outer(true.means, all.facs, "*")
++     
++         chosen <- nde * (x-1) + seq_len(nde)
++         is.up <- seq_len(nde*up.per.pop[x])
++         upregulated <- chosen[is.up]
++         downregulated <- chosen[-is.up]
++         effective.means[upregulated,] <- effective.means[upregulated,] * fc.up[x]
++         effective.means[downregulated,] <- effective.means[downregulated,] * fc.down[x]
++     
++         counts[[x]] <- matrix(rnbinom(ngenes*popsize, mu=effective.means, size=1/dispersions), ncol=popsize)
++     }
++ 
++     counts <- do.call(cbind, counts)
++     true.facs <- unlist(true.facs)
++ 
++     # TMM with raw counts:
++     tmm.sf <- calcNormFactors(counts) * colSums(counts)
++     collected.tmm <- recollect(tmm.sf, collected.tmm)
++ 
++     # Size factors with raw counts (must counter zeros for both geometric mean and for each library):
++     logvals <- log(counts)
++     logvals[is.infinite(logvals)] <- NA_real_
++     gm <- exp(rowMeans(logvals, na.rm=TRUE))
++     size.sf <- estimateSizeFactorsForMatrix(counts, geoMeans=gm)
++     collected.deseq <- recollect(size.sf, collected.deseq)
++    
++     # Library size
++     lib.sf <- colSums(counts)
++     collected.lib <- recollect(lib.sf, collected.lib)
++ 
++     # Size factors with clustering prior to summation:
++     emp.clusters <- quickCluster(counts)
++     final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
++     collected.deconv <- recollect(final2.sf, collected.deconv)
++ }
+> 
+> summary(apply(log(do.call(rbind, collected.tmm)), 2, mad))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.003639 0.007242 0.011950 0.020500 0.020960 0.175700 
+> summary(apply(log(do.call(rbind, collected.deseq)), 2, mad))
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+0.0009727 0.0051190 0.0072150 0.0090770 0.0112200 0.0387200 
+> summary(apply(log(do.call(rbind, collected.lib)), 2, mad))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.001048 0.007218 0.009394 0.010140 0.012720 0.027250 
+> summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.004499 0.024950 0.033100 0.034280 0.042510 0.085880 
+> mad(log(all.facs))
+[1] 0.3938238
+> 
+> proc.time()
+   user  system elapsed 
+167.916   0.647 168.633 
