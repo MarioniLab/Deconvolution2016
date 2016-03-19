@@ -557,9 +557,8 @@ See Section~\supplineardep{} in Additional file~1 for a more detailed discussion
 The linear system can be solved using standard methods, such as those based on the QR decomposition.
 However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
 Such values are obviously nonsensical as counts should not be scaled to yield negative expression values.
-One situation in which this might occur involves data with a large spread of $\theta_jT_j^{-1}$ values, 
-    such that the true value of $\theta_jT_j^{-1}$ is already close to zero for some cells.
-Errors in estimation may then be sufficient to push the estimated $\theta_j$ below zero.
+One situation in which this might occur involves \revised{heterogeneous} data with a large spread of $\theta_jT_j^{-1}$ values, such that $\theta_jT_j^{-1}$ is already close to zero for some cells.
+Errors in estimation may then be sufficient to push the \revised{estimates of} $\theta_j$ below zero \revised{for these cells}.
 Some protection is provided by using linear inverse models in the limSolve package v1.5.5.1 ({https://cran.r-project.org/web/packages/limSolve/index.html}) \cite{soetaert2009limsolve} to constrain all size factor estimates to non-negative values.
 This will not provide sensible estimates for the offending cells 
     -- these will have size factors of zero and should be removed by the user prior to further analysis, as they are likely to represent low-quality libraries 
