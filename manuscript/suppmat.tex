@@ -161,35 +161,36 @@ Assuming cells $j=1$ to $4$ were placed consecutively on the ring, this would yi
 \end{bmatrix}
 =
 \begin{bmatrix}
-\hat\theta_A \\
-\hat\theta_B \\
-\hat\theta_C \\
-\hat\theta_D 
+\theta_A \\
+\theta_B \\
+\theta_C \\
+\theta_D 
 \end{bmatrix}
 \]
-for pool-based size factor estimates $\hat\theta_A$ to $\hat\theta_D$. 
+for pool-based size factors $\theta_A$ to $\theta_D$.
+\revised{We set all $T_j$ to unity for simplicity, though the reasoning below applies when solving for both $\theta_j$ and $\theta_jT_j^{-1}$.}
 Assume that the pool-based factors are estimated accurately and precisely, such that the minimum value of the residual sum of squares for this system can be obtained near the set of true values for the cell-based factors.
 This system has no unique solution -- for the true factors $(\theta_1, \theta_2, \theta_3, \theta_4)^T$, 
     an equally good fit can be obtained with $(\theta_1+x, \theta_2-x, \theta_3+x, \theta_4 - x)^T$ for any real $x$.
 
-The addition of equations relating each \revised{size factor} with its direct estimate $\hat\theta_j$ ensures identifiability, 
+The addition of equations relating each \revised{size factor to} its direct estimate $\tilde\theta_j$ ensures identifiability, 
     as a value of $x$ will be chosen that minimizes the residual sum of squares of $(\theta_1+x, \theta_2-x, \theta_3+x, \theta_4 - x)^T$ from the direct estimates.
 In this example, the residual sum of squares for the possible solutions \revised{is} written as
 \[
-\sum_{j \in J_1} (\theta_j +x - \hat\theta_j)^2+ \sum_{j \in J_2} (\theta_j -x - \hat\theta_j)^2 
-= 4 x^2 + 2x\left[ \sum_{j \in J_1} (\theta_j - \hat\theta_j) - \sum_{j \in J_2} (\theta_j - \hat\theta_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \hat\theta_j)^2
+\sum_{j \in J_1} (\theta_j +x - \tilde\theta_j)^2+ \sum_{j \in J_2} (\theta_j -x - \tilde\theta_j)^2 
+= 4 x^2 + 2x\left[ \sum_{j \in J_1} (\theta_j - \tilde\theta_j) - \sum_{j \in J_2} (\theta_j - \tilde\theta_j)\right] + \sum_{j \in \{J_1, J_2\}} (\theta_j - \tilde\theta_j)^2
 \]
 where $J_1 = \{1, 3\}$ and $J_2=\{2, 4\}$.
 For these 4 cells, the above expression is minimized in terms of $x$ at
 \[
-x = - \frac{1}{4}\left[ \sum_{j \in J_1} (\theta_j - \hat\theta_j) - \sum_{j \in J_2} (\theta_j - \hat\theta_j)\right] \;.
+x = - \frac{1}{4}\left[ \sum_{j \in J_1} (\theta_j - \tilde\theta_j) - \sum_{j \in J_2} (\theta_j - \tilde\theta_j)\right] \;.
 \]
 \revised{This is true regardless of the relative weighting applied to the set of additional equations.
-The} direct estimate of each size factor is \revised{also} unbiased as stochastic zeroes are not removed, i.e., \revised{$E(\theta_j - \Theta_j)=0$ for $\hat\theta_j \sim \Theta_j$}.
+The} direct estimate of each size factor is \revised{also} unbiased as stochastic zeroes are not removed, i.e., \revised{$E(\tilde\Theta_j)=\theta_j$ for $\tilde\theta_j \sim \tilde\Theta_j$}.
 
 As the number of cells in the system increases, the sizes of $J_1$ and $J_2$ will increase. 
 For example, deconvolution is typically applied in data sets involving at least 200 cells and a sliding window of size 20, such that both $J_1$ and $J_2$ will consist of at least 10 cells.
-With more cells, the sum of the errors $\theta_j - \hat\theta_j$ will approach the sum of their expected values, i.e., zero.
+With more cells, the sum of the errors $\theta_j - \tilde\theta_j$ will approach the sum of their expected values, i.e., zero.
 This means that the minimum residual sum of squares will be obtained at $x=0$, i.e., solving the linear system will yield the true values of the size factors.
 Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
 
