@@ -143,7 +143,8 @@
    email={kbach@ebi.ac.uk}
 ]{\inits{KB}\fnm{Karsten} \snm{Bach}}
 \author[
-    addressref={aff1,aff2},
+    addressref={aff1,aff2,aff3},
+%    corref={aff2},
     email={marioni@ebi.ac.uk}
 ]{\inits{JCM}\fnm{John C} \snm{Marioni}}
 
@@ -653,7 +654,7 @@ This includes a number of different cell types such as oligodendrocytes, microgl
 The second data set was generated using the inDrop protocol on mouse embryonic stem cells, before and after withdrawal of leukemia inhibitory factor (LIF) \cite{klein2015droplet}.
 
 \subsubsection*{Deconvolution yields a wider spread of size factors}
-Each normalization method was applied on the counts for cells in both data sets.
+Each normalization method was applied to the counts for cells in both data sets.
 In both cases, deconvolution yields a wider range of size factor estimates compared to DESeq and TMM normalization (Figure~\ref{fig:real_comp}).
 This is consistent with the simulation results where the stochastic zeroes cause the estimates to be biased towards unity for these two methods.
 Indeed, approximately 60\% of counts are equal to zero in each cell for both data sets, even after the removal of low-abundance genes.
