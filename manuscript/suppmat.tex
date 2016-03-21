@@ -532,15 +532,16 @@ This indicates that the estimation error of the size factor for each cell is neg
 }
 
 \revised{\subsection{Deconvolution outperforms existing methods on real data}      
-The reasoning above can be applied to assess the performance of each existing method compared to the deconvolution method on real data.
+The above framework was applied to assess the performance of each existing method compared to the deconvolution method on real data.
 For each data set, cells were partitioned into pre-defined groups in which no DE was expected.
 The deconvolution size factors were log-transformed and used as offsets, while the log-size factors from an existing method were used as the covariates.
-NB dispersion estimation and GLM fitting was performed on the counts for each group separately.
+NB dispersion estimation and GLM fitting was performed on the counts for each group separately, using methods from edgeR.
 The LRT was used to test for DE and the number of DE genes detected at a FDR of 5\% was counted.
 This was repeated after switching the size factors, i.e., using the deconvolution size factors as the covariates and the existing size factors as the offsets.
 To ensure a valid comparison, the dispersion estimates from the original fit were re-used to fit the GLM after switching.
 Similarly, the $p$-value corresponding to an FDR threshold of 5\% in the initial set of DE genes was used to define the set of DE genes in the switched fit.
 This means that the differences between $\beta_{i1}'$ and $\beta_{i1}$ are the sole cause of any difference in the number of DE genes.
+The entire procedure was then repeated for each existing method and for each group of cells.
 Examination of Figure~\ref{fig:assessment_results} indicates that fewer DE genes are consistently detected in each group when the deconvolution size factors are used as the offsets, relative to the number detected when they are used as covariates.
 This suggests that the deconvolution size factors are equivalent to the unbiased estimates $\hat\theta_j$ and are more accurate than the existing methods. 
 }
