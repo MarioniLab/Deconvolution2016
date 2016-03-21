@@ -594,13 +594,13 @@ To reduce the strength of the non-DE assumption, cells can be clustered based on
 The deconvolution method is then applied to the cells in each cluster $\mathcal{C}$ separately,
     where the sets $\mathcal{S}_k$ are nested within each $\mathcal{C}$.
 This normalizes each cell pool of $\mathcal{S}_k$ to a cluster-specific reference pseudo-cell for $\mathcal{C}$,
-    yielding a cluster-specific size factor of $f_{j}'$ for cell $j \in \mathcal{C}$ after deconvolution.
+    yielding a cluster-specific size factor of $f_{j}$ for cell $j \in \mathcal{C}$ after deconvolution.
 These cluster-specific size factors must be rescaled before they can be compared between clusters.
 To do so, the reference pseudo-cells for all clusters are normalized against each other.
 This is done by selecting a single ``baseline'' pseudo-cell against which all other pseudo-cells are normalized.
 The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for the pseudo-cell of each cluster against the baseline pseudo-cell
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
-The \revised{final} size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_{j}'\tau_{\mathcal{C}}$.
+The \revised{final} size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_{j}\tau_{\mathcal{C}}$.
 
 % This is justified by considering normalization factors; you multiply the normalization factor within clusters with that between clusters to get the overall factor 
 % (independent of library size), then you multiply by the library size to get the size factors. 
