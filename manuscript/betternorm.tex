@@ -287,7 +287,7 @@ Normalization of the scRNA-seq counts is a critical step that corrects for cell-
 This ensures that downstream comparisons of relative expression between cells are valid.
 Two broad classes of methods for scaling normalization are available -- those using spike-in RNA sets, and those using the counts from the profiled cellular RNA.
 In the former, the same quantity of spike-in RNA is added to each cell prior to library preparation \cite{stegle2015computational}.
-Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency \revised{or amplification biases} between cells.
+Any difference in the coverage of the spike-in transcripts must be caused by differences in capture efficiency\revised{, amplification bias or sequencing depth} between cells.
 Normalization is then performed by scaling the counts to equalize spike-in coverage between cells.
 For the methods using cellular counts, the assumption is that most genes are not DE across the sampled cells.
 Counts are scaled so that there is, on average, no fold-difference in expression between cells for the majority of genes.
@@ -374,7 +374,7 @@ Nonetheless, they have been used extensively in the scRNA-seq literature \cite{s
 This motivated us to assess the suitability of these existing methods for normalizing single-cell data.}
 
 \subsubsection*{Simulating scRNA-seq data with stochastic zeroes and DE}
-To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeros.
+To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeroes.
 Consider a cell $j$ in a subpopulation $s$.
 This subpopulation may represent cell type or some other biological condition, e.g., drug treatment. 
 For each gene $i$ in this cell, the count $y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\theta_{j}\lambda_{is}$.
@@ -449,7 +449,7 @@ This results in behaviour similar to library size normalization, along with its 
 
 \subsubsection*{Overview of the deconvolution strategy}
 The aim of the deconvolution strategy is to normalize on summed expression values from pools of cells.
-Summation across cells results in fewer zeroes, which means that the ensuing normalization is less susceptible to the errors observed for existing methods.
+Summation across cells results in fewer zeroes, which means that the ensuing normalization is less susceptible to the errors observed \revised{in the} existing methods.
 While normalization accuracy is improved, the estimated size factors are only relevant to the pools of cells.
 This is not particularly interesting for downstream analyses which typically focus on single cells.
 To obtain relevant estimates, the size factor for each pool is deconvolved into the size factors for its constituent cells.
@@ -464,25 +464,25 @@ The deconvolution method consists of several key steps --
 The following section will describe the implementation of the deconvolution method, as well as its use in conjunction with clustering for optimal performance.
 
 \subsubsection*{Summation and deconvolution with linear equations}
-\revised{Consider that the count $y_{ij}$ of gene $i$ in cell $j$ is sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{is}$.}
+\revised{Let the count $y_{ij}$ of a non-DE gene $i$ in cell $j$ be sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{i0}$, where $\theta_j$ is the cell-specific bias and $\lambda_{i0}$ is the expected transcript count.}
 Define the adjusted expression value as \revised{$z_{ij} = y_{ij}T_j^{-1}$} where $T_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below).
-\revised{This means that $z_{ij} \sim Z_{ij} = Y_{ij}T_j^{-1}$ where $E(Z_{ij}) =\theta_j\lambda_{is} T_j^{-1}$.}
+\revised{This means that $z_{ij} \sim Z_{ij} = Y_{ij}T_j^{-1}$ where $E(Z_{ij}) =\theta_j\lambda_{i0} T_j^{-1}$.}
 Further assume that we have a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
 Denote the sum of $z_{ij}$ across $\mathcal{S}_k$ as \revised{$v_{ik}$} for gene $i$.
 The values of \revised{$v_{ik}$} across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
 \revised{We consider that $v_{ik} \sim V_{ik}$ where $V_{ik}$ is defined as the sum of $Z_{ij}$ for $j \in \mathcal{S}_k$ and has an expectation of}
 \[
-    E(V_{ik}) = \lambda_{is} \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
+    E(V_{ik}) = \lambda_{i0} \sum_{j \in \mathcal{S}_k} \theta_j T_j^{-1}\;.
 \]
 Define $u_{i}$ as the mean of expression values for gene $i$ across all $N$ cells in the entire data set.
 \revised{This is sampled from $U_{i}$, defined as the mean of all $Z_{ij}$ such that
 \[
-    E(U_i)=N^{-1} \sum_{j \in \mathcal{S}_0} \theta_j T_j^{-1}
+    E(U_i) = \lambda_{i0}N^{-1} \sum_{j \in \mathcal{S}_0} \theta_j T_j^{-1}
 \]
 where $\mathcal{S}_0$ refers to the set of all cells in the data set.}
 The values of $u_{i}$ across all genes represent the expression profile for an averaged reference pseudo-cell.
 The cell pool $k$ is then normalized against this reference pseudo-cell.
-Let $r_{ik}$ denote the ratio of $v_{ik}$ to $u_{i}$ for a non-DE gene $i$\revised{, i.e., $r_{ik}\sim R_{ik} = V_{ik}/U_i$.}
+Let $r_{ik}$ denote the ratio of $v_{ik}$ to $u_{i}$ for the non-DE gene $i$\revised{, i.e., $r_{ik}\sim R_{ik} = V_{ik}/U_i$.}
 The expectation of \revised{$R_{ik}$} represents the size factor for the pooled cells in $\mathcal{S}_k$, and is written as 
 \begin{equation}
     \revised{E(R_{ik}) \approx \frac{E(V_{ik})}{E(U_{i})} }
@@ -555,7 +555,7 @@ See Section~\supplineardep{} in Additional file~1 for a more detailed discussion
 % So, minimizing the sum of squares will prioritize equations with more cells in them - rightly so, as these should have more counts and be more reliable.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
-The linear system can be solved using standard methods, such as those based on the QR decomposition.
+The linear system can be solved using standard methods such as those based on the QR decomposition.
 However, with such methods, it is theoretically possible to obtain negative estimates for $\theta_j$.
 Such values are obviously nonsensical as counts should not be scaled to yield negative expression values.
 One situation in which this might occur involves \revised{heterogeneous} data with a large spread of $\theta_jT_j^{-1}$ values, such that $\theta_jT_j^{-1}$ is already close to zero for some cells.
@@ -600,7 +600,7 @@ To do so, the reference pseudo-cells for all clusters are normalized against eac
 This is done by selecting a single ``baseline'' pseudo-cell against which all other pseudo-cells are normalized.
 The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for the pseudo-cell of each cluster against the baseline pseudo-cell
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
-The overall size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_j = f_{j}'\tau_{\mathcal{C}}$.
+The \revised{final} size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_{j}'\tau_{\mathcal{C}}$.
 
 % This is justified by considering normalization factors; you multiply the normalization factor within clusters with that between clusters to get the overall factor 
 % (independent of library size), then you multiply by the library size to get the size factors. 
@@ -610,12 +610,12 @@ The overall size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently de
 % (i.e., you don't need to compute the size factors between clusters, only the normalization factors).
 
 The use of within-cluster normalization reduces the amount of DE between cells, as all cells in each cluster have similar expression profiles.
-This avoids inaccurate estimation of the size factors due to violations of the non-DE assumption.
+This avoids inaccurate estimation of the \revised{cluster-specific} size factors due to violations of the non-DE assumption \revised{during deconvolution}.
 Moreover, the pseudo-cells are normalized in pairwise comparisons to a baseline.
-This weakens the assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
-For example, consider five subpopulations where each has a unique set of DE genes comprising 20\% of all genes.
+This \revised{further} weakens the assumption as a non-DE majority is only required across pairs of pseudo-cells/clusters, rather than across the entire data set.
+For example, consider five subpopulations where each \revised{subpopulation} has a unique set of DE genes comprising 20\% of all genes.
 Only 40\% of genes would be DE between any two subpopulations, while 100\% of genes would exhibit some DE across all subpopulations.
-In this situation, pairwise normalization would clearly be safer as a non-DE majority would be present.
+In this situation, pairwise normalization would clearly be safer as a non-DE majority would be present \revised{between each pair}.
 
 Any clustering technique can be used to group cells with similar expression profiles prior to deconvolution.
 We favour hierarchical clustering on rank correlation-based distances as it avoids any circularity between normalization and clustering
@@ -624,8 +624,8 @@ All uses of deconvolution in the following text will be performed in conjunction
 
 \subsubsection*{Performance of the deconvolution approach on simulated data}
 The deconvolution method provides accurate estimates of the size factor estimates in most simulation scenarios (Figure~\ref{fig:sim_cluster_DE}).
-This is consistent with the reduced number of stochastic zeros in the summed counts for each set of cells.
-The median ratio for each set is more accurately computed, which improves the accuracy of the size factor estimates for the individual cells upon deconvolution.
+This is consistent with the reduced number of stochastic zeroes in the summed counts for each \revised{pool} of cells.
+The median ratio for each \revised{pool} is more accurately computed, which improves the accuracy of the size factor estimates for the individual cells upon deconvolution.
 Systematic under- or overestimation of the size factors for cells with large or small $\theta_j$ is avoided.
 Some inaccuracy is observed in Figure~\ref{fig:sim_cluster_DE}c, where the non-DE assumption is partially violated by large numbers of DE genes between subpopulations.
 However, the deconvolution method is still more accurate than the existing methods in the third row of Figure~\ref{fig:existing_sim}
@@ -741,13 +741,12 @@ We assume that no DE is present within the group, such that the only differences
 We fit a GLM to these counts, using the log-size factors from deconvolution as offsets and the log-size factors from an existing method as a covariate in the model.
 If deconvolution is accurately estimating the cell-specific biases, the offsets will recapitulate all of the differences in means between cells in the group.
 Additional fitting from the covariate term is unnecessary, such that the corresponding coefficient will be zero.
-This means that no DE genes will be detected upon dropping this covariate from the model.
+This means that, if we were to test against the null hypothesis that the coefficient of the covariate term was equal to zero, we should observe few or no rejections.
 On the other hand, if deconvolution is not accurate, the offsets alone will fail to recapitulate the differences in means.
-To capture the remaining differences, the estimated coefficient for the covariate term will become non-zero (assuming the normalization bias and covariate are correlated) such that more DE genes will be detected when the covariate is dropped.
-}
+To capture the remaining differences, the estimated coefficient for the covariate term will become non-zero (assuming the normalization bias and covariate are correlated) such that more rejections will be observed when we test against the null hypothesis.}
 
 \revised{We perform this process twice -- once as described above, and again after switching the size factors, i.e., using size factors from the existing method as the offsets and those from deconvolution as the covariates. 
-We assess the relative accuracy of deconvolution based on the number of DE genes detected in the original and switched GLM fits.
+We assess the relative accuracy of deconvolution based on the number of ``DE'' genes (i.e., with strong evidence against the null hypothesis of a coefficient of zero for the covariate term) in the original and switched GLM fits.
 If deconvolution is more accurate than the existing method, there should be fewer DE genes when the deconvolution size factors are used as offsets, compared to when they are used in the switched fit as covariates.
 This is observed for all groups in all tested data sets (Supplementary Figure~\suppdeassess{}), consistent with increased accuracy in the simulations.
 A more detailed explanation of this evaluation framework is provided in Section~\supprealassess{} of Additional file~1.
@@ -770,8 +769,8 @@ All simulation and analysis code used in this study are also available on GitHub
 \subsection*{Implementation of existing normalization methods}
 For DESeq normalization, the geometric mean for each gene was computed after removing all zeroes.
 This is necessary to avoid a situation where a majority of genes have geometric means of zero, such that the majority of ratios to the geometric mean would be undefined.
-Ratios of zero were also removed prior to calculation of the median in each library, to avoid obtaining a size factor equal to zero.
 Size factors were then computed using the estimateSizeFactorsForMatrix function in DESeq2 v1.10.1 \cite{love2014moderated}.
+\revised{In this function, ratios of zero were automatically removed prior to calculation of the median in each library, to avoid obtaining a size factor equal to zero.}
 For TMM normalization, the calcNormFactors function in the edgeR package v3.12.0 \cite{robinson2010edgeR} was used with default settings.
 All undefined M-values were automatically removed prior to trimming and calculation of the normalization factor for each library.
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
@@ -815,7 +814,7 @@ This was repeated using the unique DE genes from library size normalization that
 Highly variable genes in each data set were characterized using the distance-to-median approach \cite{kolod2015single}.
 For each normalization method, normalized expression values were computed by dividing each count by the corresponding size factor.
 The mean and coefficient of variation of these expression values were computed across all cells.
-The variability of gene expression was quantified by computing the distance-to-median (DM), i.e., the difference between the squared coefficient of variation for each gene to a running median across all genes with similar abundance \cite{kolod2015single}. 
+The variability of gene expression was quantified by computing the distance-to-median (DM), i.e., the difference between the squared coefficient of variation for each gene to a running median across all genes \revised{of} similar abundance \cite{kolod2015single}. 
 The most variable genes were identified as those with the largest DM statistics.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -900,9 +899,9 @@ The funding body had no role in the method development, data analysis or writing
 
 \begin{figure}[!h]
 \caption{
-    \csentence{Illustration of the effect of removing stochastic zeroes (black) from the distribution of ratios across all genes, for (a) small and (b) large cells.}
+    \csentence{Illustration of the effect of removing stochastic zeroes (black) from the distribution of ratios across all genes, for \revised{cells with} (a) small and (b) large \revised{$\theta_j$}.}
     The estimated median ratio (dashed) is increased beyond the true median (full) upon removal of zeroes, which results in overestimation of the size factor for the cell.
-    This effect is more pronounced for small cells with greater numbers of zeros, compared to large cells where the estimated and true medians are more similar.
+    This effect is more pronounced for cells \revised{with small $\theta_j$} that have greater numbers of zeroes, compared to cells \revised{with large $\theta_j$} where the estimated and true medians are more similar.
 }
 \label{fig:zero_fail}
 \end{figure}
@@ -931,7 +930,7 @@ The funding body had no role in the method development, data analysis or writing
 
 \begin{figure}[!h]
 \caption{
-    \csentence{Comparisons between the estimated size factors from the deconvolution method to those from (a) DESeq,  (b) TMM or (c) library size normalization.}
+    \csentence{Comparisons between the estimated size factors from the deconvolution method to those from (a) DESeq, (b) TMM or (c) library size normalization.}
     This is shown for the brain (top) and inDrop data sets (bottom).
     Axes are on a log-scale, and the red line represents equality between the two sets of factors.
     All sets of factors were centered to a median of unity prior to comparison.
@@ -962,10 +961,10 @@ The funding body had no role in the method development, data analysis or writing
     \hline
     $\theta_j$ &  Cell-specific bias for cell $j$ \\
     $\lambda_{is}$ & Expected number of transcripts for gene $i$ in subpopulation $s$ \\
-    $\phi_{is}$ & DE fold change in gene $i$ of subpopulation $s$ \\
+    $\phi_{is}$ & DE fold change for gene $i$ in subpopulation $s$ \\
     $\lambda_{i0}$ & Baseline expectation for the number of transcripts (i.e., without DE) for gene $i$ \\
     $\varphi_i$ & NB dispersion for gene $i$ \\
-    $\phi_{s}$ & DE fold change for all DE genes in subpopulation $s$ \\
+    $\phi_{s}$ & DE fold change for all \revised{upregulated} genes in subpopulation $s$ \\
     $G$ & Number of unique DE genes in each subpopulation \\
     $p_s$ & Proportion of DE genes that are upregulated in subpopulation $s$ \\
     \hline
