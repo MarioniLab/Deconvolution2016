@@ -442,8 +442,8 @@ One might attempt to resolve the problem of stochastic zeroes by adding a pseudo
 This would prevent biases due to unbalanced removal of zeroes between cells.
 However, direct addition of a pseudo-count squeezes all size factor estimates towards unity (Supplementary Figure~\supppseudo{}, Additional file~1).
 This is because any ratio of two counts will approach unity when the same pseudo-count is added to both counts.
-A slightly different approach scales the pseudo-count to match the library size of each cell to avoid the unity bias.
-This results in behaviour similar to library size normalization, along with its associated problems.
+A slightly different approach scales the pseudo-count to match the \revised{relative} library size of each cell \revised{prior to addition}.
+This \revised{reduces the bias of the estimates towards unity but is not robust to the presence of DE genes}.
 
 \subsection*{Improving normalization accuracy with deconvolution}
 
