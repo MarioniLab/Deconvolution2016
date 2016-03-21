@@ -188,7 +188,7 @@ For these 4 cells, the above expression is minimized in terms of $x$ at
 x = - \frac{1}{4}\left[ \sum_{j \in J_1} (\theta_j - \tilde\theta_j) - \sum_{j \in J_2} (\theta_j - \tilde\theta_j)\right] \;.
 \]
 \revised{This is true regardless of the relative weighting applied to the set of additional equations.
-The} direct estimate of each size factor is \revised{also} unbiased as stochastic zeroes are not removed, i.e., \revised{$E(\tilde\Theta_j)=\theta_j$ for $\tilde\theta_j \sim \tilde\Theta_j$}.
+The} direct \revised{estimator} of each size factor is \revised{also} unbiased as stochastic zeroes are not removed, i.e., \revised{$E(\tilde\Theta_j)=\theta_j$ for $\tilde\theta_j \sim \tilde\Theta_j$}.
 
 As the number of cells in the system increases, the sizes of $J_1$ and $J_2$ will increase. 
 For example, deconvolution is typically applied in data sets involving at least 200 cells and a sliding window of size 20, such that both $J_1$ and $J_2$ will consist of at least 10 cells.
@@ -482,8 +482,8 @@ Thus, no additional time is added by normalization.}
 \subsection{Overview of the assessment framework}  
 Consider two sets of size factor estimates, $\hat\theta_j$ and $\hat\theta'_j$ for each cell $j$.
 We define the random variables $\Theta_j$ and $\Theta'_j$ such that $\hat\theta_j \sim \Theta_j$ and $\hat\theta'_j \sim \Theta'_j$.
-We assume that $\hat\theta_j$ is an unbiased estimate of the true size factor $\theta_j$, i.e., $E(\Theta_j)=\theta_j$.
-In contrast, $\hat\theta'_j$ is biased such that a power relationship exists between the estimates and true values.
+We assume that $\Theta_j$ is an unbiased estimator of the true size factor $\theta_j$, i.e., $E(\Theta_j)=\theta_j$.
+In contrast, $\Theta'_j$ is biased such that a power relationship exists between the estimates and true values.
 This is not unreasonable given the simulation results (Figure~\ref{fig:highcovexisting}), and can be written as
 \[
     \log[E(\Theta'_j)] = b \log(\theta_j) 
@@ -521,7 +521,7 @@ The above relationship only holds for all cells when $\beta'_{i0}=\log(\lambda_{
 Repeating the LRT to test for a non-zero covariate term should yield more rejections than in the original configuration, as $\beta'_{i1} \neq 0$ when $b\neq1$.
 These rejections can also be treated as DE genes where the DE log-fold change represents the normalization bias.}
 
-\revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we use $\theta_j$ and $\theta'_j$, respectively, to replace them in the GLM fit.
+\revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we use $\hat\theta_j$ and $\hat\theta'_j$, respectively, to replace them in the GLM fit.
 This assumes that the variances of $\Theta_j$ and $\Theta'_j$ are low such that any observed size factor estimate will be close to the expected value.
 The substitution is justified by the nature of the trends in Figures~\figexist{}, \figdeconv{}, \ref{fig:highcovexisting} and \ref{fig:highcovdeconv}.
 For most scenarios, the estimated size factors lie on a well-defined curve with little scatter which suggests that the estimation error is low.
