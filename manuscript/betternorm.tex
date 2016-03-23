@@ -377,7 +377,7 @@ This motivated us to assess the suitability of these existing methods for normal
 To test the performance of existing methods, simulated scRNA-seq data was generated with DE genes and a large number of stochastic zeroes.
 Consider a cell $j$ in a subpopulation $s$.
 This subpopulation may represent cell type or some other biological condition, e.g., drug treatment. 
-For each gene $i$ in this cell, the count $y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\theta_{j}\lambda_{is}$.
+For each gene $i$ in this cell, the count $Y_{ij}$ was sampled from a negative binomial (NB) distribution with mean $\theta_{j}\lambda_{is}$.
 The $\theta_{j}$ term represents cell-specific biases (e.g., in capture efficiency) that must be normalized out, 
     and is sampled for each cell such that 
 \[
@@ -464,7 +464,7 @@ The deconvolution method consists of several key steps --
 The following section will describe the implementation of the deconvolution method, as well as its use in conjunction with clustering for optimal performance.
 
 \subsubsection*{Summation and deconvolution with linear equations}
-\revised{Let the count of a non-DE gene $i$ in cell $j$ be sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{i0}$, where $\theta_j$ is the cell-specific bias and $\lambda_{i0}$ is the expected transcript count.
+\revised{Let $Y_{ij}$ be a random variable representing the count of a non-DE gene $i$ in cell $j$, such that $E(Y_{ij})=\theta_j\lambda_{i0}$ where $\theta_j$ is the cell-specific bias and $\lambda_{i0}$ is the expected transcript count.
 Define the random variable for the ``adjusted expression value'' as $Z_{ij} = Y_{ij}t_j^{-1}$, where $t_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below) and $E(Z_{ij}) =\theta_j\lambda_{i0} t_j^{-1}$.
 Consider a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
 Define $V_{ik}$ as the sum of $Z_{ij}$ across all cells in $\mathcal{S}_k$, which has an expectation of 
@@ -490,7 +490,7 @@ The expectation of $R_{ik}$ represents the true size factor for the pooled cells
 \end{equation}
 where $C$ is a constant that does not depend on the gene, cell or $\mathcal{S}_k$.
 The approximation assumes that the variance of $U_i$ is small due to the law of large numbers, which is not unreasonable for data sets with hundreds of cells.
-Denote the realizations of $Y_{ij}$, $V_{ik}$, $U_{i}$ and $R_{ik}$ as $y_{ij}$, $v_{ik}$, $u_i$ and $r_{ik}$, respectively, where the relationships between these observed values are identical to those between their corresponding random variables.
+Denote the realizations of $Y_{ij}$, $V_{ik}$, $U_{i}$ and $R_{ik}$ as $y_{ij}$, $v_{ik}$, $u_i$ and $r_{ik}$, respectively.
 The pool-based size factor $E(R_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across all genes, under the assumption that most genes are not DE between the pool and the average pseudo-cell.
 Robustness protects the average against a small number of DE genes with extreme ratios.}
 
