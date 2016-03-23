@@ -464,15 +464,15 @@ The deconvolution method consists of several key steps --
 The following section will describe the implementation of the deconvolution method, as well as its use in conjunction with clustering for optimal performance.
 
 \subsubsection*{Summation and deconvolution with linear equations}
-\revised{Let the count of a non-DE gene $i$ in cell $j$ be sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{i0}$, where $\theta_j$ is the cell-specific bias and $\lambda_{i0}$ is the expected transcript count (which is identical across cells for a non-DE gene).
+\revised{Let the count of a non-DE gene $i$ in cell $j$ be sampled from some distribution $Y_{ij}$ with mean $\theta_j\lambda_{i0}$, where $\theta_j$ is the cell-specific bias and $\lambda_{i0}$ is the expected transcript count.
 Define the random variable for the ``adjusted expression value'' as $Z_{ij} = Y_{ij}t_j^{-1}$, where $t_j$ is a constant adjustment factor for cell $j$ (set to the library size, see below) and $E(Z_{ij}) =\theta_j\lambda_{i0} t_j^{-1}$.
-Further assume that we have a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
+Consider a pool $k$ consisting of an arbitrary set of cells $\mathcal{S}_k$.
 Define $V_{ik}$ as the sum of $Z_{ij}$ across all cells in $\mathcal{S}_k$, which has an expectation of 
 \[
     E(V_{ik}) = \lambda_{i0} \sum_{j \in \mathcal{S}_k} \theta_j t_j^{-1}\;.
 \]
 The observed values of $V_{ik}$ across all genes constitute an overall expression profile for the pool of cells corresponding to $\mathcal{S}_k$.
-Similarly, define $U_{i}$ as the mean of $Z_{ij}$ across all $N$ cells in the entire data set, which has an expectation of
+Also define $U_{i}$ as the mean of $Z_{ij}$ across all $N$ cells in the entire data set, which has an expectation of
 \[
     E(U_i) = \lambda_{i0}N^{-1} \sum_{j \in \mathcal{S}_0} \theta_j t_j^{-1}
 \]
@@ -480,7 +480,7 @@ where $\mathcal{S}_0$ refers to the set of all cells in the data set.
 The observed values of $U_{i}$ across all genes represent the expression profile for an averaged reference pseudo-cell.}
 
 \revised{The cell pool $k$ is then normalized against this reference pseudo-cell.
-Let $R_{ik}$ denote the ratio of $V_{ik}$ to $U_{i}$ for any non-DE gene $i$.
+Define $R_{ik}$ as the ratio of $V_{ik}$ to $U_{i}$ for the non-DE gene $i$.
 The expectation of $R_{ik}$ represents the true size factor for the pooled cells in $\mathcal{S}_k$, and is written as 
 \begin{equation}
     \revised{E(R_{ik}) \approx \frac{E(V_{ik})}{E(U_{i})} }
