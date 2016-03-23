@@ -486,8 +486,7 @@ Thus, no additional time is added by normalization.}
 
 \revised{\section{Comparing normalization accuracy on real data}
 \subsection{Overview of the assessment framework}  
-Consider two sets of size factor estimates, $\hat\theta_j$ and $\hat\theta'_j$ for each cell $j$.
-We define the random variables $\Theta_j$ and $\Theta'_j$ such that $\hat\theta_j \sim \Theta_j$ and $\hat\theta'_j \sim \Theta'_j$.
+Consider two estimators $\Theta_j$ and $\Theta'_j$ of the size factor in cell $j$, where each estimator represents a different normalization method.
 We assume that $\Theta_j$ is an unbiased estimator of the true size factor $\theta_j$, i.e., $E(\Theta_j)=\theta_j$.
 In contrast, $\Theta'_j$ is biased such that a power relationship exists between the estimates and true values.
 This is not unreasonable given the simulation results (Figure~\ref{fig:highcovexisting}), and can be written as
@@ -527,14 +526,14 @@ The above relationship only holds for all cells when $\beta'_{i0}=\log(\lambda_{
 Repeating the LRT to test for a non-zero covariate term should yield more rejections than in the original configuration, as $\beta'_{i1} \neq 0$ when $b\neq1$.
 These rejections can also be treated as DE genes where the DE log-fold change represents the normalization bias.}
 
-\revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we use $\hat\theta_j$ and $\hat\theta'_j$, respectively, to replace them in the GLM fit.
-This assumes that the variances of $\Theta_j$ and $\Theta'_j$ are low such that any observed size factor estimate will be close to the expected value.
+\revised{In practice, $E(\Theta_j)$ and $E(\Theta'_j)$ are unknown so we replace them with the observed size factor estimates $\hat\theta_j\sim\Theta_j$ and $\hat\theta'_j\sim\Theta'_j$, respectively, in the GLM fit.
+This assumes that the variances of $\Theta_j$ and $\Theta'_j$ are low such that any observed estimate will be close to the expected value.
 The substitution is justified by the nature of the trends in Figures~\figexist{}, \figdeconv{}, \ref{fig:highcovexisting} and \ref{fig:highcovdeconv}.
-For most scenarios, the estimated size factors lie on a well-defined curve with little scatter which suggests that the estimation error is low.
-Indeed, we repeated the no-DE simulation in Figures~\figexist{} and \figdeconv{} and computed the MAD of the log-size factor estimates for each cell across 10 iterations.
+For most scenarios, the estimates lie on a well-defined curve with little scatter which suggests that the estimation error is low.
+We also repeated the no-DE simulation in Figures~\figexist{} and \figdeconv{} and computed the MAD of the log-estimates for each cell across 10 iterations.
 These MADs ranged from 0.007 to 0.021 for TMM normalization (using the interquartile range across all cells); 0.005 to 0.011 for DESeq normalization; 0.007 to 0.013 for library size normalization; and 0.025 to 0.043 for deconvolution. 
-In contrast, the MAD of the log-transformed size factors across cells was 0.39. 
-This indicates that the estimation error of the size factor for each cell is negligible relative to the variability of the size factors across cells.
+In contrast, the MAD of the log-transformed true size factors across cells was 0.39. 
+This indicates that the estimation error of each size factor is negligible relative to the variability of the size factors across cells.
 }
 
 \revised{\subsection{Deconvolution outperforms existing methods on real data}      
