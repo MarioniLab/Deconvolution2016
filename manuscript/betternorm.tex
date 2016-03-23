@@ -274,7 +274,7 @@ Similar behaviour is observed in real data, where deconvolution improves the rel
 
 \section*{Background}
 Single-cell RNA sequencing (scRNA-seq) is a powerful technique that allows researchers to characterize the gene expression profile of single cells.
-From each cell, mRNA is isolated, reverse-transcribed and subjected to massively parallel sequencing \cite{stegle2015computational}.
+From each cell, mRNA is isolated \revised{and reverse-transcribed into cDNA, which is amplified and} subjected to massively parallel sequencing \cite{stegle2015computational}.
 The sequencing reads are mapped to a reference genome, such that the number of reads mapped to each gene can be used to quantify its expression.
 Alternatively, transcript molecules can be counted directly using unique molecular identifiers (UMIs) \cite{islam2014quantitative}.
 Count data can be analyzed to identify new cell subtypes and to detect highly variable or differentially expressed (DE) genes between cell subpopulations.
