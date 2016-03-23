@@ -117,6 +117,12 @@ $^3$Wellcome Trust Sanger Institute, Wellcome Genome Campus, Hinxton, Cambridge 
     }
 \end{figure}
 
+% The away-from-unity bias with library size-adjusted pseudo counts requires some explanation.
+% Consider what happens when you repeat this simulation with a constant mean across all genes, and use that mean as the geometric mean in estimateSizeFactorsForMatrix.
+% You end up with discrete size factors that start below the equality line (because the median is at a zero count) but hop above the line (median at 1) as the size factor increases.
+% When you have a range of means, this gets smoothed out as the variable denominator smooths out the transitions between 0 and 1.
+% Nonetheless, the principle remains.
+
 \revised{\section{Justifying the choice of pooling strategy}
 The performance of a ring arrangement and sliding window can be compared to selection of random pools of cells.
 Count data was simulated as described in the main text, with some modifications -- specifically, true values of $\theta_j$ for all cells were sampled from a Uniform(0.1, 1) distribution instead, to provide a larger range of size factors; counts were only generated for a single subpopulation of 200 cells; and no DE genes were introduced.
