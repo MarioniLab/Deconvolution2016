@@ -333,6 +333,9 @@ These genes may contain information about the relative differences between cells
 We also define semi-systematic zeroes where the gene is silent in a cell subpopulation but is expressed in other cells.
 This results in zeroes for the silent subpopulation but non-zero counts elsewhere, thus providing information about the differences between subpopulations.
 
+% Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
+% In bulk, you'd expect some contamination so the count would unlikely to be exactly zero.
+
 \subsubsection*{A brief description of existing non-spike-in methods}
 Here, we only consider normalization methods that do not require spike-in data.
 This is motivated by the desire to obtain a general method that can be applied to all data sets.
@@ -421,6 +424,11 @@ This is because stochastic zeroes represent sampled values below some non-zero m
 Their removal increases the (trimmed) mean of M-values and biases the estimate of the TMM normalization factor.
 The converse applies to cells with large $\theta_j$.
 Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
+
+% We don't need to consider undefined ratios.
+% For DESeq, there are none, as all ratios are defined after the workaround.
+% For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
+% Thus, differences will be driven by zeroes in the numerator of the ratios.
 
 The presence of DE genes results in a further deterioration in performance of all methods (Figure~\ref{fig:existing_sim}).
 The divergence between the true and estimated size factors increases as the number of DE genes increases,
