@@ -203,6 +203,12 @@ With more cells, the sum of the errors $\theta_j - \tilde\theta_j$ will approach
 This means that the minimum residual sum of squares will be obtained at $x=0$, i.e., solving the linear system will yield the true values of the size factors.
 Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
 
+% For the larger example, replace 'x' with 'a' for the first column, 'b' for the second, and so on, until the 20th column, where we add the negative sum of 'a', 'b', etc.
+% If we formulate the same RSS equation and take the partial derivative, we find that the minimum for each expression is at a negative scaled sum of all other parameters.
+% (Plus the difference between the direct estimates and the true values, which has an expected value of zero anyway.)
+% This only has a solution when all parameters are equal to zero, due to the non-unity scaling; so the logic above still applies.
+% Note that, because we split it into 19 parameters (+1 for the negative sum of everyone), each 'J' set will be of size 10.
+
 \section{Implementation details of the clustering approach}
 Let $\rho_{xy}$ denote Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
 We define the distance between these cells as $1-\rho_{xy}$.
