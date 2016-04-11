@@ -759,9 +759,6 @@ Similar differences in the size factors across methods were also observed in ana
     where the use of different size factor sets resulted in changes to the number and identity of detected DE genes.
 This indicates that the choice of normalization method has a substantial impact on the results of downstream analyses.
 Any increase in accuracy from our deconvolution approach is likely to have a beneficial effect on the validity of the biological conclusions.
-We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
-\revised{It is publicly available as part of the scran package on GitHub ({https://github.com/MarioniLab/scran}), which has been submitted to the open-source Bioconductor project.
-All simulation and analysis code used in this study are also available on GitHub ({https://github.com/MarioniLab/Deconvolution2016}).}
 
 \section*{Methods}
 
@@ -774,6 +771,10 @@ For TMM normalization, the calcNormFactors function in the edgeR package v3.12.0
 All undefined M-values were automatically removed prior to trimming and calculation of the normalization factor for each library.
 The corresponding size factor was defined as the effective library size, i.e., the product of the library size and the normalization factor for each library.
 For library size normalization, the total library size was used directly as the size factor for each cell.
+
+\subsection*{Implementation of the deconvolution method}
+We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
+\revised{It is publicly available as the computeSumFactors function in the scran package on Bioconductor ({http://bioconductor.org/packages/scran}) under the GNU Public Licence v3.}
 
 \subsection*{Obtaining the real scRNA-seq data}
 Libraries in the brain data set were prepared for over 3000 single cells using the Fluidigm C1 system \cite{zeisel2015brain}.
@@ -835,8 +836,18 @@ All authors wrote and approved the final manuscript.
 
 \section*{Acknowledgements}
 The authors would like to thank Antonio Scialdone and Catalina Vallejos for useful discussions and comments on the manuscript.
+
+\section*{Funding}
 All authors were supported by core funding from Cancer Research UK (code: SW73).
 The funding body had no role in the method development, data analysis or writing of the manuscript.
+
+\section*{Availability of Data and Materials}
+\revised{All data sets can be downloaded as described in the Methods section ``Obtaining the real scRNA-seq data''.
+All R packages can be installed from the Bioconductor repositories (http://bioconductor.org).
+All simulation and analysis code used in this study are available on GitHub ({https://github.com/MarioniLab/Deconvolution2016}).}
+
+\section*{Ethics}
+Not applicable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
