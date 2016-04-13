@@ -501,6 +501,18 @@ Denote the realizations of $Y_{ij}$, $V_{ik}$, $U_{i}$ and $R_{ik}$ as $y_{ij}$,
 The pool-based size factor $E(R_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across all genes, under the assumption that most genes are not DE between the pool and the average pseudo-cell.
 Robustness protects the average against a small number of DE genes with extreme ratios.}
 
+% We don't need to worry about correlations.
+% The intuitive logic is this; even with perfect correlations between U_i and V_ik (i.e., U_i = V_ik/N), E(R_ik) would just be N, which is the same as E(V_ik)/E(U_i).
+% As the correlations decrease to zero, we just get the standard approximation, which is fine for low variances of U_i.
+% So given the two extremes are okay, the approximation is probably okay for any positive correlation between U_i and V_ik.
+% (It's hard to imagine that the validity of the approximation would get worse for more independent data.)
+%
+% More specifically, the approximation above has a second-order error term that depends on the variance of U_i (that can be ignored) and covariance of U_i and V_ik.
+% Consider U_i as (V_ik + X_ik)/N where V_ik and X_ik are independent; X_ik just represents the sum of the rest of the cells.
+% The covariance becomes that between V_ik and (V_ik+X_ik)/N, equal to the sum of var(V_ik)/N and cov(V_ik, X_ik)/N.
+% The latter is equal to zero due to independence, and the former decreases to zero with increasing N. 
+% So again, nothing to worry about here.
+
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
 \revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
 by replacing \revised{$E(R_{ik})$} with its estimate and treating the $\theta_j t_j^{-1}$ \revised{for $j \in \mathcal{S}_k$} as unknown parameters.
@@ -781,7 +793,7 @@ For library size normalization, the total library size was used directly as the 
 
 \subsection*{Implementation of the deconvolution method}
 We have implemented our deconvolution approach as a R function, with C++ extensions for fast construction of the linear system.
-\revised{It is publicly available as the computeSumFactors function in the scran package on Bioconductor ({http://bioconductor.org/packages/scran}) under the GNU Public Licence v3.}
+\revised{It is publicly available as the computeSumFactors function in the scran package on Bioconductor ({http://bioconductor.org/packages/scran}) under the GNU General Public Licence v3.}
 
 \subsection*{Obtaining the real scRNA-seq data}
 Libraries in the brain data set were prepared for over 3000 single cells using the Fluidigm C1 system \cite{zeisel2015brain}.
@@ -845,8 +857,9 @@ All authors wrote and approved the final manuscript.
 The authors would like to thank Antonio Scialdone and Catalina Vallejos for useful discussions and comments on the manuscript.
 
 \section*{Funding}
-All authors were supported by core funding from Cancer Research UK (code: SW73).
-The funding body had no role in the method development, data analysis or writing of the manuscript.
+ATLL and JCM were supported by core funding from Cancer Research UK (award no. A17197).
+KB and JCM were also supported by core funding from EMBL.
+The funding bodies had no role in the method development, data analysis or writing of the manuscript.
 
 \section*{Availability of Data and Materials}
 \revised{All data sets can be downloaded as described in the Methods section ``Obtaining the real scRNA-seq data''.
