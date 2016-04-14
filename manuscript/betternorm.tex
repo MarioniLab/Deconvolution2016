@@ -511,7 +511,7 @@ Robustness protects the average against a small number of DE genes with extreme 
 % Consider U_i as (V_ik + X_ik)/N where V_ik and X_ik are independent; X_ik just represents the sum of the rest of the cells.
 % The covariance becomes that between V_ik and (V_ik+X_ik)/N, equal to the sum of var(V_ik)/N and cov(V_ik, X_ik)/N.
 % The latter is equal to zero due to independence, and the former decreases to zero with increasing N. 
-% So again, nothing to worry about here.
+% More generally, the covariance will decrease if the variance decreases, so the error will also decrease.
 
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
 \revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
