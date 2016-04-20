@@ -1,6 +1,7 @@
 simulations/results_mid
 simulations/results_high
 simulations/results_low
+simulations/results_few
 simulations/timings.pdf
 
 manuscript/betternorm.aux
