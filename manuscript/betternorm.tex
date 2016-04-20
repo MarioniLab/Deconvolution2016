@@ -540,16 +540,16 @@ The use of a ring means that the window is still defined at the smallest and lar
 In contrast, sliding a window across a linear ordering of cells will result in truncated windows at the boundaries.
 
 The pooling of cells with similar library sizes is designed to provide some robustness to estimation errors for small $\theta_j t_j^{-1}$.
-For any pool $k$, estimation errors will be present in the pool-based size factor $r_{ik}$.
+For any pool $k$, estimation errors will be present in the pool-based size factor $E(R_{ik})$.
 This will lead to errors in the estimates of $\theta_j t_j^{-1}$ when the linear system is solved.
-A pool comprised of cells with larger $\theta_j t_j^{-1}$ will have larger $r_{ik}$ and thus larger estimation errors for $r_{ik}$ and each $\theta_j t_j^{-1}$ (compared to a pool of cells with smaller $\theta_j t_j^{-1}$).
+A pool comprised of cells with larger $\theta_j t_j^{-1}$ will have larger $E(R_{ik})$ and thus larger estimation errors for $E(R_{ik})$ and each $\theta_j t_j^{-1}$ (compared to a pool of cells with smaller $\theta_j t_j^{-1}$).
 In and of itself, this is not a problem as the errors will be small relative to the large $\theta_j t_j^{-1}$.
 However, if a cell with small $\theta_j t_j^{-1}$ were also present in the pool, the same errors would become large relative to the small true $\theta_j t_j^{-1}$ for that cell.
 To mitigate this effect, we assume that the library size is approximately correlated (positively or negatively) with $\theta_j t_j^{-1}$.
 For example, upregulation of a subset of genes in a particular cell will drive an increase in its library size and a simultaneous decrease in $\theta_j t_j^{-1}$ as $t_j$ increases.
 This results in a negative association between library size and $\theta_j t_j^{-1}$.
 Summing adjacent cells in the ring will then yield pools of cells with roughly similar $\theta_j t_j^{-1}$.
-This reduces the risk of small errors in $r_{ik}$ being transformed into large errors for $\theta_j t_j^{-1}$.
+This reduces the risk of small errors in $E(R_{ik})$ being transformed into large errors for $\theta_j t_j^{-1}$.
 \revised{We demonstrate this effect with a simple simulation in Section~\supppoolsim{} of Additional file~1, in which the selection of cell pools through the ring arrangement provides a modest improvement in estimation precision compared to the use of random pools.}
 
 The total number of equations in the linear system is equal to the number of cells.
@@ -744,7 +744,7 @@ Of the top genes with the lowest $p$-values, around 20-50\% are changed when dec
 This is due to a global shift in the log-fold changes between methods, which alters the relative significance of up- and downregulated genes.
 Modest changes were also observed in the ranking of highly variable genes detected by the distance-to-median approach \cite{kolod2015single}.
 Approximately 10 to 30-40\% of the most variable genes were altered if deconvolution was used instead of the existing methods in either data set (Supplementary Table~\suppHVG{}).
-Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong DE and variability.
+Rankings are important as the genes contributing to the biological differences between cells or conditions are expected to have strong variability and DE, respectively.
 Thus, the top-ranked genes are often prioritized for further investigation.
 Changes to the rank indicate that the choice of normalization strategy will affect the biological conclusions of the study.
 
@@ -805,6 +805,7 @@ Counts were obtained from the NCBI Gene Expression Omnibus with the accession GS
 For both data sets, low-abundance genes were defined as those with an average count below 0.2 across all cells.
 These were considered to be systematic zeroes (with some non-zero counts due to residual transcription, mapping errors, etc.) and removed prior to further analysis.
 %The set of ERCC spike-ins in the brain data set was also removed.
+For the brain data set, spike-in transcripts were removed.
 This ensures that normalization is only performed using the counts for the cellular genes.
 For the inDrop data set, counts were only used for cells before withdrawal of LIF and those 7 days after withdrawal.
 This resulted in a final set consisting of approximately 1700 cells.
