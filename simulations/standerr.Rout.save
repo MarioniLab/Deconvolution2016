@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-02-24 r70217) -- "Unsuffered Consequences"
+R version 3.3.0 beta (2016-04-08 r70447) -- "Supposedly Educational"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -183,10 +183,10 @@ The following object is masked from ‘package:scater’:
 0.001048 0.007218 0.009394 0.010140 0.012720 0.027250 
 > summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.004499 0.024950 0.033100 0.034280 0.042510 0.085880 
+0.004479 0.024970 0.033110 0.034300 0.042510 0.085930 
 > mad(log(all.facs))
 [1] 0.3938238
 > 
 > proc.time()
    user  system elapsed 
-167.916   0.647 168.633 
+198.372   0.666 199.163 

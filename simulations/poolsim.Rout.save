@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-02-24 r70217) -- "Unsuffered Consequences"
+R version 3.3.0 beta (2016-04-08 r70447) -- "Supposedly Educational"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -80,31 +80,20 @@ The following objects are masked from ‘package:Biobase’:
 + 
 + size <- 20L
 + use.ave.cell <- rowMeans(exprs)
-+ sphere <- scran:::.generateSphere(lib.sizes) - 1L
-+ out <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
++ sphere <- scran:::.generateSphere(lib.sizes)
++ out <- scran:::.create_linear_system(ngenes, ncells, exprs, sphere, size, use.ave.cell)
 + 
-+ out.ex <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, 1L, use.ave.cell)
-+ design <- c(out[1], out.ex[1])
-+ output <- c(out[2], out.ex[2])
-+ design <- do.call(rbind, design)
-+ output <- unlist(output)
-+ 
-+ weights <- rep(c(1, 0.00001), c(nrow(design)-ncells, ncells))
-+ root.weights <- sqrt(weights)
-+ design <- design * root.weights
-+ output <- output * root.weights
++ design <- as.matrix(out$design)
++ output <- out$output
 + est <- solve(qr(design), output) * lib.sizes
 + 
 + # Trying with the opposite case, where everyone is mixed together.
 + sphere <- sample(ncells)
-+ sphere <- as.integer(c(sphere, sphere) - 1)
-+ out2 <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
-+ design2 <- c(out2[1], out.ex[1])
-+ output2 <- c(out2[2], out.ex[2])
-+ design2 <- do.call(rbind, design2)
-+ output2 <- unlist(output2)
-+ design2 <- design2 * root.weights
-+ output2 <- output2 * root.weights
++ sphere <- as.integer(c(sphere, sphere))
++ out2 <- scran:::.create_linear_system(ngenes, ncells, exprs, sphere, size, use.ave.cell)
++ 
++ design2 <- as.matrix(out2$design)
++ output2 <- out2$output
 + est2 <- solve(qr(design2), output2) * lib.sizes
 + 
 + collected.order[[it]] <- mad(log(est/all.facs))
@@ -115,48 +104,48 @@ The following objects are masked from ‘package:Biobase’:
 + cat("\n")
 + 
 + }
-Ordered: 0.04478844 
-Random: 0.06950971 
+Ordered: 0.04478969 
+Random: 0.06951065 
 
-Ordered: 0.05424527 
-Random: 0.07599569 
+Ordered: 0.05424687 
+Random: 0.0759886 
 
-Ordered: 0.0561501 
-Random: 0.06797143 
+Ordered: 0.05615209 
+Random: 0.06797721 
 
-Ordered: 0.04640929 
-Random: 0.09590134 
+Ordered: 0.04640824 
+Random: 0.09589745 
 
-Ordered: 0.05354758 
-Random: 0.08063292 
+Ordered: 0.05355121 
+Random: 0.08063734 
 
-Ordered: 0.04209941 
-Random: 0.08720299 
+Ordered: 0.04209682 
+Random: 0.08719727 
 
-Ordered: 0.05195684 
-Random: 0.08407942 
+Ordered: 0.05195737 
+Random: 0.08407205 
 
-Ordered: 0.04689556 
-Random: 0.07080725 
+Ordered: 0.04689561 
+Random: 0.07081242 
 
-Ordered: 0.06008771 
-Random: 0.07258454 
+Ordered: 0.06008857 
+Random: 0.07258543 
 
-Ordered: 0.05078381 
-Random: 0.08468694 
+Ordered: 0.05078273 
+Random: 0.08468877 
 
 > 
 > mean(unlist(collected.order))
-[1] 0.0506964
+[1] 0.05069692
 > mean(unlist(collected.random))
-[1] 0.07893722
+[1] 0.07893672
 > sd(unlist(collected.order))/sqrt(length(collected.order))
-[1] 0.001769801
+[1] 0.001770145
 > sd(unlist(collected.random))/sqrt(length(collected.random))
-[1] 0.002872694
+[1] 0.002871796
 > 
 > sessionInfo()
-R Under development (unstable) (2016-02-24 r70217)
+R version 3.3.0 beta (2016-04-08 r70447)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 14.04.4 LTS
 
@@ -173,24 +162,27 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] scran_0.99.1        scater_0.99.5       ggplot2_2.1.0      
-[4] Biobase_2.31.3      BiocGenerics_0.17.3 BiocParallel_1.5.19
+[1] scran_0.99.8        scater_0.99.10      ggplot2_2.1.0      
+[4] Biobase_2.31.3      BiocGenerics_0.17.5 BiocParallel_1.5.21
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.3          plyr_1.8.3           bitops_1.0-6        
- [4] viridis_0.3.3        tools_3.3.0          zlibbioc_1.17.0     
- [7] biomaRt_2.27.2       lattice_0.20-33      RSQLite_1.0.0       
-[10] gtable_0.2.0         rhdf5_2.15.4         DBI_0.3.1           
-[13] gridExtra_2.2.1      dplyr_0.4.3          stringr_1.0.0       
-[16] S4Vectors_0.9.41     IRanges_2.5.39       stats4_3.3.0        
-[19] grid_3.3.0           data.table_1.9.6     R6_2.1.2            
-[22] AnnotationDbi_1.33.7 XML_3.98-1.4         limma_3.27.13       
-[25] reshape2_1.4.1       magrittr_1.5         edgeR_3.13.4        
-[28] scales_0.4.0         matrixStats_0.50.1   dynamicTreeCut_1.62 
-[31] tximport_0.99.6      assertthat_0.1       colorspace_1.2-6    
-[34] stringi_1.0-1        RCurl_1.95-4.8       munsell_0.4.3       
-[37] chron_2.3-47         rjson_0.2.15         zoo_1.7-12          
+ [1] Rcpp_0.12.4.5         plyr_1.8.3            zlibbioc_1.17.1      
+ [4] bitops_1.0-6          viridis_0.3.4         tools_3.3.0          
+ [7] biomaRt_2.27.2        digest_0.6.9          lattice_0.20-33      
+[10] rhdf5_2.15.7          RSQLite_1.0.0         gtable_0.2.0         
+[13] Matrix_1.2-5          shiny_0.13.2          DBI_0.3.1            
+[16] gridExtra_2.2.1       stringr_1.0.0         dplyr_0.4.3          
+[19] S4Vectors_0.9.51      IRanges_2.5.46        stats4_3.3.0         
+[22] grid_3.3.0            shinydashboard_0.5.1  data.table_1.9.6     
+[25] R6_2.1.2              AnnotationDbi_1.33.12 XML_3.98-1.4         
+[28] limma_3.27.19         reshape2_1.4.1        magrittr_1.5         
+[31] edgeR_3.13.9          matrixStats_0.50.1    scales_0.4.0         
+[34] htmltools_0.3.5       dynamicTreeCut_1.63-1 tximport_0.99.9      
+[37] assertthat_0.1        mime_0.4              xtable_1.8-2         
+[40] colorspace_1.2-6      httpuv_1.3.3          stringi_1.0-1        
+[43] RCurl_1.95-4.8        munsell_0.4.3         rjson_0.2.15         
+[46] chron_2.3-47          zoo_1.7-12           
 > 
 > proc.time()
    user  system elapsed 
- 14.008   0.158  19.669 
+ 16.854   0.163  17.106 

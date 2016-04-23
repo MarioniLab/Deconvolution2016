@@ -19,31 +19,20 @@ exprs <- t(t(counts)/lib.sizes)
 
 size <- 20L
 use.ave.cell <- rowMeans(exprs)
-sphere <- scran:::.generateSphere(lib.sizes) - 1L
-out <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
+sphere <- scran:::.generateSphere(lib.sizes)
+out <- scran:::.create_linear_system(ngenes, ncells, exprs, sphere, size, use.ave.cell)
 
-out.ex <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, 1L, use.ave.cell)
-design <- c(out[1], out.ex[1])
-output <- c(out[2], out.ex[2])
-design <- do.call(rbind, design)
-output <- unlist(output)
-
-weights <- rep(c(1, 0.00001), c(nrow(design)-ncells, ncells))
-root.weights <- sqrt(weights)
-design <- design * root.weights
-output <- output * root.weights
+design <- as.matrix(out$design)
+output <- out$output
 est <- solve(qr(design), output) * lib.sizes
 
 # Trying with the opposite case, where everyone is mixed together.
 sphere <- sample(ncells)
-sphere <- as.integer(c(sphere, sphere) - 1)
-out2 <- .Call(scran:::cxx_forge_system, ngenes, ncells, exprs, sphere, size, use.ave.cell)
-design2 <- c(out2[1], out.ex[1])
-output2 <- c(out2[2], out.ex[2])
-design2 <- do.call(rbind, design2)
-output2 <- unlist(output2)
-design2 <- design2 * root.weights
-output2 <- output2 * root.weights
+sphere <- as.integer(c(sphere, sphere))
+out2 <- scran:::.create_linear_system(ngenes, ncells, exprs, sphere, size, use.ave.cell)
+
+design2 <- as.matrix(out2$design)
+output2 <- out2$output
 est2 <- solve(qr(design2), output2) * lib.sizes
 
 collected.order[[it]] <- mad(log(est/all.facs))
