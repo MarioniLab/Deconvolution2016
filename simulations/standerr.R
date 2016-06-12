@@ -1,4 +1,4 @@
-# This checks the brittleness of the summation approach in the presence of DE genes.
+# This calculates the standard error of the size factor estimates from each method.
 
 require(scran)
 require(edgeR)
