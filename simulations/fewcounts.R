@@ -1,4 +1,4 @@
-# This checks the brittleness of the summation approach in the presence of DE genes.
+# This checks the perfromance of the summation approach in the presence of few cells.
 
 require(scran)
 require(edgeR)
