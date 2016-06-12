@@ -12,7 +12,7 @@ You can also run `fewcounts.R` to see behaviour with few cells, or `highcounts.R
 To run the real data analysis code:
 
 1. Make a `data` subdirectory and download the Zeisel et al. tables (http://linnarssonlab.org/cortex) and the Klein data (supplementary tables in GSM1599494, GSM1599499).
-2. Enter the `realdata` directory and run `Zeisel.R` and `Klein.R` to pre-process the data and estimate size factors for all cells.
+2. Enter the `realdata` directory and run `Zeisel.R` and `Klein.R` to pre-process the data and estimate size factors for all cells in each of those two data sets.
 3. Run `edgeR.R` to identify DE genes in each data set, and `GOAnalysis.R` to perform a GO analysis on the DE genes.
 4. Run `HVGAnalysis.R` to identify highly variable genes in each data set.
 5. Run `switchTestedgeR.R` to perform the offset/covariate switching analysis.
