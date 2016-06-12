@@ -7,9 +7,9 @@ To run the simulation code, enter `simulations` and then:
 3. Run `poolsim.R` to compare the variability of the estimates with and without the ring arrangement.
 4. Run `complexity.R` to determine the time-complexity of the deconvolution method.
 
-You can also run `fewcounts.R` to determine behaviour with few cells, or `highcounts.R` to see performance at very high counts.
+You can also run `fewcounts.R` to see behaviour with few cells, or `highcounts.R` to see behaviour at very high counts.
 
-To run the analysis code:
+To run the real data analysis code:
 
 1. Make a `data` subdirectory and download the Zeisel et al. tables (http://linnarssonlab.org/cortex) and the Klein data (supplementary tables in GSM1599494, GSM1599499).
 2. Enter the `realdata` directory and run `Zeisel.R` and `Klein.R` to pre-process the data and estimate size factors for all cells.
@@ -19,5 +19,5 @@ To run the analysis code:
 
 Also, run `plotKleinParam.R` to generate plots that justify parameter settings in the simulations.
 
-Finally, the `manuscript` directory contains all LaTeX code used to generate the manuscript.
-This can be compiled by running `make`.
+The `manuscript` directory contains all LaTeX code used to generate the manuscript.
+This can be compiled with `make`.
