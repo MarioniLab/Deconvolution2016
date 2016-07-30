@@ -1,4 +1,4 @@
-# This checks the brittleness of the summation approach in the presence of DE genes.
+# This checks the perfromance of the summation approach in the presence of few cells.
 
 require(scran)
 require(edgeR)
@@ -31,13 +31,18 @@ make.plot <- function(sf, truth, name, main="") {
 
 ###########################################################################
 
-for (scenario in 1:2) {
-    true.means <- rgamma(ngenes, 2, 2)
-    dispersions <- 0.1
+for (scenario in 1:4) {
+    if (scenario<=2) {
+        true.means <- rgamma(ngenes, 2, 2)
+        dispersions <- 0.1
+    } else {
+        true.means <- 2^runif(ngenes, 3, 6)
+        dispersions <- 2 + 100/true.means
+    }
     
     all.facs <- 2^rnorm(popsize, sd=0.5)
     effective.means <- outer(true.means, all.facs, "*")
-    if (scenario==2) { 
+    if (scenario%%2==0) { 
         effective.means[1:1000,1:50] <- effective.means[1:1000,1:50]*10
     }
 

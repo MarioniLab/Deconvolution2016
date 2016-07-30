@@ -1,4 +1,5 @@
-# This describes performance when pooling is random.
+# This compares the variance of the size factor estimates when pooling is random,
+# compared to when pooling is performed using the ring arrangement.
 
 require(scran)
 set.seed(100)

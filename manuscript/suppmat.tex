@@ -208,6 +208,8 @@ Thus, the additional equations will not affect accurate estimation of the size f
 % (Plus the difference between the direct estimates and the true values, which has an expected value of zero anyway.)
 % This only has a solution when all parameters are equal to zero, due to the non-unity scaling; so the logic above still applies.
 % Note that, because we split it into 19 parameters (+1 for the negative sum of everyone), each 'J' set will be of size 10.
+% Similarly, the 1/4 at the start will become 1/20 as you'll add up 20 'a^2' terms.
+% Thus, the value of 'a' will converge to 0 with increasing size of 'J', as the sum will be divided by the number of cells in 'J'.
 
 \section{Implementation details of the clustering approach}
 Let $\rho_{xy}$ denote Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
