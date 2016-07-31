@@ -567,6 +567,11 @@ Specifically, values of $w$ are set to 20, 40, 60, 80 and 100 by default.
 These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
 This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
 
+% In friendly cases, the extra pool sizes provide a only small decrease in the variability of the estimates.
+% This is because they're mostly redundant -- the pooled size factors are calculated from the same counts, so the errors are going to be correlated. 
+% In less-friendly cases, the smaller pools are necessary to mitigate errors from pooling together cells with very different size factors.
+% Conversely, the larger pools are necessary for very low counts where the smaller pools might not be accurate.
+
 An additional set of equations is added to ensure that the system is solvable.
 In each \revised{additional} equation, the $\theta_jt_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
 These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ (though any small value can be used) and unity respectively.
@@ -577,8 +582,8 @@ Due to their low weights, the additional equations will not contribute substanti
 This means that the estimated values will be driven primarily by the equations for the summed cells.
 See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
 
-% Implicit weighting on the number of cells, as larger pools will yield larger values of r_{ik} with larger absolute (but smaller relative) errors.
-% So, minimizing the sum of squares will prioritize equations with more cells in them - rightly so, as these should have more counts and be more reliable.
+% In theory, we should also weight on the number of cells in each pool, as size factors for larger pools are more variable with larger counts and should be downweighted.
+% This has little effect on the estimates themselves (due to redundancies above) but will give a more accurate estimate of the standard error.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods such as those based on the QR decomposition.
