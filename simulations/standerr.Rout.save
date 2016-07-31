@@ -1,5 +1,5 @@
 
-R version 3.3.0 beta (2016-04-08 r70447) -- "Supposedly Educational"
+R version 3.3.0 Patched (2016-05-03 r70580) -- "Supposedly Educational"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -17,7 +17,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> # This checks the brittleness of the summation approach in the presence of DE genes.
+> # This calculates the standard error of the size factor estimates from each method.
 > 
 > require(scran)
 Loading required package: scran
@@ -46,7 +46,7 @@ The following objects are masked from ‘package:base’:
     is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
     paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
     Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
-    unique, unsplit
+    unique, unsplit, which, which.max, which.min
 
 Welcome to Bioconductor
 
@@ -58,9 +58,9 @@ Loading required package: ggplot2
 
 Attaching package: ‘scater’
 
-The following objects are masked from ‘package:Biobase’:
+The following object is masked from ‘package:stats’:
 
-    fData<-, pData<-
+    filter
 
 > require(edgeR)
 Loading required package: edgeR
@@ -89,6 +89,10 @@ Loading required package: S4Vectors
 Loading required package: stats4
 
 Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:scater’:
+
+    rename
 
 The following objects are masked from ‘package:base’:
 
@@ -128,7 +132,7 @@ The following object is masked from ‘package:scater’:
 > fc.down <- c(0, 0, 0)
 > nde <- 0 
 > 
-> collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- list()      
+> collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- collected.large <- collected.small <- list()      
 > all.facs <- 2^rnorm(popsize, sd=0.5) # Constant factors!
 > 
 > for (it in 1:10) {
@@ -170,6 +174,12 @@ The following object is masked from ‘package:scater’:
 +     emp.clusters <- quickCluster(counts)
 +     final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
 +     collected.deconv <- recollect(final2.sf, collected.deconv)
++ 
++     # Size factors using only small or large pool sizes.
++     final.large.sf <- suppressWarnings(computeSumFactors(counts, size=200, clusters=emp.clusters))
++     collected.large <- recollect(final.large.sf, collected.large)
++     final.small.sf <- suppressWarnings(computeSumFactors(counts, size=20, clusters=emp.clusters))
++     collected.small <- recollect(final.small.sf, collected.small)
 + }
 > 
 > summary(apply(log(do.call(rbind, collected.tmm)), 2, mad))
@@ -181,12 +191,19 @@ The following object is masked from ‘package:scater’:
 > summary(apply(log(do.call(rbind, collected.lib)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 0.001048 0.007218 0.009394 0.010140 0.012720 0.027250 
+> 
 > summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.004479 0.024970 0.033110 0.034300 0.042510 0.085930 
+0.006226 0.020570 0.027470 0.028360 0.034050 0.075450 
+> summary(apply(log(do.call(rbind, collected.large)), 2, mad))
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.02434 0.10010 0.13750 0.14950 0.19210 0.42290 
+> summary(apply(log(do.call(rbind, collected.small)), 2, mad))
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.02157 0.08717 0.11760 0.12610 0.15470 0.38030 
 > mad(log(all.facs))
 [1] 0.3938238
 > 
 > proc.time()
    user  system elapsed 
-198.372   0.666 199.163 
+219.867   0.833 220.944 

@@ -26,7 +26,7 @@ fc.up <- c(5, 5, 5)
 fc.down <- c(0, 0, 0)
 nde <- 0 
 
-collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- list()      
+collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- collected.large <- collected.small <- list()      
 all.facs <- 2^rnorm(popsize, sd=0.5) # Constant factors!
 
 for (it in 1:10) {
@@ -68,10 +68,19 @@ for (it in 1:10) {
     emp.clusters <- quickCluster(counts)
     final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
     collected.deconv <- recollect(final2.sf, collected.deconv)
+
+    # Size factors using only small or large pool sizes.
+    final.large.sf <- suppressWarnings(computeSumFactors(counts, size=200, clusters=emp.clusters))
+    collected.large <- recollect(final.large.sf, collected.large)
+    final.small.sf <- suppressWarnings(computeSumFactors(counts, size=20, clusters=emp.clusters))
+    collected.small <- recollect(final.small.sf, collected.small)
 }
 
 summary(apply(log(do.call(rbind, collected.tmm)), 2, mad))
 summary(apply(log(do.call(rbind, collected.deseq)), 2, mad))
 summary(apply(log(do.call(rbind, collected.lib)), 2, mad))
+
 summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
+summary(apply(log(do.call(rbind, collected.large)), 2, mad))
+summary(apply(log(do.call(rbind, collected.small)), 2, mad))
 mad(log(all.facs))
