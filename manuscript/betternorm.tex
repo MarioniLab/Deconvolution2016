@@ -569,8 +569,8 @@ This increases the total number of equations in the system and means that each $
 
 % In friendly cases, the extra pool sizes provide a only small decrease in the variability of the estimates.
 % This is because they're mostly redundant -- the pooled size factors are calculated from the same counts, so the errors are going to be correlated. 
-% In less-friendly cases, the smaller pools are necessary to mitigate errors from pooling together cells with very different size factors.
-% Conversely, the larger pools are necessary for very low counts where the smaller pools might not be accurate.
+% In less-friendly cases, the smaller pools are necessary to mitigate errors from pooling together cells with very different size factors (e.g., poolsim.R with size <- 190L).
+% Conversely, the larger pools are necessary for very low counts where the smaller pools might not be accurate with respect to the median-based estimator.
 
 An additional set of equations is added to ensure that the system is solvable.
 In each \revised{additional} equation, the $\theta_jt_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
