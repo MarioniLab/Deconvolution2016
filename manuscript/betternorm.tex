@@ -520,6 +520,9 @@ Robustness protects the average against a small number of DE genes with extreme 
 % (this would result in a biased estimate of E(R_ik), which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
 % Another way to interpret this is that low count, high dispersion genes will have highly variable R_ik.
 % This would decrease the precision _and_ accuracy of a median-based estimator.
+%
+% I should point out that taking the median across genes is permissible because the expected value of R_ik doesn't actually depend on the gene (despite its notation).
+% Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
 
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
 \revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
