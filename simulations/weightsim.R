@@ -41,6 +41,7 @@ cat("\n")
 
 }
 
+# In general, weighting doesn't seem to have much effect.
 mean(unlist(collected))
 mean(unlist(collected.w))
 sd(unlist(collected))/sqrt(length(collected))
