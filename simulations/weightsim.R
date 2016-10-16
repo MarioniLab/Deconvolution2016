@@ -27,9 +27,11 @@ pool.facs <- out$output
 est <- solve(qr(design), pool.facs) * lib.sizes
 
 # Precision weights based on number of cells contributing to each pool (assuming additive variances from all cells).
-all.weights <- rep(1/rowSums(design))
-design.w <- design * sqrt(all.weights)
-pool.facs.w <- pool.facs * sqrt(all.weights)
+# These are extra weights because the one-cell rows are already downweighted (so they get an extra weight of 1).
+num.cells <- pmax(1, rowSums(design))
+extra.weights <- rep(1/num.cells)
+design.w <- design * sqrt(extra.weights)
+pool.facs.w <- pool.facs * sqrt(extra.weights)
 est.w <- solve(qr(design.w), pool.facs.w) * lib.sizes
 
 collected[[it]] <- mad(log(est/all.facs))

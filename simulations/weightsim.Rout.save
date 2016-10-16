@@ -88,9 +88,11 @@ The following object is masked from ‘package:stats’:
 + est <- solve(qr(design), pool.facs) * lib.sizes
 + 
 + # Precision weights based on number of cells contributing to each pool (assuming additive variances from all cells).
-+ all.weights <- rep(1/rowSums(design))
-+ design.w <- design * sqrt(all.weights)
-+ pool.facs.w <- pool.facs * sqrt(all.weights)
++ # These are extra weights because the one-cell rows are already downweighted (so they get an extra weight of 1).
++ num.cells <- pmax(1, rowSums(design))
++ extra.weights <- rep(1/num.cells)
++ design.w <- design * sqrt(extra.weights)
++ pool.facs.w <- pool.facs * sqrt(extra.weights)
 + est.w <- solve(qr(design.w), pool.facs.w) * lib.sizes
 + 
 + collected[[it]] <- mad(log(est/all.facs))
@@ -102,45 +104,45 @@ The following object is masked from ‘package:stats’:
 + 
 + }
 No weights: 0.02728712 
-Weighted: 0.02499735 
+Weighted: 0.0248426 
 
 No weights: 0.03446809 
-Weighted: 0.03518559 
+Weighted: 0.03549923 
 
 No weights: 0.0305047 
-Weighted: 0.02784756 
+Weighted: 0.02785738 
 
 No weights: 0.0269611 
-Weighted: 0.02851051 
+Weighted: 0.02870115 
 
 No weights: 0.02870478 
-Weighted: 0.03002074 
+Weighted: 0.0302527 
 
 No weights: 0.02951372 
-Weighted: 0.02953306 
+Weighted: 0.02946115 
 
 No weights: 0.03424057 
-Weighted: 0.03583103 
+Weighted: 0.03607735 
 
 No weights: 0.0317384 
-Weighted: 0.03114683 
+Weighted: 0.03104285 
 
 No weights: 0.03396832 
-Weighted: 0.02893562 
+Weighted: 0.02918835 
 
 No weights: 0.03030559 
-Weighted: 0.03215131 
+Weighted: 0.0321031 
 
 > 
 > # In general, weighting doesn't seem to have much effect.
 > mean(unlist(collected))
 [1] 0.03076924
 > mean(unlist(collected.w))
-[1] 0.03041596
+[1] 0.03050259
 > sd(unlist(collected))/sqrt(length(collected))
 [1] 0.0008797435
 > sd(unlist(collected.w))/sqrt(length(collected.w))
-[1] 0.001045274
+[1] 0.001075225
 > 
 > sessionInfo()
 R version 3.3.1 Patched (2016-08-05 r71041)
@@ -160,29 +162,29 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] scran_1.1.9         scater_1.1.13       ggplot2_2.1.0      
-[4] Biobase_2.33.3      BiocGenerics_0.19.2 BiocParallel_1.7.8 
+[1] scran_1.1.10        scater_1.1.25       ggplot2_2.1.0      
+[4] Biobase_2.33.4      BiocGenerics_0.19.2 BiocParallel_1.7.9 
 
 loaded via a namespace (and not attached):
- [1] tximport_1.1.3        beeswarm_0.2.3        statmod_1.4.26       
+ [1] tximport_1.1.4        beeswarm_0.2.3        statmod_1.4.26       
  [4] zoo_1.7-13            locfit_1.5-9.1        reshape2_1.4.1       
- [7] lattice_0.20-34       rhdf5_2.17.5          colorspace_1.2-6     
+ [7] lattice_0.20-34       rhdf5_2.17.6          colorspace_1.2-7     
 [10] htmltools_0.3.5       stats4_3.3.1          chron_2.3-47         
-[13] XML_3.98-1.4          DBI_0.5               matrixStats_0.50.2   
+[13] XML_3.98-1.4          DBI_0.5-1             matrixStats_0.51.0   
 [16] plyr_1.8.4            stringr_1.1.0         zlibbioc_1.19.0      
-[19] munsell_0.4.3         gtable_0.2.0          IRanges_2.7.15       
-[22] biomaRt_2.29.2        httpuv_1.3.3          vipor_0.4.3          
-[25] AnnotationDbi_1.35.4  Rcpp_0.12.7           xtable_1.8-2         
-[28] edgeR_3.15.2          scales_0.4.0          limma_3.29.21        
-[31] S4Vectors_0.11.13     mime_0.5              gridExtra_2.2.1      
-[34] rjson_0.2.15          digest_0.6.10         stringi_1.1.1        
-[37] dplyr_0.5.0           shiny_0.13.2          grid_3.3.1           
+[19] munsell_0.4.3         gtable_0.2.0          IRanges_2.7.17       
+[22] biomaRt_2.29.2        httpuv_1.3.3          vipor_0.4.4          
+[25] AnnotationDbi_1.35.5  Rcpp_0.12.7           xtable_1.8-2         
+[28] edgeR_3.15.6          scales_0.4.0          limma_3.29.21        
+[31] S4Vectors_0.11.19     mime_0.5              gridExtra_2.2.1      
+[34] rjson_0.2.15          digest_0.6.10         stringi_1.1.2        
+[37] dplyr_0.5.0           shiny_0.14.1          grid_3.3.1           
 [40] tools_3.3.1           bitops_1.0-6          magrittr_1.5         
 [43] RCurl_1.95-4.8        tibble_1.2            RSQLite_1.0.0        
 [46] dynamicTreeCut_1.63-1 Matrix_1.2-7.1        data.table_1.9.6     
-[49] ggbeeswarm_0.5.0      shinydashboard_0.5.1  assertthat_0.1       
-[52] viridis_0.3.4         R6_2.1.3             
+[49] ggbeeswarm_0.5.0      shinydashboard_0.5.3  assertthat_0.1       
+[52] viridis_0.3.4         R6_2.2.0             
 > 
 > proc.time()
    user  system elapsed 
- 23.628   0.100  23.741 
+ 24.836   0.120  25.061 
