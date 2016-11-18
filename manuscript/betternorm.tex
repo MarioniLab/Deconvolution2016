@@ -510,16 +510,19 @@ The pool-based size factor $E(R_{ik})$ is estimated by taking a robust average (
 Robustness protects the average against a small number of DE genes with extreme ratios.}
 
 % We don't need to worry about correlations between V_ik and U_i when considering the quality of the approximation.
-% The intuitive logic is this; even with perfect correlations between U_i and V_ik (i.e., U_i = V_ik/N), E(R_ik) would just be N, which is the same as E(V_ik)/E(U_i).
-% As the correlations decrease to zero, we just get the standard approximation, which is fine for low variances of U_i.
-% So given the two extremes are okay, the approximation is probably okay for any positive correlation between U_i and V_ik.
-% (It's hard to imagine that the validity of the approximation would get worse for more independent data.)
-%
-% More specifically, the approximation above has a second-order error term that depends on the variance of U_i (that can be ignored) and covariance of U_i and V_ik.
-% Consider U_i as (V_ik + X_ik)/N where V_ik and X_ik are independent; X_ik just represents the sum of the rest of the cells.
-% The covariance becomes that between V_ik and (V_ik+X_ik)/N, equal to the sum of var(V_ik)/N and cov(V_ik, X_ik)/N.
-% The latter is equal to zero due to independence, and the former decreases to zero with increasing N. 
-% More generally, the covariance will decrease if the variance decreases, so the error will also decrease.
+% Uee the following: www.stat.cmu.edu/~hseltman/files/ratio.pdf, where E(V/U) ~= E(V)/E(U) - cov(V, U)/E(U)^2 + var(U)E(V)/E(U)^3
+% We note that, in this setting, U=(V+X)/N where X is independent of V and represents all the other cells.
+% As a result, E(V/U) ~= E(V)/E(U) - cov(V, V+X)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
+% The error term then becomes: -var(V)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
+%                            = 1/E(U)^3/N^2 [ var(V+X)E(V) - N var(V) E(U) ]
+%                            = 1/E(U)^3/N^2 [ var(X)E(V) + var(X)E(V) - var(V)E(V) - var(V)E(X) ]
+%                            = 1/E(U)^3/N^2 [ var(X)E(V) - var(V)E(V) ]
+% Further assume that all cells are represented by random variable Y.
+% Let's say that V is made of a sum of P cells, which also means that X is made up of a sum of N-P cells.
+% Thus, E(V)=P E(Y), var(V) = P var(Y), E(X) = (N-P) E(Y) and var(X) = (N-P) var(Y).
+% The error term can then be broken down into: 
+%                              1/E(U)^3/N^2 [ (N-P)P E(Y)var(Y) - (N-P)P E(Y)var(Y) ] = 0
+% So the approximation is actually pretty good. I'm not even sure we need the LLN.
 
 % Another issue is with whether the expectation can be estimated with the median.
 % This should be the case for pooled counts, where the sum should approach normality (via CLT);
