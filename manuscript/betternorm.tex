@@ -509,9 +509,11 @@ Denote the realizations of $Y_{ij}$, $V_{ik}$, $U_{i}$ and $R_{ik}$ as $y_{ij}$,
 The pool-based size factor $E(R_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across all genes, under the assumption that most genes are not DE between the pool and the average pseudo-cell.
 Robustness protects the average against a small number of DE genes with extreme ratios.}
 
+% The intuition is that when U_i doesn't vary much, it doesn't have much effect on the variability of the ratio, and can basically be considered as fixed.
 % We don't need to worry about correlations between V_ik and U_i when considering the quality of the approximation.
-% Uee the following: www.stat.cmu.edu/~hseltman/files/ratio.pdf, where E(V/U) ~= E(V)/E(U) - cov(V, U)/E(U)^2 + var(U)E(V)/E(U)^3
-% We note that, in this setting, U=(V+X)/N where X is independent of V and represents all the other cells.
+% See the following: www.stat.cmu.edu/~hseltman/files/ratio.pdf, where E(V/U) ~= E(V)/E(U) - cov(V, U)/E(U)^2 + var(U)E(V)/E(U)^3
+% Yes, there's a covariance in the error term, but this will drop as the variance of U drops.
+% More precisely, we note that, in this setting, U=(V+X)/N where X is independent of V and represents all the other cells.
 % As a result, E(V/U) ~= E(V)/E(U) - cov(V, V+X)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
 % The error term then becomes: -var(V)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
 %                            = 1/E(U)^3/N^2 [ var(V+X)E(V) - N var(V) E(U) ]
