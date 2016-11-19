@@ -27,7 +27,7 @@ make.plot <- function(sf, truth, main="") {
 
 pdf(file.path(output.dir, "comparator.pdf"), width=10, height=6)
 par(mfrow=c(1,2))
-for (num in c(10L, 50L, 100L, 500L, 1000L)){ 
+for (num in c(10L, 50L, 100L, 500L, 1000L, 2000L)){ 
     true.means <- rgamma(ngenes, 2, 2)
     dispersions <- 0.1
     
@@ -39,7 +39,7 @@ for (num in c(10L, 50L, 100L, 500L, 1000L)){
     true.facs <- all.facs
 
     # Size factors with summation:
-    final.sf <- computeSumFactors(counts, clusters=NULL, sizes=c(20, 40, 60, 80))
+    final.sf <- computeSumFactors(counts, clusters=NULL, sizes=c(20, 40, 60, 80, 100))
     make.plot(final.sf, true.facs, main=sprintf("Deconvolution (%.1f%% DE)", num/ngenes*100))
 
     lib.sf <- colSums(counts)
