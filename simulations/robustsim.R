@@ -27,7 +27,10 @@ make.plot <- function(sf, truth, main="") {
 
 pdf(file.path(output.dir, "comparator.pdf"), width=10, height=6)
 par(mfrow=c(1,2))
-for (num in c(10L, 50L, 100L, 500L, 1000L, 2000L)){ 
+
+balanced <- FALSE
+extra <- ""
+for (num in c(100L, 500L, 1000L, 2000L, 2000L, 4000L, 4000L)){ 
     true.means <- rgamma(ngenes, 2, 2)
     dispersions <- 0.1
     
@@ -35,14 +38,29 @@ for (num in c(10L, 50L, 100L, 500L, 1000L, 2000L)){
     effective.means <- outer(true.means, all.facs, "*")
     effective.means[1:num,1:100] <- effective.means[1:num,1:100]*10 # Upregulation of a subset of DE genes.
 
+    if (num>=2000L) {
+        if (balanced) {
+            effective.means[1:num+num,1:100] <- 0 # Downregulation
+            extra <- ", balanced"
+            balanced <- FALSE
+        } else {
+            balanced <- TRUE
+            extra <- ""
+        }
+    }
+
     counts <- matrix(rnbinom(ngenes*popsize, mu=effective.means, size=1/dispersions), ncol=popsize)
     true.facs <- all.facs
 
     # Size factors with summation:
     final.sf <- computeSumFactors(counts, clusters=NULL, sizes=c(20, 40, 60, 80, 100))
-    make.plot(final.sf, true.facs, main=sprintf("Deconvolution (%.1f%% DE)", num/ngenes*100))
+    make.plot(final.sf, true.facs, main=sprintf("Deconvolution (%.1f%% DE%s)", num/ngenes*100, extra))
 
     lib.sf <- colSums(counts)
-    make.plot(lib.sf, true.facs, main=sprintf("Library size (%.1f%% DE)", num/ngenes*100))
+    make.plot(lib.sf, true.facs, main=sprintf("Library size (%.1f%% DE%s)", num/ngenes*100, extra))
 }
 dev.off()
+
+
+
+
