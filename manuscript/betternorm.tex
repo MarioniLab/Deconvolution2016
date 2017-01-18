@@ -585,6 +585,7 @@ This increases the total number of equations in the system and means that each $
 
 % The smaller pools are necessary to mitigate errors from pooling together cells with very different size factors.
 % The larger pools are necessary for very low counts where the smaller pools might not be accurate with respect to the median-based estimator.
+% Larger pools also give more precise ratios, which obviously helps with reducing the error from the median estimate.
 % More generally, the extra pools do add some more information; see standerr.Rout where the estimates with all pool sizes are less variable.
 
 An additional set of equations is added to ensure that the system is solvable.
