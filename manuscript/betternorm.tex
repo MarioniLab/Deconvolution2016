@@ -413,11 +413,13 @@ Estimated size factors from each method were then compared to their true values.
 
 % The alternative approaches would be to use the arithmetic mean (for DESeq) or to remove a gene entirely if it contains any zeroes.
 % The former still results in biases, as a majority of zeroes in each cell means that cell-specific zeroes must be removed.
-% The latter leave us with a set of high-abundance genes from which the size factor is computed.
-% This is more likely to violate the non-DE assumption; for a given number of randomly distributed DE genes, the probability of them forming a majority will be larger in a small set.
-% One could argue that the high-abundance genes are more likely to be house-keeping, but there's a difference between constitutively expressed and house-keeping.
+% The latter leaves us with a set of high-abundance genes from which the size factor is computed.
+% This makes the non-DE assumption stronger; everything else being equal, it's easier to get a majority in a small set than a larger one.
+% One could argue that the high-abundance genes are more likely to be house-keeping genes.
+% However, that doesn't make them non-DE, especially when you throw in biological variability and coregulation driving systematic differences between cells.
 % Finally, it's not a sustainable strategy, as the set of non-zero genes will decrease with an increasing number of cells.
-% This will leave you with very few genes -- possibly double-digit stuff -- which decreases the accuracy and precision of the size factor estimate.
+% This will leave you with very few genes -- possibly in the double-digits -- which exacerbates the problem above.
+% (Precision also drops, but that's less important unless you're down to under 10 genes.)
 
 \subsubsection*{Size factor estimates from existing methods are inaccurate}
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
