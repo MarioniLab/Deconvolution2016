@@ -583,9 +583,11 @@ Specifically, values of $w$ are set to 20, 40, 60, 80 and 100 by default.
 These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
 This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
 
-% The smaller pools are necessary to mitigate errors from pooling together cells with very different size factors.
-% The larger pools are necessary for very low counts where the smaller pools might not be accurate with respect to the median-based estimator.
-% More generally, the extra pools do add some more information; see standerr.Rout where the estimates with all pool sizes are less variable.
+% The different pool sizes probably help due to the inefficiency of the median estimator, such that even nested pools provide extra information.
+% To a smaller extent, the smaller pools mitigate errors from pooling together cells with very different size factors.
+% The larger pools also help for very low counts where the smaller pools might not be accurate with respect to the median-based estimator (or have too many zeroes).
+% See standerr.Rout where the estimates with all pool sizes are less variable than just those with large or small pools.
+% (Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.)
 
 An additional set of equations is added to ensure that the system is solvable.
 In each \revised{additional} equation, the $\theta_jt_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
