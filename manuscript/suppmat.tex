@@ -551,6 +551,10 @@ In contrast, the MAD of the log-transformed true size factors across cells was 0
 This indicates that the estimation error of each size factor is small relative to the variability of the size factors across cells.
 }
 
+% The low MAD for DESeq is probably because of its inaccuracy, where the size factors are constrained by discreteness.
+% At higher counts, DESeq and deconvolution approach the same precision, which makes sense as they are computed in a similar manner.
+% Library size normalization is most efficient but obviously is only applicable when there is no DE.
+
 \revised{\subsection{Deconvolution outperforms existing methods on real data}      
 The above framework was applied to assess the performance of each existing method compared to the deconvolution method on real data.
 For each data set, cells were partitioned into pre-defined groups in which no DE was expected.
