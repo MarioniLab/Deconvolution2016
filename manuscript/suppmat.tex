@@ -552,8 +552,9 @@ This indicates that the estimation error of each size factor is small relative t
 }
 
 % The low MAD for DESeq is probably because of its inaccuracy, where the size factors are constrained by discreteness.
-% At higher counts, DESeq and deconvolution approach the same precision, which makes sense as they are computed in a similar manner.
-% Library size normalization is most efficient but obviously is only applicable when there is no DE.
+% At higher counts, DESeq and deconvolution approach the same precision, which makes sense as they are computed in basically the same manner.
+% Library size normalization is most efficient at using information but obviously is only applicable when there is no DE.
+% We can increase precision for deconvolution by using more fine-grained sizes (set sizes=2:10*10 in standerr.R), but this comes at the cost of computational work.
 
 \revised{\subsection{Deconvolution outperforms existing methods on real data}      
 The above framework was applied to assess the performance of each existing method compared to the deconvolution method on real data.
