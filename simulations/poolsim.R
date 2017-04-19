@@ -18,8 +18,12 @@ counts <- matrix(rnbinom(ngenes*ncells, mu=effective.means, size=1/dispersions),
 lib.sizes <- colSums(counts)
 exprs <- t(t(counts)/lib.sizes)
 
-size <- 20L
 use.ave.cell <- rowMeans(exprs)
+keep <- use.ave.cell>0
+use.ave.cell <- use.ave.cell[keep]
+exprs <- exprs[keep,,drop=FALSE]
+
+size <- 20L
 sphere <- scran:::.generateSphere(lib.sizes)
 out <- scran:::.create_linear_system(exprs, sphere, size, use.ave.cell)
 

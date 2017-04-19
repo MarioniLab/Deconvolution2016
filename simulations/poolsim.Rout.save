@@ -1,6 +1,6 @@
 
-R version 3.3.0 beta (2016-04-08 r70447) -- "Supposedly Educational"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.0 RC (2017-04-18 r72535) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,7 +17,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> # This describes performance when pooling is random.
+> # This compares the variance of the size factor estimates when pooling is random,
+> # compared to when pooling is performed using the ring arrangement.
 > 
 > require(scran)
 Loading required package: scran
@@ -37,16 +38,16 @@ The following objects are masked from ‘package:parallel’:
 
 The following objects are masked from ‘package:stats’:
 
-    IQR, mad, xtabs
+    IQR, mad, sd, var, xtabs
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
-    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
-    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
-    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
-    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
-    unique, unsplit
+    anyDuplicated, append, as.data.frame, cbind, colMeans, colnames,
+    colSums, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, lengths, Map, mapply, match,
+    mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rowMeans, rownames, rowSums, sapply, setdiff, sort,
+    table, tapply, union, unique, unsplit, which, which.max, which.min
 
 Welcome to Bioconductor
 
@@ -58,9 +59,9 @@ Loading required package: ggplot2
 
 Attaching package: ‘scater’
 
-The following objects are masked from ‘package:Biobase’:
+The following object is masked from ‘package:stats’:
 
-    fData<-, pData<-
+    filter
 
 > set.seed(100)
 > 
@@ -78,8 +79,12 @@ The following objects are masked from ‘package:Biobase’:
 + lib.sizes <- colSums(counts)
 + exprs <- t(t(counts)/lib.sizes)
 + 
-+ size <- 20L
 + use.ave.cell <- rowMeans(exprs)
++ keep <- use.ave.cell>0
++ use.ave.cell <- use.ave.cell[keep]
++ exprs <- exprs[keep,,drop=FALSE]
++ 
++ size <- 20L
 + sphere <- scran:::.generateSphere(lib.sizes)
 + out <- scran:::.create_linear_system(exprs, sphere, size, use.ave.cell)
 + 
@@ -104,50 +109,54 @@ The following objects are masked from ‘package:Biobase’:
 + cat("\n")
 + 
 + }
-Ordered: 0.04478969 
-Random: 0.06951065 
+Ordered: 0.04622745 
+Random: 0.06884709 
 
-Ordered: 0.05424687 
-Random: 0.0759886 
+Ordered: 0.05293293 
+Random: 0.08430219 
 
-Ordered: 0.05615209 
-Random: 0.06797721 
+Ordered: 0.05787012 
+Random: 0.0696276 
 
-Ordered: 0.04640824 
-Random: 0.09589745 
+Ordered: 0.04729239 
+Random: 0.09575969 
 
-Ordered: 0.05355121 
-Random: 0.08063734 
+Ordered: 0.05584383 
+Random: 0.07997788 
 
-Ordered: 0.04209682 
-Random: 0.08719727 
+Ordered: 0.04166248 
+Random: 0.08763949 
 
-Ordered: 0.05195737 
-Random: 0.08407205 
+Ordered: 0.05486604 
+Random: 0.08407637 
 
-Ordered: 0.04689561 
-Random: 0.07081242 
+Ordered: 0.04633172 
+Random: 0.07018114 
 
-Ordered: 0.06008857 
-Random: 0.07258543 
+Ordered: 0.05046406 
+Random: 0.07286173 
 
-Ordered: 0.05078273 
-Random: 0.08468877 
+Ordered: 0.05779464 
+Random: 0.08245688 
 
 > 
 > mean(unlist(collected.order))
-[1] 0.05069692
+[1] 0.05112857
 > mean(unlist(collected.random))
-[1] 0.07893672
+[1] 0.07957301
 > sd(unlist(collected.order))/sqrt(length(collected.order))
-[1] 0.001770145
+[1] 0.001767417
 > sd(unlist(collected.random))/sqrt(length(collected.random))
-[1] 0.002871796
+[1] 0.002839029
 > 
 > sessionInfo()
-R version 3.3.0 beta (2016-04-08 r70447)
+R version 3.4.0 RC (2017-04-18 r72535)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 14.04.4 LTS
+Running under: Ubuntu 14.04.5 LTS
+
+Matrix products: default
+BLAS: /home/cri.camres.org/lun01/Software/R/R-3-4-branch_devel/lib/libRblas.so
+LAPACK: /home/cri.camres.org/lun01/Software/R/R-3-4-branch_devel/lib/libRlapack.so
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
@@ -162,27 +171,32 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] scran_0.99.8        scater_0.99.10      ggplot2_2.1.0      
-[4] Biobase_2.31.3      BiocGenerics_0.17.5 BiocParallel_1.5.21
+[1] scran_1.3.16        scater_1.3.45       ggplot2_2.2.1      
+[4] Biobase_2.35.1      BiocGenerics_0.21.3 BiocParallel_1.9.6 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.4.5         plyr_1.8.3            zlibbioc_1.17.1      
- [4] bitops_1.0-6          viridis_0.3.4         tools_3.3.0          
- [7] biomaRt_2.27.2        digest_0.6.9          lattice_0.20-33      
-[10] rhdf5_2.15.7          RSQLite_1.0.0         gtable_0.2.0         
-[13] Matrix_1.2-5          shiny_0.13.2          DBI_0.3.1            
-[16] gridExtra_2.2.1       stringr_1.0.0         dplyr_0.4.3          
-[19] S4Vectors_0.9.51      IRanges_2.5.46        stats4_3.3.0         
-[22] grid_3.3.0            shinydashboard_0.5.1  data.table_1.9.6     
-[25] R6_2.1.2              AnnotationDbi_1.33.12 XML_3.98-1.4         
-[28] limma_3.27.19         reshape2_1.4.1        magrittr_1.5         
-[31] edgeR_3.13.9          matrixStats_0.50.1    scales_0.4.0         
-[34] htmltools_0.3.5       dynamicTreeCut_1.63-1 tximport_0.99.9      
-[37] assertthat_0.1        mime_0.4              xtable_1.8-2         
-[40] colorspace_1.2-6      httpuv_1.3.3          stringi_1.0-1        
-[43] RCurl_1.95-4.8        munsell_0.4.3         rjson_0.2.15         
-[46] chron_2.3-47          zoo_1.7-12           
+ [1] tximport_1.3.13       statmod_1.4.29        beeswarm_0.2.3       
+ [4] zoo_1.8-0             locfit_1.5-9.1        reshape2_1.4.2       
+ [7] splines_3.4.0         lattice_0.20-35       rhdf5_2.19.3         
+[10] colorspace_1.3-2      htmltools_0.3.5       stats4_3.4.0         
+[13] viridisLite_0.2.0     XML_3.98-1.6          DBI_0.6-1            
+[16] matrixStats_0.52.2    plyr_1.8.4            stringr_1.2.0        
+[19] zlibbioc_1.21.0       munsell_0.4.3         gtable_0.2.0         
+[22] htmlwidgets_0.8       memoise_1.0.0         IRanges_2.9.19       
+[25] biomaRt_2.31.10       httpuv_1.3.3          vipor_0.4.5          
+[28] AnnotationDbi_1.37.4  Rcpp_0.12.10          xtable_1.8-2         
+[31] edgeR_3.17.9          DT_0.2                scales_0.4.1         
+[34] limma_3.31.21         S4Vectors_0.13.15     FNN_1.1              
+[37] mime_0.5              gridExtra_2.2.1       rjson_0.2.15         
+[40] digest_0.6.12         stringi_1.1.5         dplyr_0.5.0          
+[43] shiny_1.0.1           grid_3.4.0            bitops_1.0-6         
+[46] tools_3.4.0           magrittr_1.5          lazyeval_0.2.0       
+[49] RCurl_1.95-4.8        tibble_1.3.0          RSQLite_1.1-2        
+[52] dynamicTreeCut_1.63-1 Matrix_1.2-8          data.table_1.10.4    
+[55] ggbeeswarm_0.5.3      shinydashboard_0.5.3  assertthat_0.2.0     
+[58] viridis_0.4.0         R6_2.2.0              igraph_1.0.1         
+[61] compiler_3.4.0       
 > 
 > proc.time()
    user  system elapsed 
- 16.854   0.163  17.106 
+ 19.504   0.152  19.680 

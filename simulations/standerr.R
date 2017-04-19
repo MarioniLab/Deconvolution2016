@@ -26,7 +26,8 @@ fc.up <- c(5, 5, 5)
 fc.down <- c(0, 0, 0)
 nde <- 0 
 
-collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- collected.large <- collected.small <- list()      
+collected.tmm <- collected.deseq <- collected.lib <- list()
+collected.deconv <- collected.deconv.more <- collected.deconv.extra <- collected.large <- collected.small <- list()      
 all.facs <- 2^rnorm(popsize, sd=0.5) # Constant factors!
 
 for (it in 1:10) {
@@ -66,8 +67,12 @@ for (it in 1:10) {
 
     # Size factors with clustering prior to summation:
     emp.clusters <- quickCluster(counts)
-    final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
+    final2.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=1:5*20)
     collected.deconv <- recollect(final2.sf, collected.deconv)
+    final3.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=2:10*10)
+    collected.deconv.more <- recollect(final3.sf, collected.deconv.more)
+    final4.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=10:50*2)
+    collected.deconv.extra <- recollect(final4.sf, collected.deconv.extra)
 
     # Size factors using only small or large pool sizes.
     final.large.sf <- suppressWarnings(computeSumFactors(counts, size=200, clusters=emp.clusters))
@@ -76,11 +81,15 @@ for (it in 1:10) {
     collected.small <- recollect(final.small.sf, collected.small)
 }
 
+# Precision of estimates.
 summary(apply(log(do.call(rbind, collected.tmm)), 2, mad))
 summary(apply(log(do.call(rbind, collected.deseq)), 2, mad))
 summary(apply(log(do.call(rbind, collected.lib)), 2, mad))
 
 summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
+summary(apply(log(do.call(rbind, collected.deconv.more)), 2, mad))
+summary(apply(log(do.call(rbind, collected.deconv.extra)), 2, mad))
+
 summary(apply(log(do.call(rbind, collected.large)), 2, mad))
 summary(apply(log(do.call(rbind, collected.small)), 2, mad))
 mad(log(all.facs))

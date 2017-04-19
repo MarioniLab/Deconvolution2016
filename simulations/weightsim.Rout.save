@@ -1,6 +1,6 @@
 
-R version 3.3.1 Patched (2016-08-05 r71041) -- "Bug in Your Hair"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.0 RC (2017-04-18 r72535) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -37,16 +37,16 @@ The following objects are masked from ‘package:parallel’:
 
 The following objects are masked from ‘package:stats’:
 
-    IQR, mad, xtabs
+    IQR, mad, sd, var, xtabs
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
-    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
-    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
-    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
-    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
-    unique, unsplit, which, which.max, which.min
+    anyDuplicated, append, as.data.frame, cbind, colMeans, colnames,
+    colSums, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, lengths, Map, mapply, match,
+    mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rowMeans, rownames, rowSums, sapply, setdiff, sort,
+    table, tapply, union, unique, unsplit, which, which.max, which.min
 
 Welcome to Bioconductor
 
@@ -79,6 +79,10 @@ The following object is masked from ‘package:stats’:
 + exprs <- t(t(counts)/lib.sizes)
 + 
 + use.ave.cell <- rowMeans(exprs)
++ keep <- use.ave.cell > 0
++ use.ave.cell <- use.ave.cell[keep]
++ exprs <- exprs[keep,,drop=FALSE]
++ 
 + sphere <- scran:::.generateSphere(lib.sizes)
 + out <- scran:::.create_linear_system(exprs, sphere=sphere, sizes=c(20L, 40L, 60L, 80L, 100L), use.ave.cell)
 + 
@@ -103,51 +107,55 @@ The following object is masked from ‘package:stats’:
 + cat("\n")
 + 
 + }
-No weights: 0.02728712 
-Weighted: 0.0248426 
+No weights: 0.02889464 
+Weighted: 0.02689795 
 
-No weights: 0.03446809 
-Weighted: 0.03549923 
+No weights: 0.0354391 
+Weighted: 0.03567269 
 
-No weights: 0.0305047 
-Weighted: 0.02785738 
+No weights: 0.03110642 
+Weighted: 0.02854609 
 
-No weights: 0.0269611 
-Weighted: 0.02870115 
+No weights: 0.02762935 
+Weighted: 0.02883046 
 
-No weights: 0.02870478 
-Weighted: 0.0302527 
+No weights: 0.02859411 
+Weighted: 0.02829618 
 
-No weights: 0.02951372 
-Weighted: 0.02946115 
+No weights: 0.02840468 
+Weighted: 0.02740052 
 
-No weights: 0.03424057 
-Weighted: 0.03607735 
+No weights: 0.0337373 
+Weighted: 0.03636508 
 
-No weights: 0.0317384 
-Weighted: 0.03104285 
+No weights: 0.03167287 
+Weighted: 0.03071433 
 
-No weights: 0.03396832 
-Weighted: 0.02918835 
+No weights: 0.03382928 
+Weighted: 0.02905479 
 
-No weights: 0.03030559 
-Weighted: 0.0321031 
+No weights: 0.02966423 
+Weighted: 0.03053507 
 
 > 
 > # In general, weighting doesn't seem to have much effect.
 > mean(unlist(collected))
-[1] 0.03076924
+[1] 0.0308972
 > mean(unlist(collected.w))
-[1] 0.03050259
+[1] 0.03023131
 > sd(unlist(collected))/sqrt(length(collected))
-[1] 0.0008797435
+[1] 0.0008541647
 > sd(unlist(collected.w))/sqrt(length(collected.w))
-[1] 0.001075225
+[1] 0.001036089
 > 
 > sessionInfo()
-R version 3.3.1 Patched (2016-08-05 r71041)
+R version 3.4.0 RC (2017-04-18 r72535)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 14.04.5 LTS
+
+Matrix products: default
+BLAS: /home/cri.camres.org/lun01/Software/R/R-3-4-branch_devel/lib/libRblas.so
+LAPACK: /home/cri.camres.org/lun01/Software/R/R-3-4-branch_devel/lib/libRlapack.so
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
@@ -162,29 +170,32 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] scran_1.1.10        scater_1.1.25       ggplot2_2.1.0      
-[4] Biobase_2.33.4      BiocGenerics_0.19.2 BiocParallel_1.7.9 
+[1] scran_1.3.16        scater_1.3.45       ggplot2_2.2.1      
+[4] Biobase_2.35.1      BiocGenerics_0.21.3 BiocParallel_1.9.6 
 
 loaded via a namespace (and not attached):
- [1] tximport_1.1.4        beeswarm_0.2.3        statmod_1.4.26       
- [4] zoo_1.7-13            locfit_1.5-9.1        reshape2_1.4.1       
- [7] lattice_0.20-34       rhdf5_2.17.6          colorspace_1.2-7     
-[10] htmltools_0.3.5       stats4_3.3.1          chron_2.3-47         
-[13] XML_3.98-1.4          DBI_0.5-1             matrixStats_0.51.0   
-[16] plyr_1.8.4            stringr_1.1.0         zlibbioc_1.19.0      
-[19] munsell_0.4.3         gtable_0.2.0          IRanges_2.7.17       
-[22] biomaRt_2.29.2        httpuv_1.3.3          vipor_0.4.4          
-[25] AnnotationDbi_1.35.5  Rcpp_0.12.7           xtable_1.8-2         
-[28] edgeR_3.15.6          scales_0.4.0          limma_3.29.21        
-[31] S4Vectors_0.11.19     mime_0.5              gridExtra_2.2.1      
-[34] rjson_0.2.15          digest_0.6.10         stringi_1.1.2        
-[37] dplyr_0.5.0           shiny_0.14.1          grid_3.3.1           
-[40] tools_3.3.1           bitops_1.0-6          magrittr_1.5         
-[43] RCurl_1.95-4.8        tibble_1.2            RSQLite_1.0.0        
-[46] dynamicTreeCut_1.63-1 Matrix_1.2-7.1        data.table_1.9.6     
-[49] ggbeeswarm_0.5.0      shinydashboard_0.5.3  assertthat_0.1       
-[52] viridis_0.3.4         R6_2.2.0             
+ [1] tximport_1.3.13       statmod_1.4.29        beeswarm_0.2.3       
+ [4] zoo_1.8-0             locfit_1.5-9.1        reshape2_1.4.2       
+ [7] splines_3.4.0         lattice_0.20-35       rhdf5_2.19.3         
+[10] colorspace_1.3-2      htmltools_0.3.5       stats4_3.4.0         
+[13] viridisLite_0.2.0     XML_3.98-1.6          DBI_0.6-1            
+[16] matrixStats_0.52.2    plyr_1.8.4            stringr_1.2.0        
+[19] zlibbioc_1.21.0       munsell_0.4.3         gtable_0.2.0         
+[22] htmlwidgets_0.8       memoise_1.0.0         IRanges_2.9.19       
+[25] biomaRt_2.31.10       httpuv_1.3.3          vipor_0.4.5          
+[28] AnnotationDbi_1.37.4  Rcpp_0.12.10          xtable_1.8-2         
+[31] edgeR_3.17.9          DT_0.2                scales_0.4.1         
+[34] limma_3.31.21         S4Vectors_0.13.15     FNN_1.1              
+[37] mime_0.5              gridExtra_2.2.1       rjson_0.2.15         
+[40] digest_0.6.12         stringi_1.1.5         dplyr_0.5.0          
+[43] shiny_1.0.1           grid_3.4.0            bitops_1.0-6         
+[46] tools_3.4.0           magrittr_1.5          lazyeval_0.2.0       
+[49] RCurl_1.95-4.8        tibble_1.3.0          RSQLite_1.1-2        
+[52] dynamicTreeCut_1.63-1 Matrix_1.2-8          data.table_1.10.4    
+[55] ggbeeswarm_0.5.3      shinydashboard_0.5.3  assertthat_0.2.0     
+[58] viridis_0.4.0         R6_2.2.0              igraph_1.0.1         
+[61] compiler_3.4.0       
 > 
 > proc.time()
    user  system elapsed 
- 24.836   0.120  25.061 
+ 27.036   0.152  27.202 

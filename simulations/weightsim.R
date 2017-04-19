@@ -18,6 +18,10 @@ lib.sizes <- colSums(counts)
 exprs <- t(t(counts)/lib.sizes)
 
 use.ave.cell <- rowMeans(exprs)
+keep <- use.ave.cell > 0
+use.ave.cell <- use.ave.cell[keep]
+exprs <- exprs[keep,,drop=FALSE]
+
 sphere <- scran:::.generateSphere(lib.sizes)
 out <- scran:::.create_linear_system(exprs, sphere=sphere, sizes=c(20L, 40L, 60L, 80L, 100L), use.ave.cell)
 

@@ -1,6 +1,6 @@
 
-R version 3.3.0 Patched (2016-05-03 r70580) -- "Supposedly Educational"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.0 RC (2017-04-18 r72535) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -37,16 +37,16 @@ The following objects are masked from ‘package:parallel’:
 
 The following objects are masked from ‘package:stats’:
 
-    IQR, mad, xtabs
+    IQR, mad, sd, var, xtabs
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
-    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
-    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
-    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
-    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
-    unique, unsplit, which, which.max, which.min
+    anyDuplicated, append, as.data.frame, cbind, colMeans, colnames,
+    colSums, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, lengths, Map, mapply, match,
+    mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rowMeans, rownames, rowSums, sapply, setdiff, sort,
+    table, tapply, union, unique, unsplit, which, which.max, which.min
 
 Welcome to Bioconductor
 
@@ -94,14 +94,34 @@ The following object is masked from ‘package:scater’:
 
     rename
 
-The following objects are masked from ‘package:base’:
+The following object is masked from ‘package:base’:
 
-    colMeans, colSums, expand.grid, rowMeans, rowSums
+    expand.grid
 
 Loading required package: IRanges
 Loading required package: GenomicRanges
 Loading required package: GenomeInfoDb
 Loading required package: SummarizedExperiment
+Loading required package: DelayedArray
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following objects are masked from ‘package:Biobase’:
+
+    anyMissing, rowMedians
+
+
+Attaching package: ‘DelayedArray’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
+
+The following object is masked from ‘package:base’:
+
+    apply
+
 
 Attaching package: ‘DESeq2’
 
@@ -132,7 +152,8 @@ The following object is masked from ‘package:scater’:
 > fc.down <- c(0, 0, 0)
 > nde <- 0 
 > 
-> collected.tmm <- collected.deseq <- collected.lib <- collected.deconv <- collected.large <- collected.small <- list()      
+> collected.tmm <- collected.deseq <- collected.lib <- list()
+> collected.deconv <- collected.deconv.more <- collected.deconv.extra <- collected.large <- collected.small <- list()      
 > all.facs <- 2^rnorm(popsize, sd=0.5) # Constant factors!
 > 
 > for (it in 1:10) {
@@ -172,8 +193,12 @@ The following object is masked from ‘package:scater’:
 + 
 +     # Size factors with clustering prior to summation:
 +     emp.clusters <- quickCluster(counts)
-+     final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
++     final2.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=1:5*20)
 +     collected.deconv <- recollect(final2.sf, collected.deconv)
++     final3.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=2:10*10)
++     collected.deconv.more <- recollect(final3.sf, collected.deconv.more)
++     final4.sf <- computeSumFactors(counts, clusters=emp.clusters, sizes=10:50*2)
++     collected.deconv.extra <- recollect(final4.sf, collected.deconv.extra)
 + 
 +     # Size factors using only small or large pool sizes.
 +     final.large.sf <- suppressWarnings(computeSumFactors(counts, size=200, clusters=emp.clusters))
@@ -182,28 +207,36 @@ The following object is masked from ‘package:scater’:
 +     collected.small <- recollect(final.small.sf, collected.small)
 + }
 > 
+> # Precision of estimates.
 > summary(apply(log(do.call(rbind, collected.tmm)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.003639 0.007242 0.011950 0.020500 0.020960 0.175700 
+0.003639 0.007242 0.011947 0.020499 0.020959 0.175656 
 > summary(apply(log(do.call(rbind, collected.deseq)), 2, mad))
      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-0.0009727 0.0051190 0.0072150 0.0090770 0.0112200 0.0387200 
+0.0009727 0.0051190 0.0072150 0.0090773 0.0112181 0.0387213 
 > summary(apply(log(do.call(rbind, collected.lib)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.001048 0.007218 0.009394 0.010140 0.012720 0.027250 
+0.001048 0.007218 0.009394 0.010137 0.012719 0.027251 
 > 
 > summary(apply(log(do.call(rbind, collected.deconv)), 2, mad))
     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.006226 0.020570 0.027470 0.028360 0.034050 0.075450 
+0.006226 0.020575 0.027467 0.028356 0.034049 0.075446 
+> summary(apply(log(do.call(rbind, collected.deconv.more)), 2, mad))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.003447 0.013657 0.017872 0.019121 0.023507 0.053065 
+> summary(apply(log(do.call(rbind, collected.deconv.extra)), 2, mad))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.001588 0.009777 0.012855 0.013610 0.016901 0.036571 
+> 
 > summary(apply(log(do.call(rbind, collected.large)), 2, mad))
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-0.02434 0.10010 0.13750 0.14950 0.19210 0.42290 
+0.02434 0.10010 0.13751 0.14950 0.19211 0.42292 
 > summary(apply(log(do.call(rbind, collected.small)), 2, mad))
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-0.02157 0.08717 0.11760 0.12610 0.15470 0.38030 
+0.02157 0.08717 0.11760 0.12612 0.15472 0.38034 
 > mad(log(all.facs))
 [1] 0.3938238
 > 
 > proc.time()
    user  system elapsed 
-219.867   0.833 220.944 
+816.024   1.004 817.468 
