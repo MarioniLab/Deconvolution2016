@@ -434,7 +434,7 @@ Their removal increases the (trimmed) mean of M-values and biases the estimate o
 The converse applies to cells with large $\theta_j$.
 Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
 
-% We don't need to consider undefined ratios.
+% We don't need to consider undefined ratios (i.e., due to a zero in the denominator) in this explanation.
 % For DESeq, there are none, as all ratios are defined after the workaround.
 % For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
 % Thus, differences will be driven by zeroes in the numerator of the ratios.
@@ -538,6 +538,10 @@ Robustness protects the average against a small number of DE genes with extreme 
 %
 % I should point out that taking the median across genes is permissible because the expected value of R_ik doesn't actually depend on the gene (despite its notation).
 % Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
+%
+% Of course, the main motivation is to reduce the number of zeros. 
+% With just 20 cells, it's possible to have >95% randomly distributed zeros and still get a non-zero pooled size factor (0.95^20 < 0.5)
+% The effective value is probably lower because some zeros are semi-systematic and smaller cells will have more stochastic zeros anyway, but still; pretty good.
 
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
 \revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
