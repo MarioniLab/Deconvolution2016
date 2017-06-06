@@ -611,7 +611,8 @@ See Section~\supplineardep{} in Additional file~1 for a more detailed discussion
 % One can imagine that each cell-specific size factor has some estimation variance, so the variance of the pool size factor would equal the sum of variances for its cells.
 % Weighting will give a more accurate estimate of the standard error, but for some reason, has little effect on the precision of the size factor estimates themselves. 
 % This is probably because the residuals are correlated across equations, due to the fact that the pooled size factors are computed from the same counts.
-% For example, if the residuals were perfectly correlated, then the relative weighting of the equations wouldn't matter, as you'd get the same solution all the time.
+% For example, if the residuals were perfectly correlated, the relative weighting of the equations wouldn't matter as the system is overdetermined and consistent.
+% Precision weights would also favour pools with few cells that are less likely to give accurate pool-based size factors due to zeroes and discreteness.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods such as those based on the QR decomposition.
