@@ -434,7 +434,7 @@ Their removal increases the (trimmed) mean of M-values and biases the estimate o
 The converse applies to cells with large $\theta_j$.
 Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
 
-% We don't need to consider undefined ratios.
+% We don't need to consider undefined ratios (i.e., due to a zero in the denominator) in this explanation.
 % For DESeq, there are none, as all ratios are defined after the workaround.
 % For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
 % Thus, differences will be driven by zeroes in the numerator of the ratios.
@@ -536,6 +536,11 @@ Robustness protects the average against a small number of DE genes with extreme 
 % Another way to interpret this is that low count, high dispersion genes will have highly variable R_ik.
 % This would decrease the precision _and_ accuracy of a median-based estimator.
 %
+% Of course, the main motivation is still to reduce the number of zeros. 
+% With just 20 cells, it's possible to have >95% randomly distributed zeros and still get a non-zero pooled size factor (0.95^20 < 0.5)
+% The effective value is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
+% Smaller cells will have more stochastic zeros anyway, but still; the equivalent failure point for DESeq would be 50%, which is clearly worse.
+%
 % I should point out that taking the median across genes is permissible because the expected value of R_ik doesn't actually depend on the gene (despite its notation).
 % Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
 
@@ -606,7 +611,8 @@ See Section~\supplineardep{} in Additional file~1 for a more detailed discussion
 % One can imagine that each cell-specific size factor has some estimation variance, so the variance of the pool size factor would equal the sum of variances for its cells.
 % Weighting will give a more accurate estimate of the standard error, but for some reason, has little effect on the precision of the size factor estimates themselves. 
 % This is probably because the residuals are correlated across equations, due to the fact that the pooled size factors are computed from the same counts.
-% For example, if the residuals were perfectly correlated, then the relative weighting of the equations wouldn't matter, as you'd get the same solution all the time.
+% For example, if the residuals were perfectly correlated, the relative weighting of the equations wouldn't matter as the system is overdetermined and consistent.
+% Precision weights would also favour pools with few cells that are less likely to give accurate pool-based size factors due to zeroes and discreteness.
 %
 % Note that least-squares doesn't require normality or independence in the response variables in this application.
 % It should still give correct results for non-normal distributions in the pool-based size factors, and for correlations between equations.
