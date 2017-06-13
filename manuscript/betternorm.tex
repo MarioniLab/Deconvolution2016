@@ -596,6 +596,7 @@ This increases the total number of equations in the system and means that each $
 % Larger counts also result in more precise ratios, which obviously helps with reducing the error from the median estimate.
 % See standerr.Rout where the estimates with all pool sizes are less variable than just those with large or small pools.
 % (Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.)
+% Also see my thoughts on how using multiple pools increases column rank and reduces imprecision due to unestimable coefficients.
 
 An additional set of equations is added to ensure that the system is solvable.
 In each \revised{additional} equation, the $\theta_jt_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.

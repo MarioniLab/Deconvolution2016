@@ -215,7 +215,13 @@ Thus, the additional equations will not affect accurate estimation of the size f
 % In such cases, the median '\tilde\theta_j\' will (almost always) be equal to zero if there's more than 50% zeroes.
 % Fortunately, 'x' will still approach zero if the mean of theta_j in J_1 is equal to the mean of theta_j in J_2.
 % J_1 should always be of equal size to J_2, as for every addition of 'x' you'll need a subtraction of 'x' somewhere else to maintain the infinite solutions. 
-% And, given that the elements of J_1 and J_2 are evenly distributed around the ring, there shouldn't be any systematic differences in the mean size factors between sets.
+% And, given that the elements of J_1 and J_2 are evenly distributed around the ring, there shouldn't be any systematic differences in the mean size factors between sets.%
+% The same logic applies for any pool size and number of cells that are not coprime.
+% The number of variables that need to rely on the above expectation result is equal to the GCD minus 1.
+% More generally, this is equal to the number of unestimable coefficients, i.e., the difference between the number of cells and the column rank of the matrix.
+% This motivates the use of multiple pool sizes, which should reduce the number of unestimable coefficients (and increase each J, thus improving precision).
+% For example, with a single pool size of 20 you'll have 19 unestimable coefficients, whereas with pool sizes from 20 to 100 (going up by 5), it drops to 4.
+% Admittedly, it is rather odd that a system with three cells and a pool size of 2 is solvable, while a system with four cells is not.
 
 \section{Implementation details of the clustering approach}
 Let $\rho_{xy}$ denote Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
