@@ -674,12 +674,14 @@ The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for t
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
 The \revised{final} size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_{j}\tau_{\mathcal{C}}$.
 
-% This is justified by considering normalization factors; you multiply the normalization factor within clusters with that between clusters to get the overall factor 
-% (independent of library size), then you multiply by the library size to get the size factors. 
-% The same applies here, except that you multiply by library size first to get the within-cluster size factors, then you multiply between clusters.
-% Or, in other words, the within-cluster size factors capture library size differences and additional within-cluster differences;
-% you only need to multiply by additional between-cluster differences to get the overall size factors 
-% (i.e., you don't need to compute the size factors between clusters, only the normalization factors).
+% This is justified by considering that the within-cluster normalization removes biases between each cell and the cluster-specific pseudo cell.
+% The $\tau$ represents the scaling between pseudo-cells of different clusters, to remove systematic biases between clusters.
+% Thus, by scaling all size factors by $\tau$, you eliminate differences between the cluster-specific pseudo cells.
+% This effectively means that all cells in all clusters are, now, scaled to the same pseudo cell.
+%
+% In more detail, the cluster-based re-scaling technically refers to the normalization factors with the library size-adjusted expression values.
+% However, you would end up multiplying by the library size of each cell anyway to obtain the size factors.
+% There is no harm in multiplying by the library size first, and then scaling by $\tau$, given that the former has no effect on the calculation on the latter.
 
 The use of within-cluster normalization reduces the amount of DE between cells, as all cells in each cluster have similar expression profiles.
 This avoids inaccurate estimation of the \revised{cluster-specific} size factors due to violations of the non-DE assumption \revised{during deconvolution}.
