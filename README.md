@@ -8,6 +8,7 @@ To run the simulation code, enter `simulations` and then:
 4. Run `complexity.R` to determine the time-complexity of the deconvolution method.
 
 You can also run `fewcounts.R` to see behaviour with few cells, or `highcounts.R` to see behaviour at very high counts.
+The `moresims` directory contains additional simulations under various scenarios that were not included in the publication.
 
 To run the real data analysis code:
 
