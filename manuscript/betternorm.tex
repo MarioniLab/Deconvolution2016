@@ -560,7 +560,7 @@ Robustness protects the average against a small number of DE genes with extreme 
 %
 % Of course, the main motivation is still to reduce the number of zeros. 
 % With just 20 cells, it's possible to have >95% randomly distributed zeros and still get a non-zero pooled size factor (0.95^20 < 0.5)
-% The effective value is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
+% In practice, the effective/tolerable proportion of zeroes is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
 % Smaller cells will have more stochastic zeros anyway, but still; the equivalent failure point for DESeq would be 50%, which is clearly worse.
 %
 % I should point out that taking the median across genes is permissible because the expected value of R_ik doesn't actually depend on the gene (despite its notation).
