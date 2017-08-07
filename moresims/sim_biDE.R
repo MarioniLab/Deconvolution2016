@@ -35,7 +35,6 @@ for (mode in c("UMI", "read")) {
     counts <- sampleCounts(mus, param$dispersion)
     output <- runAllMethods(counts)
 
-
     # Generating an output plot for this simulation.
     collected <- vector("list", length(output))
     names(collected) <- names(output)
@@ -45,7 +44,7 @@ for (mode in c("UMI", "read")) {
     pdf(paste0(stub, ".pdf"))
     par(mar=c(5.1,5.1,4.1,1.1))
     for (x in names(output)) {
-        collected[[x]] <- makeSFPlot(output[[x]], truth, de.cell, main=x, col=col)[[1]]
+        collected[[x]] <- makeSFPlot(output[[x]], truth, de.cell, main=x, col=col)["DE"]
     }
     dev.off()
 

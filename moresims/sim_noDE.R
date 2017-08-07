@@ -3,6 +3,8 @@
 source("functions.R")
 dir.out <- "results_noDE"
 dir.create(dir.out, showWarnings=FALSE)
+fout <- file.path(dir.out, "summary.txt")
+is.there <- FALSE 
 
 for (mode in c("UMI", "read")) { 
     dir.create(file.path(dir.out, mode), showWarnings=FALSE)
@@ -13,23 +15,25 @@ for (mode in c("UMI", "read")) {
 
     param <- generateRawMeans(ncells=ncells, mode=mode)
     truth <- param$sf
-    counts <- sampleCounts(param$mu, param$phi)
+    counts <- sampleCounts(param$fitted, param$dispersion)
     output <- runAllMethods(counts)
 
     # Generating an output plot for this simulation.
     pdf(paste0(stub, ".pdf"))
     par(mar=c(5.1,5.1,4.1,1.1))
-    returned <- numeric(length(output))
-    names(returned) <- names(output)
+    collected <- vector("list", length(output))
+    names(collected) <- names(output)
     for (x in names(output)) {
-        r2 <- makeSFPlot(output[[x]], truth, main=x)
-        returned[[x]] <- r2
+        out <- makeSFPlot(output[[x]], truth, main=x)
+        collected[[x]] <- out["non-DE"]
     }
     dev.off()
 
-    # Printing out some stats.
-    write.table(data.frame(Method=names(returned), Ncells=ncells, R2=unlist(returned)),
-                file=paste0(stub, ".tab"), sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)                               
+    # Writing summary statistics to table.
+    stats <- do.call(cbind, collected)
+    write.table(file=fout, data.frame(Mode=mode, Ncells=ncells, format(stats, digits=3)),
+                append=is.there, quote=FALSE, sep="\t", col.names=!is.there, row.names=FALSE)
+    is.there <- TRUE
 
 ###### END INDENTING ######
 

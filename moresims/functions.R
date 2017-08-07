@@ -39,11 +39,19 @@ makeSFPlot <- function(sf, truth, is.de=NULL, main="", col="black") {
          col=col[shuffle], cex.axis=1.5, cex.lab=1.8, main=main, cex.main=1.8)
     abline(0, 1, col="red")
 
-    DE.err <- 2^sqrt(mean(resids[is.de]^2))-1
-    err.formatted <- format(round(DE.err*100, 1), nsmall=1)
+    if (!is.null(is.de)) {
+        non.DE.err <- 2^sqrt(mean(resids[-is.de]^2))-1
+        DE.err <- 2^sqrt(mean(resids[is.de]^2))-1
+        err.all <- c("non-DE"=non.DE.err, "DE"=DE.err)
+    } else {
+        non.DE.err <- 2^sqrt(mean(resids^2))-1
+        err.all <- c("non-DE"=non.DE.err)
+    }
+    err.formatted <- format(round(err.all*100, 1), nsmall=1)
+
     legend("topleft", bty="n", cex=1.2,
-           legend=paste0("DE error = ", err.formatted, "%"))
-    return(DE.err)
+           legend=paste0(names(err.formatted), " error = ", err.formatted, "%"))
+    return(err.all)
 }
 
 runAllMethods <- function(counts) {
