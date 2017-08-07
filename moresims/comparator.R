@@ -3,7 +3,11 @@
 
 library(viridis)
 inspector <- function(blah, split.levels, to.compare) {
-    f <- do.call(paste, c(blah[split.levels], sep=", "))
+    all.f <- vector("list", length(split.levels))
+    for (fi in seq_along(split.levels)) {
+        all.f[[fi]] <- paste(split.levels[fi], "=", blah[,split.levels[fi]])
+    }
+    f <- do.call(paste, c(all.f, sep=", "))
     by.f <- split(blah, f)
 
     for (x in names(by.f)) {
@@ -15,9 +19,7 @@ inspector <- function(blah, split.levels, to.compare) {
         # Determine balance by colour, number of DE genes by size.
         if ("Up" %in% names(current)) { 
             balance <- factor(current$Up - current$Down)
-            mid <- which(levels(balance)=="0")
-            ncols <- max(nlevels(balance)-mid, mid-1L)*2+1L
-            col <- viridis(ncols)[balance]
+            col <- viridis(nlevels(balance))[balance]
             num.de <- factor(current$Up + current$Down)
             effect.size <- factor(current$Effect)
         } else {
@@ -45,4 +47,13 @@ dev.off()
 
 pdf("results_biDE/summary_deconv_vs_clust.pdf")
 inspector(blah, c("Mode", "Ncells"), c("Deconv", "Deconv.clust"))
+dev.off()
+
+blah <- read.table("results_multiDE/summary.txt", header=TRUE, stringsAsFactors=FALSE)
+pdf("results_multiDE/summary_deconv_vs_lib.pdf")
+inspector(blah, c("Mode", "Overlap"), c("Lib", "Deconv"))
+dev.off()
+
+pdf("results_multiDE/summary_deconv_vs_clust.pdf")
+inspector(blah, c("Mode", "Overlap"), c("Deconv", "Deconv.clust"))
 dev.off()
