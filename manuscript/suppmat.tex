@@ -117,12 +117,6 @@ $^3$Wellcome Trust Sanger Institute, Wellcome Genome Campus, Hinxton, Cambridge 
     }
 \end{figure}
 
-% The away-from-unity bias with library size-adjusted pseudo counts requires some explanation.
-% Consider what happens when you repeat this simulation with a constant mean across all genes (i.e., take the average of the Gamma)
-% Furthermore, after you add the pseudo-count, use that mean as the geometric mean in estimateSizeFactorsForMatrix to keep things simple.
-% You end up with discrete size factors that start below the equality line (because the median is at a zero count) but hop above the line (median at 1) as the size factor increases.
-% When you have a range of means, this gets smoothed out as the variable denominator smooths out the transitions between 0 and 1.
-% Nonetheless, the principle remains whereby the discreteness of the jump from zero to one causes the estimate to increase faster than the true value.
 
 \revised{\section{Justifying the choice of pooling strategy}
 The performance of a ring arrangement and sliding window can be compared to selection of random pools of cells.
@@ -203,26 +197,6 @@ With more cells, the sum of the errors $\theta_j - \tilde\theta_j$ will approach
 This means that the minimum residual sum of squares will be obtained at $x=0$, i.e., solving the linear system will yield the true values of the size factors.
 Thus, the additional equations will not affect accurate estimation of the size factors in the deconvolution method.
 
-% For the larger example, replace 'x' with 'a' for the first column, 'b' for the second, and so on, until the 20th column, where we add the negative sum of 'a', 'b', etc.
-% If we formulate the same RSS equation and take the partial derivative, we find that the minimum for each expression is at a negative scaled sum of all other parameters.
-% (Plus the difference between the direct estimates and the true values, which has an expected value of zero anyway.)
-% This only has a solution when all parameters are equal to zero, due to the non-unity scaling; so the logic above still applies.
-% Note that, because we split it into 19 parameters (+1 for the negative sum of everyone), each 'J' set will be of size 10.
-% Similarly, the 1/4 at the start will become 1/20 as you'll add up 20 'a^2' terms.
-% Thus, the value of 'a' will converge to 0 with increasing size of 'J', as the sum will be divided by the number of cells in 'J'.
-%
-% I also realized that, in practice, the direct estimator will not be entirely unbiased for UMI data as there's too many zeros.
-% In such cases, the median '\tilde\theta_j\' will (almost always) be equal to zero if there's more than 50% zeroes.
-% Fortunately, 'x' will still approach zero if the mean of theta_j in J_1 is equal to the mean of theta_j in J_2.
-% J_1 should always be of equal size to J_2, as for every addition of 'x' you'll need a subtraction of 'x' somewhere else to maintain the infinite solutions. 
-% And, given that the elements of J_1 and J_2 are evenly distributed around the ring, there shouldn't be any systematic differences in the mean size factors between sets.%
-% The same logic applies for any pool size and number of cells that are not coprime.
-% The number of variables that need to rely on the above expectation result is equal to the GCD minus 1.
-% More generally, this is equal to the number of unestimable coefficients, i.e., the difference between the number of cells and the column rank of the matrix.
-% This motivates the use of multiple pool sizes, which should reduce the number of unestimable coefficients (and increase each J, thus improving precision).
-% For example, with a single pool size of 20 you'll have 19 unestimable coefficients, whereas with pool sizes from 20 to 100 (going up by 5), it drops to 4.
-% Admittedly, it is rather odd that a system with three cells and a pool size of 2 is solvable, while a system with four cells is not.
-
 \section{Implementation details of the clustering approach}
 Let $\rho_{xy}$ denote Spearman's rank correlation coefficient between the counts of cells $x$ and $y$.
 We define the distance between these cells as $1-\rho_{xy}$.
@@ -234,11 +208,6 @@ Correlation-based clustering is appealing as it is insensitive to global scaling
 Prior normalization is not required, which avoids a circular dependence between normalization and clustering.
 Alternatively, one can use known aspects of the data set as clusters, e.g., groupings, batches.
 Empirical clustering may not be required if such information is available, which reduces computational work and reduces the potential for errors.
-
-% While PCA does mean-centering of each gene, this is probably unwise for correlation-based clustering. 
-% Two cells that are similar to the mean expression profile will have uncorrelated residuals and would appear to be unrelated. 
-% The correct correlation should be near unity as their expression values would match up perfectly. 
-% Use of uncentered counts is also easier to interpret and ensures insensitivity to normalization.
 
 By default, the baseline pseudo-cell is chosen from the cluster where the mean library size per cell is equal to the median of the mean library size across all clusters
     (or, for an even number of clusters, the cluster with the smallest mean library size above the median).
@@ -556,11 +525,6 @@ These MADs ranged from 0.007 to 0.021 for TMM normalization (using the interquar
 In contrast, the MAD of the log-transformed true size factors across cells was 0.39. 
 This indicates that the estimation error of each size factor is small relative to the variability of the size factors across cells.
 }
-
-% The low MAD for DESeq is probably because of its inaccuracy, where the size factors are constrained by discreteness.
-% At higher counts, DESeq and deconvolution approach the same precision, which makes sense as they are computed in basically the same manner.
-% Library size normalization is most efficient at using information but obviously is only applicable when there is no DE.
-% We can increase precision for deconvolution by using more fine-grained sizes (set sizes=2:10*10 in standerr.R), but this comes at the cost of computational work.
 
 \revised{\subsection{Deconvolution outperforms existing methods on real data}      
 The above framework was applied to assess the performance of each existing method compared to the deconvolution method on real data.

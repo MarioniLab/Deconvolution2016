@@ -332,9 +332,6 @@ These genes may contain information about the relative differences between cells
 We also define semi-systematic zeroes where the gene is silent in a cell subpopulation but is expressed in other cells.
 This results in zeroes for the silent subpopulation but non-zero counts elsewhere, thus providing information about the differences between subpopulations.
 
-% Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
-% In bulk, you'd expect some contamination so the count would unlikely to be exactly zero.
-
 \subsubsection*{A brief description of existing non-spike-in methods}
 Here, we only consider normalization methods that do not require spike-in data.
 This is motivated by the desire to obtain a general method that can be applied to all data sets.
@@ -411,38 +408,6 @@ Zero counts were removed prior to or during DESeq and TMM normalization -- see M
 The true size factor for each cell is $\theta_j$, as it represents the extent of scaling required to remove the cell-specific bias.
 Estimated size factors from each method were then compared to their true values.
 
-% The alternative approaches would be to use the arithmetic mean (for DESeq) or to remove a gene entirely if it contains any zeroes.
-% The former still results in biases, as a majority of zeroes in each cell means that cell-specific zeroes must be removed.
-% The latter leaves us with a set of high-abundance genes from which the size factor is computed.
-% This makes the non-DE assumption stronger; everything else being equal, it's easier to get a majority in a small set than a larger one.
-%
-% One could argue that the high-abundance genes are more likely to be house-keeping genes.
-% However, that doesn't make them non-DE, especially when you throw in biological variability and coregulation driving systematic differences between cells.
-% Finally, it's not a sustainable strategy, as the set of non-zero genes will decrease with an increasing number of cells.
-% This will leave you with very few genes -- possibly in the double-digits -- which exacerbates the problem above.
-%
-% Indeed, completely removing genes with any zero can directly bias the size factor estimates.
-% This is because you are more likely to select genes that are upregulated in cells with small size factors, in order to avoid zeroes.
-% This results in overestimation of the size factors for such cells:
-%
-%   means <- cbind(matrix(1, nrow=1000, ncol=20), matrix(2, nrow=1000, ncol=20))
-%   means[1:50, 1:20] <- 10 # Upregulated gene
-%   counts <- matrix(rnbinom(length(means), mu=means, size=20), nrow=nrow(means), ncol=ncol(means))
-%   nonzero <- rowSums(counts==0)==0
-%   sf <- DESeq2::estimateSizeFactorsForMatrix(counts[nonzero,])
-%   plot(means[51,], sf)
-% 
-% Precision also drops with this strategy, which becomes relevant for the median-based estimator when you're dealing with few genes.
-% Pooling avoids the decrease in precision by allowing more genes to be used when computing the median.
-%
-%   means <- matrix(5, nrow=1000, ncol=50)
-%   counts <- matrix(rnbinom(length(means), mu=means, size=20), nrow=nrow(means), ncol=ncol(means))
-%   for (x in c(100, 200, 500, 1000)) { 
-%       nonzero <- rowSums(counts[1:x,]==0)==0
-%       sf <- DESeq2::estimateSizeFactorsForMatrix(counts[1:x,][nonzero,])
-%       print(mad(log(sf/1)))
-%   }
-
 \subsubsection*{Size factor estimates from existing methods are inaccurate}
 All methods yield size factors that systematically deviate from the true values (Figure~\ref{fig:existing_sim}).
 For DESeq and TMM normalization, large size factors are consistently underestimated while small size factors are overestimated.
@@ -455,11 +420,6 @@ This is because stochastic zeroes represent sampled values below some non-zero m
 Their removal increases the (trimmed) mean of M-values and biases the estimate of the TMM normalization factor.
 The converse applies to cells with large $\theta_j$.
 Recall that size factors have a relative interpretation across cells, so overestimation of small $\theta_j$ will lead to a concomitant underestimation for large $\theta_j$.
-
-% We don't need to consider undefined ratios (i.e., due to a zero in the denominator) in this explanation.
-% For DESeq, there are none, as all ratios are defined after the workaround.
-% For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
-% Thus, differences will be driven by zeroes in the numerator of the ratios.
 
 The presence of DE genes results in a further deterioration in performance of all methods (Figure~\ref{fig:existing_sim}).
 The divergence between the true and estimated size factors increases as the number of DE genes increases,
@@ -533,39 +493,6 @@ Denote the realizations of $Y_{ij}$, $V_{ik}$, $U_{i}$ and $R_{ik}$ as $y_{ij}$,
 The pool-based size factor $E(R_{ik})$ is estimated by taking a robust average (i.e., the median) of $r_{ik}$ across all genes, under the assumption that most genes are not DE between the pool and the average pseudo-cell.
 Robustness protects the average against a small number of DE genes with extreme ratios.}
 
-% The intuition is that when U_i doesn't vary much, it doesn't have much effect on the variability of the ratio, and can basically be considered as fixed.
-% We don't need to worry about correlations between V_ik and U_i when considering the quality of the approximation.
-% See the following: www.stat.cmu.edu/~hseltman/files/ratio.pdf, where E(V/U) ~= E(V)/E(U) - cov(V, U)/E(U)^2 + var(U)E(V)/E(U)^3
-% Yes, there's a covariance in the error term, but this will drop as the variance of U drops.
-% More precisely, we note that, in this setting, U=(V+X)/N where X is independent of V and represents all the other cells.
-% As a result, E(V/U) ~= E(V)/E(U) - cov(V, V+X)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
-% The error term then becomes: -var(V)/E(U)^2/N + var(V+X)E(V)/E(U)^3/N^2
-%                            = 1/E(U)^3/N^2 [ var(V+X)E(V) - N var(V) E(U) ]
-%                            = 1/E(U)^3/N^2 [ var(X)E(V) + var(X)E(V) - var(V)E(V) - var(V)E(X) ]
-%                            = 1/E(U)^3/N^2 [ var(X)E(V) - var(V)E(V) ]
-% Further assume that all cells are represented by random variable Y.
-% Let's say that V is made of a sum of P cells, which also means that X is made up of a sum of N-P cells.
-% Thus, E(V)=P E(Y), var(V) = P var(Y), E(X) = (N-P) E(Y) and var(X) = (N-P) var(Y).
-% The error term can then be broken down into: 
-%                              1/E(U)^3/N^2 [ (N-P)P E(Y)var(Y) - (N-P)P E(Y)var(Y) ] = 0
-% So the approximation is actually pretty good. I'm not even sure we need the LLN.
-
-% Another issue is with whether the expectation can be estimated with the median.
-% This should be the case for pooled counts, where the sum should approach normality (via CLT);
-% or, a NB distribution with increasing mean and decreasing dispersion such that the mean is close to the median.
-% This is one of the motivations for filtering beforehand, to get rid of genes with small means for which this approximation is unlikely to hold
-% (this would result in a biased estimate of E(R_ik), which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
-% Another way to interpret this is that low count, high dispersion genes will have highly variable R_ik.
-% This would decrease the precision _and_ accuracy of a median-based estimator.
-%
-% Of course, the main motivation is still to reduce the number of zeros. 
-% With just 20 cells, it's possible to have >95% randomly distributed zeros and still get a non-zero pooled size factor (0.95^20 < 0.5)
-% In practice, the effective/tolerable proportion of zeroes is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
-% Smaller cells will have more stochastic zeros anyway, but still; the equivalent failure point for DESeq would be 50%, which is clearly worse.
-%
-% I should point out that taking the median across genes is permissible because the expected value of R_ik doesn't actually depend on the gene (despite its notation).
-% Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
-
 \revised{Estimates of $E(R_{ik})$ from many pools} can be used to obtain \revised{an estimate of} $\theta_j$ for each individual cell.
 \revised{For each pool $k$, a} linear equation is set up based on the expression in Equation~\ref{eqn:linear_single}, 
 by replacing \revised{$E(R_{ik})$} with its estimate and treating the $\theta_j t_j^{-1}$ \revised{for $j \in \mathcal{S}_k$} as unknown parameters.
@@ -612,14 +539,6 @@ Specifically, values of $w$ are set to 20, 40, 60, 80 and 100 by default.
 These are large enough to obtain stable sums yet small enough to maintain resolution, i.e., by ensuring that cells with very different library sizes are not summed together.
 This increases the total number of equations in the system and means that each $\theta_j$ is represented in 300 equations. 
 
-% The different pool sizes probably help due to the inefficiency of the median estimator, such that even nested pools provide extra information.
-% To a smaller extent, the smaller pools mitigate errors from pooling together cells with very different size factors.
-% The larger pools also help for very low counts where the smaller pools might not be accurate with respect to the median-based estimator (or have too many zeroes).
-% Larger counts also result in more precise ratios, which obviously helps with reducing the error from the median estimate.
-% See standerr.Rout where the estimates with all pool sizes are less variable than just those with large or small pools.
-% (Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.)
-% Also see my thoughts on how using multiple pools increases column rank and reduces imprecision due to unestimable coefficients.
-
 An additional set of equations is added to ensure that the system is solvable.
 In each \revised{additional} equation, the $\theta_jt_j^{-1}$ for each cell is equated to its size factor estimate, obtained by directly normalizing the single-cell counts against the average reference.
 These equations are assigned very low weights compared to those of the other equations involving summed cells, equal to $10^{-6}$ (though any small value can be used) and unity respectively.
@@ -629,19 +548,6 @@ This ensures that a single solution can be obtained.
 Due to their low weights, the additional equations will not contribute substantially to the weighted least-squares solution.
 This means that the estimated values will be driven primarily by the equations for the summed cells.
 See Section~\supplineardep{} in Additional file~1 for a more detailed discussion of the effect of these additional equations on the system.
-
-% In theory, we should also weight on the number of cells in each pool, as size factors for larger pools are more variable with larger counts and should be downweighted.
-% One can imagine that each cell-specific size factor has some estimation variance, so the variance of the pool size factor would equal the sum of variances for its cells.
-% Weighting will give a more accurate estimate of the standard error, but for some reason, has little effect on the precision of the size factor estimates themselves. 
-% This is probably because the residuals are correlated across equations, due to the fact that the pooled size factors are computed from the same counts.
-% For example, if the residuals were perfectly correlated, the relative weighting of the equations wouldn't matter as the system is overdetermined and consistent.
-% Precision weights would also favour pools with few cells that are less likely to give accurate pool-based size factors due to zeroes and discreteness.
-%
-% Note that least-squares doesn't require normality or independence in the response variables in this application.
-% It should still give correct results for non-normal distributions in the pool-based size factors, and for correlations between equations.
-% Solving the system just involves fiddling with linear equations to obtain an estimate for each cell-based size factor.
-% For linear combinations, the expected value of each estimate should not be affected by the distribution or correlations.
-% However, the standard error will be affected, which is probably why we shouldn't be estimating the standard error from this model.
 
 \subsubsection*{Obtaining sensible least-squares solutions}
 The linear system can be solved using standard methods such as those based on the QR decomposition.
@@ -653,11 +559,6 @@ Some protection is provided by using linear inverse models in the limSolve packa
 This will not provide sensible estimates for the offending cells 
     -- these will have size factors of zero and should be removed by the user prior to further analysis, as they are likely to represent low-quality libraries 
     -- but will ensure that the estimates for other cells are not distorted by negative values elsewhere in the system.
-
-% Sporadic negative size factors arise from low-quality cells with true size factors near zero.
-% These are most obviously handled by just filtering those low-quality cells out, e.g., if they do not express many genes.
-% If you see a large number of negative size factors, these are probably due to failure to filter out low-abundance genes.
-% This results in all cells getting median expression values of zero.
 
 The value of $t_j$ is set to the observed library size for each cell.
 This ensures that the sum \revised{$v_{ik}$} is not dominated by a small number of very large libraries.
@@ -679,11 +580,6 @@ This condition generally requires a proportion of genes to be constantly express
     and is only guaranteed to be true when that proportion is equal to or greater than 50\% of all genes.
 This is similar to that required for DESeq normalization where an average reference is also used.
 
-% Specifically, the average expression will include some contribution from DE for each gene.
-% This means that the ratio of pool sum to average would no longer solely represent bias, as it would also include some arbitrary DE from cells in and out of the pool.
-% The only situation in which it would be okay is if the amount of DE is the same for each gene, such that the relative size factors are unchanged.
-% However, this seems like it would be unlikely.
-
 To reduce the strength of the non-DE assumption, cells can be clustered based on their expression profiles.
 The deconvolution method is then applied to the cells in each cluster $\mathcal{C}$ separately,
     where the sets $\mathcal{S}_k$ are nested within each $\mathcal{C}$.
@@ -695,15 +591,6 @@ This is done by selecting a single ``baseline'' pseudo-cell against which all ot
 The median ratio $\tau_{\mathcal{C}}$ of the expression values is computed for the pseudo-cell of each cluster against the baseline pseudo-cell
     (obviously, the cluster chosen as the baseline will have $\tau_{\mathcal{C}}=1$).
 The \revised{final} size factor for cell $j$ in cluster $\mathcal{C}$ is subsequently defined as $f_{j}\tau_{\mathcal{C}}$.
-
-% This is justified by considering that the within-cluster normalization removes biases between each cell and the cluster-specific pseudo cell.
-% The $\tau$ represents the scaling between pseudo-cells of different clusters, to remove systematic biases between clusters.
-% Thus, by scaling all size factors by $\tau$, you eliminate differences between the cluster-specific pseudo cells.
-% This effectively means that all cells in all clusters are, now, scaled to the same pseudo cell.
-%
-% In more detail, the cluster-based re-scaling technically refers to the normalization factors with the library size-adjusted expression values.
-% However, you would end up multiplying by the library size of each cell anyway to obtain the size factors.
-% There is no harm in multiplying by the library size first, and then scaling by $\tau$, given that the former has no effect on the calculation on the latter.
 
 The use of within-cluster normalization reduces the amount of DE between cells, as all cells in each cluster have similar expression profiles.
 This avoids inaccurate estimation of the \revised{cluster-specific} size factors due to violations of the non-DE assumption \revised{during deconvolution}.
