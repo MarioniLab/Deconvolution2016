@@ -1,7 +1,7 @@
 # The origin of zero counts in scRNA-seq data
 
 Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
-In bulk, you'd expect some contamination so the count would unlikely to be exactly zero.
+In bulk, you'd expect some contamination so the count would unlikely to be exactly zero in any particular sample.
 
 # Size factor estimates from existing methods are inaccurate 
 
@@ -146,6 +146,20 @@ These are most obviously handled by just filtering those low-quality cells out, 
 If you see a large number of negative size factors, these are probably due to failure to filter out low-abundance genes.
 This results in all cells getting median expression values of zero.
 
+# Choosing an independent filter statistic
+
+The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
+However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
+Genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
+This would potentially inflate the size factors for the smaller cells.
+
+The only way to ensure independence would be to use a count-based model, but this is very unattractive given the need to estimate the dispersion.
+In any case, the library size-adjusted average is probably better than the direct average, which puts too much weight on counts from cells with large library sizes.
+Very small cells cause problems anyway and should have already been removed, while there's less we can do about the large cells.
+
+In practice, the choice of filtering strategy doesn't have a large impact, probably because the density of genes at the filter boundary is relatively low in RNA-seq data.
+We also use a robust estimator of the size factor to protect against DE.
+
 # Clustering to weaken the non-DE assumption
 
 ## When is the assumption violated?
@@ -178,8 +192,8 @@ There is no harm in multiplying by the library size first, and then scaling by $
 ## Performance of DESeq normalization after addition of a pseudo-count
 
 The away-from-unity bias with library size-adjusted pseudo counts requires some explanation.
-Consider what happens when you repeat this simulation with a constant mean across all genes (i.e., take the average of the Gamma)
-Furthermore, after you add the pseudo-count, use that mean as the geometric mean in estimateSizeFactorsForMatrix to keep things simple.
+Consider what happens when you repeat this simulation with a constant mean across all genes (i.e., take the average of the Gamma).
+Furthermore, after you add the pseudo-count, use that mean as the geometric mean in `estimateSizeFactorsForMatrix` to keep things simple.
 You end up with discrete size factors that start below the equality line (because the median is at a zero count) but hop above the line (median at 1) as the size factor increases.
 When you have a range of means, this gets smoothed out as the variable denominator smooths out the transitions between 0 and 1.
 Nonetheless, the principle remains whereby the discreteness of the jump from zero to one causes the estimate to increase faster than the true value.
