@@ -124,6 +124,19 @@ With just 20 cells, it's possible to have >95% randomly distributed zeros and st
 In practice, the effective/tolerable proportion of zeroes is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
 Smaller cells will have more stochastic zeros anyway, but still; the equivalent failure point for DESeq would be 50%, which is clearly worse.
 
+## Why use library size-sorted ring
+
+The main reason for sorting by library size is actually different to that described.
+Specifically, cells with small library size will have more discrete counts and low $t_j$.
+This results in large, discrete $Z_{ij}$ values after library size adjustment.
+To improve the precision of the median ratio estimate, we need to reduce discreteness, and this can only be done by adding together values of similar size.
+This motivates the use of the library size-sorted ring to group cells with similar levels of discreteness together.
+
+There is no point adding smaller, continuous $Z_{ij}$ from large cells, as the discreteness will effectively manifest as DE and skew the pooled size factor estimate.
+Indeed, randomly scattering these cells around the ring will reduce the accuracy of all cells, large and small.
+It's not just a matter of the small cells having larger variance.
+If it were, one would expect that random placement would actually improve the accuracy of small cells (as they get pooled with the more precise large cells).
+
 ## The residual variance has no meaning here
 
 In theory, we should also weight on the number of cells in each pool, as size factors for larger pools are more variable with larger counts and should be downweighted.
@@ -192,12 +205,16 @@ There is no harm in multiplying by the library size first, and then scaling by $
 
 ## Performance of DESeq normalization after addition of a pseudo-count
 
-The away-from-unity bias with library size-adjusted pseudo counts requires some explanation.
-Consider what happens when you repeat this simulation with a constant mean across all genes (i.e., take the average of the Gamma).
-Furthermore, after you add the pseudo-count, use that mean as the geometric mean in `estimateSizeFactorsForMatrix` to keep things simple.
-You end up with discrete size factors that start below the equality line (because the median is at a zero count) but hop above the line (median at 1) as the size factor increases.
-When you have a range of means, this gets smoothed out as the variable denominator smooths out the transitions between 0 and 1.
-Nonetheless, the principle remains whereby the discreteness of the jump from zero to one causes the estimate to increase faster than the true value.
+The flipped away-from-unity bias with library size-adjusted pseudo counts is an interesting effect.
+This is probably caused by the lack of precision of the median-based estimator, especially when it is occurring at a count that was originally zero.
+For simplicity, assume that the library size is the true size factor, so that the ratio of each gene's mean count to the average reference would be a perfect estimate.
+(This is true even with addition of a pseudo count, due to the library size adjustment.)
+However, the median ratio for each cell will be lower than the expected ratio if it is computed from a count that was originally zero.
+This results in underestimation of the size factor for small cells, and concomitant overestimation for the large cells after centering.
+We get a smooth line rather than a sharp jump from zero to 1, as the ratio will steadily increase due to the prior count. 
+
+Obviously, this is a moot point as it depends on the library size being an accurate estimate of the size factor.
+This won't be true with DE, which is the entire point of using alternative normalization procedures in the first place.
 
 ## Resolving linear dependencies in the constructed system
 

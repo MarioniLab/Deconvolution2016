@@ -25,7 +25,7 @@ exprs <- exprs[keep,,drop=FALSE]
 
 size <- 20L
 sphere <- scran:::.generateSphere(lib.sizes)
-out <- scran:::.create_linear_system(exprs, sphere, size, use.ave.cell)
+out <- scran:::.create_linear_system(exprs, sphere=sphere, pool.sizes=size, ave.cell=use.ave.cell)
 
 design <- as.matrix(out$design)
 output <- out$output
@@ -34,7 +34,7 @@ est <- solve(qr(design), output) * lib.sizes
 # Trying with the opposite case, where everyone is mixed together.
 sphere <- sample(ncells)
 sphere <- as.integer(c(sphere, sphere))
-out2 <- scran:::.create_linear_system(exprs, sphere, size, use.ave.cell)
+out2 <- scran:::.create_linear_system(exprs, sphere=sphere, pool.sizes=size, ave.cell=use.ave.cell)
 
 design2 <- as.matrix(out2$design)
 output2 <- out2$output
