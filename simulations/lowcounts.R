@@ -106,12 +106,12 @@ for (scenario in 1:4) {
     make.plot(lib.sf, true.facs, paste0("lib_", scenario), main="Library size")
 
     # Size factors with summation:
-    final.sf <- computeSumFactors(counts, clusters=NULL)
+    final.sf <- computeSumFactors(counts, clusters=NULL, min.mean=0)
     make.plot(final.sf, true.facs, paste0("sum_", scenario), main="Deconvolution")
 
     # Size factors with clustering prior to summation:
     emp.clusters <- quickCluster(counts)
-    final2.sf <- computeSumFactors(counts, clusters=emp.clusters)
+    final2.sf <- computeSumFactors(counts, clusters=emp.clusters, min.mean=0)
     make.plot(final2.sf, true.facs, paste0("sumClust_", scenario), main="Deconvolution with clustering")
 }
 
