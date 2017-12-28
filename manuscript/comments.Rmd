@@ -98,6 +98,15 @@ So the approximation is actually pretty good. I'm not even sure we need the LLN.
 Another issue is with whether the expectation can be estimated with the median.
 This should be the case for pooled counts, where the sum should approach normality (via CLT);
 or, a NB distribution with increasing mean and decreasing dispersion such that the mean is close to the median.
+This seems to be the case even at low means with the smallest pool size:
+
+```{r}
+ngenes <- 10000
+true.means <- rgamma(ngenes, 2, 2)
+dispersions <- 0.1
+blah <- matrix(rnbinom(ngenes*20, mu=true.means, size=1/dispersions), nrow=ngenes)
+hist(rowSums(blah)/true.means)
+```
 
 This is one of the motivations for filtering beforehand, to get rid of genes with small means for which this approximation is unlikely to hold
 (this would result in a biased estimate of $E(R_{ik})$, which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
@@ -133,6 +142,7 @@ To improve the precision of the median ratio estimate, we need to reduce discret
 This motivates the use of the library size-sorted ring to group cells with similar levels of discreteness together.
 
 There is no point adding smaller, continuous $Z_{ij}$ from large cells, as the discreteness will effectively manifest as DE and skew the pooled size factor estimate.
+In other words, convergence to a normal distribution or low-dispersion NB distribution would be compromised.
 Indeed, randomly scattering these cells around the ring will reduce the accuracy of all cells, large and small.
 It's not just a matter of the small cells having larger variance.
 If it were, one would expect that random placement would actually improve the accuracy of small cells (as they get pooled with the more precise large cells).
