@@ -163,12 +163,18 @@ This results in all cells getting median expression values of zero.
 
 The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
 However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
-Genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
+Non-DE genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
 This would potentially inflate the size factors for the smaller cells (equivalent to the problem encountered when picking genes with all non-zero counts).
 
 The only way to ensure independence would be to use a count-based model, but this is very unattractive given the need to estimate the dispersion.
 In any case, the library size-adjusted average is probably better than the direct average, which puts too much weight on counts from cells with large library sizes.
-Very small cells cause problems anyway and should have already been removed, while there's less we can do about the large cells.
+Very small cells cause problems anyway and should have already been removed, which mitigates the problems with having too much weight on small cells.
+In contrast, we can't really remove the large cells, so excess weight on them would be an issue.
+
+The fact that the library size may not be equal to the size factor is not an issue.
+For non-DE genes, the library-size adjusted expected count should be $s_j\mu/t_j$, which allows us to factorize out $\mu$.
+This means that the ordering of non-DE genes should be preserved in the library size-adjusted average.
+The only issue is whether the library size adjustment gives too much or too little weight to some cells, which we have already discussed above.
 
 In practice, the choice of filtering strategy doesn't have a large impact, probably because the density of genes at the filter boundary is relatively low in RNA-seq data.
 Stochastic changes in expression are also less likely to be a problem with large numbers of cells that stabilize the average.
