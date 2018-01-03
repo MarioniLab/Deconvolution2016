@@ -159,7 +159,9 @@ These are most obviously handled by just filtering those low-quality cells out, 
 If you see a large number of negative size factors, these are probably due to failure to filter out low-abundance genes.
 This results in all cells getting median expression values of zero.
 
-# Choosing an independent filter statistic
+# Comments on filtering 
+
+## Choosing an independent filter statistic
 
 The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
 However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
@@ -168,11 +170,60 @@ This would potentially inflate the size factors for the smaller cells (equivalen
 
 The only way to ensure independence would be to use a count-based model, but this is very unattractive given the need to estimate the dispersion.
 In any case, the library size-adjusted average is probably better than the direct average, which puts too much weight on counts from cells with large library sizes.
+(We used the raw average in the manuscript because we didn't know any better at this point.)
 Very small cells cause problems anyway and should have already been removed, while there's less we can do about the large cells.
 
 In practice, the choice of filtering strategy doesn't have a large impact, probably because the density of genes at the filter boundary is relatively low in RNA-seq data.
 Stochastic changes in expression are also less likely to be a problem with large numbers of cells that stabilize the average.
 We also use a robust estimator of the size factor to protect against DE.
+
+## Filtering to protect the median
+
+As discussed before, low counts are problematic for median-based normalization.
+This is because the count:mean ratios are less precise and the median is not accurate estimator of the mean.
+Consider the following simulation, where we compute the median for 10000 low-abundance genes, and calculate its expectation and variance.
+
+```{r}
+set.seed(100)
+ngenes <- 10000
+niter <- 100
+vals <- list()
+for (it in seq_len(20)) {
+    lambda <- it/4
+    y <- matrix(rpois(ngenes*niter, lambda=lambda), ncol=ngenes)
+    rat <- y/rowMeans(y)
+    meds <- apply(rat, 1, median)
+    vals[[it]] <- c(lambda, mean(meds), sd(meds))
+}
+vals <- do.call(rbind, vals)
+```
+
+You can see that at counts below 2, the estimation error from using the median is pretty bad (exceeding 20% from the expected value of unity).
+It's at a similar point that the variance of the estimator also increases, though the bias is the major contributor here,
+Obviously you can expect that this will get even worse for overdispersed data where both the variance and bias are likely to increase.
+
+```{r, fig.width=10, fig.height=6}
+par(mfrow=c(1,2))
+plot(vals[,1], vals[,2], xlab="Lambda", ylab="Expected median ratio")
+plot(vals[,1], vals[,3], xlab="Lambda", ylab="Standard deviation")
+```
+
+In the deconvolution method, you can consider the threshold multiplied by the minimum pool size (20 cells by default) as the minimum pooled count.
+This gives us pooled counts of around `20*1` for read data, which should be large enough to avoid the above problems for NB dispersions below 0.5.
+For UMI data, we get pooled counts of `20*0.1` -- however, the variability is near-Poisson anyway, so variability and bias in the ratio should be okay.
+Any biases are probably tolerable if the data set is dominated by genes in the the high-abundance peak.
+(They may also cancel out to some extent, given that the bias fluctuates in the plot above).
+
+## Filtering within and between clusters
+
+It makes sense to perform filtering within each cluster rather than doing it globally, as this ensures that deconvolution is operating on appropriately high-abundance genes.
+Otherwise, the choice of genes would be skewed by larger clusters, and such genes may not be expressed to an appropriate level in other clusters.
+Thus, `computeSumFactors` will filter by the chosen minimum mean within each specified cluster.
+
+When normalizing between clusters, we only use the genes where the _grand mean of the means_ across the two clusters is greater than the specified threshold.
+This is a better choice than the mean across all cells, or the mean across all cells of the two clusters, as the grand mean is insensitive to the cluster sizes.
+Thus, we are less likely to enrich for DE genes that are upregulated in the larger cluster.
+(In contrast, we're more likely to select balanced DE.)
 
 # Clustering to weaken the non-DE assumption
 
