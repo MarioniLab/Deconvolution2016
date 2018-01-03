@@ -98,6 +98,15 @@ So the approximation is actually pretty good. I'm not even sure we need the LLN.
 Another issue is with whether the expectation can be estimated with the median.
 This should be the case for pooled counts, where the sum should approach normality (via CLT);
 or, a NB distribution with increasing mean and decreasing dispersion such that the mean is close to the median.
+This seems to be the case even at low means with the smallest pool size:
+
+```{r}
+ngenes <- 10000
+true.means <- rgamma(ngenes, 2, 2)
+dispersions <- 0.1
+blah <- matrix(rnbinom(ngenes*20, mu=true.means, size=1/dispersions), nrow=ngenes)
+hist(rowSums(blah)/true.means)
+```
 
 This is one of the motivations for filtering beforehand, to get rid of genes with small means for which this approximation is unlikely to hold
 (this would result in a biased estimate of $E(R_{ik})$, which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
@@ -133,6 +142,7 @@ To improve the precision of the median ratio estimate, we need to reduce discret
 This motivates the use of the library size-sorted ring to group cells with similar levels of discreteness together.
 
 There is no point adding smaller, continuous $Z_{ij}$ from large cells, as the discreteness will effectively manifest as DE and skew the pooled size factor estimate.
+In other words, convergence to a normal distribution or low-dispersion NB distribution would be compromised.
 Indeed, randomly scattering these cells around the ring will reduce the accuracy of all cells, large and small.
 It's not just a matter of the small cells having larger variance.
 If it were, one would expect that random placement would actually improve the accuracy of small cells (as they get pooled with the more precise large cells).
@@ -165,13 +175,19 @@ This results in all cells getting median expression values of zero.
 
 The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
 However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
-Genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
+Non-DE genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
 This would potentially inflate the size factors for the smaller cells (equivalent to the problem encountered when picking genes with all non-zero counts).
 
 The only way to ensure independence would be to use a count-based model, but this is very unattractive given the need to estimate the dispersion.
 In any case, the library size-adjusted average is probably better than the direct average, which puts too much weight on counts from cells with large library sizes.
 (We used the raw average in the manuscript because we didn't know any better at this point.)
-Very small cells cause problems anyway and should have already been removed, while there's less we can do about the large cells.
+Very small cells cause problems anyway and should have already been removed, which mitigates the problems with having too much weight on small cells.
+In contrast, we can't really remove the large cells, so excess weight on them would be an issue.
+
+The fact that the library size may not be equal to the size factor is not an issue.
+For non-DE genes, the library-size adjusted expected count should be $s_j\mu/t_j$, which allows us to factorize out $\mu$.
+This means that the ordering of non-DE genes should be preserved in the library size-adjusted average.
+The only issue is whether the library size adjustment gives too much or too little weight to some cells, which we have already discussed above.
 
 In practice, the choice of filtering strategy doesn't have a large impact, probably because the density of genes at the filter boundary is relatively low in RNA-seq data.
 Stochastic changes in expression are also less likely to be a problem with large numbers of cells that stabilize the average.
