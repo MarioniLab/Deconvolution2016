@@ -268,6 +268,49 @@ In more detail, the cluster-based re-scaling technically refers to the normaliza
 However, you would end up multiplying by the library size of each cell anyway to obtain the size factors.
 There is no harm in multiplying by the library size first, and then scaling by $\tau$, given that the former has no effect on the calculation on the latter.
 
+Or in other words; the aim of the normalization is to remove systematic differences in coverage.
+Conceptually, it doesn't matter whether you do this all at once, or remove differences within clusters first followed by removing differences between clusters.
+The end result is still the same, i.e., differences are removed.
+By comparison, pre-processing methods that use clustering to preserve differences in some manner (e.g., imputation) are inherently more suspect,
+due to circularity when used with downstream clustering.
+
+## Effects of clustering
+
+We can evaluate the sensitivity of the results on the clustering, simply by requesting more or less refined clusters.
+Using the brain dataset from the _simpleSingleCell_ workflow as an example, we see that the algorithm is mostly robust to the number of clusters.
+Correlations between size factor estimates with different numbers of clusters are clearly higher than those with the library size.
+This is consistent with the robustness of the method to DE within each set of cells used for deconvolution.
+
+```{r}
+library(scran)
+sce <- readRDS("brain_data.rds")
+
+# Default.
+clust1 <- quickCluster(sce, min.mean=0.1, method="igraph")
+table(clust1)
+sizefacs1 <- computeSumFactors(sce, clusters=clust1, min.mean=0.1, sf.out=TRUE)
+plot(log2(sizefacs1), log2(colSums(counts(sce))))
+
+# More clusters by reducing the number of neighbors.
+clust2 <- quickCluster(sce, min.mean=0.1, k=5, method="igraph")
+table(clust2)
+sizefacs2 <- computeSumFactors(sce, clusters=clust2, min.mean=0.1, sf.out=TRUE)
+plot(log2(sizefacs1), log2(sizefacs2))
+
+# Fewer clusters by increasing the number of neighbours.
+clust3 <- quickCluster(sce, min.mean=0.1, k=20, method="igraph")
+table(clust3)
+sizefacs3 <- computeSumFactors(sce, clusters=clust3, min.mean=0.1, sf.out=TRUE)
+plot(log2(sizefacs1), log2(sizefacs3))
+```
+
+Our reasoning suggests that overclustering would be ideal for minimizing the DE between cells to be pooled.
+This is true enough, provided that sufficient cells are still present in each cluster for pooling.
+A more subtle effect is there will be more all-zero and low-abundance genes in each cluster, due the structure of the semi-systematic zeroes.
+As such, it is important to re-filter _within_ each cluster to ensure that only informative genes are used during pooled size factor estimation.
+An even more subtle effect is that the cells are no longer strictly independent; cells that are stochastically similar are more likely to be placed in the same cluster.
+This weakens the convergence to normality via the CLT, though this would require very strong correlations between the majority of non-DE genes to have any impact.
+
 # Supplementary details
 
 ## Performance of DESeq normalization after addition of a pseudo-count
