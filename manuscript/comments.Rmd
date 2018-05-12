@@ -311,6 +311,32 @@ As such, it is important to re-filter _within_ each cluster to ensure that only 
 An even more subtle effect is that the cells are no longer strictly independent; cells that are stochastically similar are more likely to be placed in the same cluster.
 This weakens the convergence to normality via the CLT, though this would require very strong correlations between the majority of non-DE genes to have any impact.
 
+## Choosing the reference cluster
+
+It is tempting to think that we could use a nearest-neighbour strategy for rescaling.
+Namely, if clusters $A$, $B$, $C$ and $D$ lie on a straight line, it would make sense that we would rescale the closest clusters first, e.g., $A$ to $B$.
+We could then rescale $B$ to $C$, and then $C$ to $D$, taking advantage of the greater accuracy of median-based normalization when dealing with similar populations.
+
+The problem is that, when we rescale $B$ to $C$, we also have to re-rescale $A$ using the $B\to C$ scaling factor.
+This results in multiplicative errors that are almost as bad as rescaling $A$ to $C$ directly.
+To illustrate, let's assume a normal model for the log-fold changes between clusters.
+We can examine the error in using the median-based estimator as a function of the proportion of DE genes in one direction.
+
+```{r}
+p.de <- seq(0, 0.5, length.out=50)
+p.nde <- 1 - p.de
+error <- qnorm(p.nde * 0.5)
+plot(p.de, error)
+```
+
+We observe that it is effectively linear, meaning that the error at 20% DE genes is twice that at 10% DE genes.
+Consider a situation where $A$ and $B$ and $B$ and $C$ were separated by a different set of 10% DEGs.
+The error from double rescaling of $A\to B$ and $B\to C$ would be equivalent to the error from just rescaling from $A\to C$ directly.
+
+Of course, this is already the most optimistic scenario.
+Consider instead a situation where $A$, $B$ and $C$ are separated by the same set of 10% DE genes, of varying levels of expression in each cluster.
+Double rescaling would result in an effective 20% error from $A$ to $C$, even though a direct rescaling would only have 10%.
+
 # Supplementary details
 
 ## Performance of DESeq normalization after addition of a pseudo-count
