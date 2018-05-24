@@ -1,7 +1,25 @@
-# The origin of zero counts in scRNA-seq data
+---
+title: Post-publication comments on the deconvolution paper 
+author: Aaron Lun
+output:
+  BiocStyle::html_document:
+    fig_caption: false
+    toc_float: true
+---
+
+# Dealing with zero counts
+
+## Origin of zeroes 
 
 Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
 In bulk, you'd expect some contamination so the count would unlikely to be exactly zero in any particular sample.
+
+## Dealing with dropouts 
+
+Differences in dropout rates between cells should not affect scaling normalization.
+This is because scaling normalization concerns itself with systematic (technical) differences in the **expected** expression between cells.
+Whether such differences occur in the zero or non-zero components is irrelevant to the computed size factors. 
+The distribution of expression only matters insofar as the robust average estimators are accurate.
 
 # Inaccuracies with existing methods
 
@@ -44,9 +62,19 @@ for (x in c(10, 20, 50, 100, 200, 500, 1000)) {
 }
 ```
 
+## Is accurate normalization really necessary?
+
+Normalizing on library size is usually sufficient for purposes of cell type identification.
+Separation of cell types is robust as the presence of differences in the expression profile is not affected by the scaling factor.
+Indeed, that a cell type exhibits strong composition biases indicates that it has plenty of DE genes to distinguish it from other cell types.
+
+However, the interpretation of these differences is sensitive to the choice of normalization strategy.
+For example, depending on whether you use spike-in or non-DE normalization, you can flip the sign of the log-fold changes.
+This could completely alter your determination of what the clusters actually represent.
+
 ## Explaining the zero-induced biases in existing methods
 
-We don't need to consider undefined ratios (i.e., due to a zero in the denominator) in this explanation.
+The explanation in the main text does not need to consider undefined ratios (i.e., due to a zero in the denominator).
 For DESeq, there are none, as all ratios are defined after the workaround.
 For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
 Thus, differences will be driven by zeroes in the numerator of the ratios.
@@ -241,6 +269,12 @@ When normalizing between clusters, we only use the genes where the _grand mean o
 This is a better choice than the mean across all cells, or the mean across all cells of the two clusters, as the grand mean is insensitive to the cluster sizes.
 Thus, we are less likely to enrich for DE genes that are upregulated in the larger cluster.
 (In contrast, we're more likely to select balanced DE.)
+
+We also filter before we pre-cluster (see below) to ensure that we have the same set of genes being used in `quickCluster` and `computeSumFactors`.
+This ensures that we focus on separating cells by the DE genes (or lack thereof) in the set of genes to be used for normalization.
+There's no need to worry about DE genes in the low-abundance genes, because we've filtered them out already.
+Obviously, filtering out low-abundance genes will discard some reoslution of biological structure.
+This is tolerable as the point of pre-clustering is to avoid DE genes within each cluster, not to identify genuine subpopulations.
 
 # Clustering to weaken the non-DE assumption
 
