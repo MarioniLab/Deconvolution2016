@@ -36,7 +36,8 @@ Finally, it's not a sustainable strategy, as the set of non-zero genes will decr
 This will leave you with very few genes -- possibly in the double-digits -- which exacerbates the problem above.
 
 Indeed, completely removing genes with any zero can directly bias the size factor estimates.
-This is because you are more likely to select genes that are upregulated (truly or stochastically) in cells with small size factors, in order to avoid zeroes.
+This is because you are more likely to select genes that are upregulated in cells with small size factors, in order to avoid zeroes.
+Such upregulation can be genuine DE, or stochastic due to non-independent filtering (see below).
 This results in overestimation of the size factors for such cells:
 
 ```{r}
@@ -202,7 +203,11 @@ This results in all cells getting median expression values of zero.
 
 ## Choosing an independent filter statistic
 
-The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
+With an independent filter, the expected expression for a non-DE gene (conditional on its retention) is proportional to the size factor for each cell.
+This ensures that the size factor estimates are not biased by the gene selection.
+Indeed, we can see that the expected sum of counts for the retained non-DE genes would be directly proportional to the true size factor.
+
+The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $t_j$) is performed to obtain internal values for pooling.
 However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
 Non-DE genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
 This would potentially inflate the size factors for the smaller cells (equivalent to the problem encountered when picking genes with all non-zero counts).
