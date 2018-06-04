@@ -232,7 +232,8 @@ Any biases are probably tolerable if the data set is dominated by genes in the t
 
 ## Filtering within and between clusters
 
-It makes sense to perform filtering within each cluster rather than doing it globally, as this ensures that deconvolution is operating on appropriately high-abundance genes.
+It makes sense to perform filtering within each cluster rather than doing it globally.
+The former ensures that deconvolution is operating on appropriately high-abundance genes within each cluster.
 Otherwise, the choice of genes would be skewed by larger clusters, and such genes may not be expressed to an appropriate level in other clusters.
 Thus, `computeSumFactors` will filter by the chosen minimum mean within each specified cluster.
 
@@ -240,6 +241,10 @@ When normalizing between clusters, we only use the genes where the _grand mean o
 This is a better choice than the mean across all cells, or the mean across all cells of the two clusters, as the grand mean is insensitive to the cluster sizes.
 Thus, we are less likely to enrich for DE genes that are upregulated in the larger cluster.
 (In contrast, we're more likely to select balanced DE.)
+
+To further improve selection of balanced DE, the grand mean is also computed in a manner that is agnostic to the mean total counts of each cluster.
+Specifically, we compute the average proportion for each gene and then multiply this by the average total count across the two clusters.
+This avoids favouring DE genes that are only upregulated in the cluster that has larger total counts.
 
 # Clustering to weaken the non-DE assumption
 
