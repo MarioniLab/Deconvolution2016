@@ -1,9 +1,27 @@
-# The origin of zero counts in scRNA-seq data
+---
+title: Post-publication comments on the deconvolution paper 
+author: Aaron Lun
+output:
+  BiocStyle::html_document:
+    fig_caption: false
+    toc_float: true
+---
+
+# Dealing with zero counts
+
+## Origin of zeroes 
 
 Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
 In bulk, you'd expect some contamination so the count would unlikely to be exactly zero in any particular sample.
 
-# Size factor estimates from existing methods are inaccurate 
+## Dealing with dropouts 
+
+Differences in dropout rates between cells should not affect scaling normalization.
+This is because scaling normalization concerns itself with systematic (technical) differences in the **expected** expression between cells.
+Whether such differences occur in the zero or non-zero components is irrelevant to the computed size factors. 
+The distribution of expression only matters insofar as the robust average estimators are accurate.
+
+# Inaccuracies with existing methods
 
 ## Applying existing methods on the highest abundances
 
@@ -19,9 +37,11 @@ This will leave you with very few genes -- possibly in the double-digits -- whic
 
 Indeed, completely removing genes with any zero can directly bias the size factor estimates.
 This is because you are more likely to select genes that are upregulated in cells with small size factors, in order to avoid zeroes.
+Such upregulation can be genuine DE, or stochastic due to non-independent filtering (see below).
 This results in overestimation of the size factors for such cells:
 
 ```{r}
+set.seed(10000)
 means <- cbind(matrix(1, nrow=1000, ncol=20), matrix(2, nrow=1000, ncol=20))
 means[1:50, 1:20] <- 10 # Upregulated gene
 counts <- matrix(rnbinom(length(means), mu=means, size=20), nrow=nrow(means), ncol=ncol(means))
@@ -36,16 +56,26 @@ Pooling avoids the decrease in precision by allowing more genes to be used when 
 ```{r}
 means <- matrix(5, nrow=1000, ncol=50)
 counts <- matrix(rnbinom(length(means), mu=means, size=20), nrow=nrow(means), ncol=ncol(means))
-for (x in c(100, 200, 500, 1000)) { 
+for (x in c(10, 20, 50, 100, 200, 500, 1000)) { 
     nonzero <- rowSums(counts[1:x,]==0)==0
     sf <- DESeq2::estimateSizeFactorsForMatrix(counts[1:x,][nonzero,])
     print(mad(log(sf/1)))
 }
 ```
 
+## Is accurate normalization really necessary?
+
+Normalizing on library size is usually sufficient for purposes of cell type identification.
+Separation of cell types is robust as the presence of differences in the expression profile is not affected by the scaling factor.
+Indeed, that a cell type exhibits strong composition biases indicates that it has plenty of DE genes to distinguish it from other cell types.
+
+However, the interpretation of these differences is sensitive to the choice of normalization strategy.
+For example, depending on whether you use spike-in or non-DE normalization, you can flip the sign of the log-fold changes.
+This could completely alter your determination of what the clusters actually represent.
+
 ## Explaining the zero-induced biases in existing methods
 
-We don't need to consider undefined ratios (i.e., due to a zero in the denominator) in this explanation.
+The explanation in the main text does not need to consider undefined ratios (i.e., due to a zero in the denominator).
 For DESeq, there are none, as all ratios are defined after the workaround.
 For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
 Thus, differences will be driven by zeroes in the numerator of the ratios.
@@ -173,7 +203,11 @@ This results in all cells getting median expression values of zero.
 
 ## Choosing an independent filter statistic
 
-The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $T_i$) is performed to obtain internal values for pooling.
+With an independent filter, the expected expression for a non-DE gene (conditional on its retention) is proportional to the size factor for each cell.
+This ensures that the size factor estimates are not biased by the gene selection.
+Indeed, we can see that the expected sum of counts for the retained non-DE genes would be directly proportional to the true size factor.
+
+The library size-adjusted average count is a logical choice for filtering, given that the same adjustment (by $t_j$) is performed to obtain internal values for pooling.
 However, as a filter statistic, this is not quite independent as it puts too much weight on counts from cells with small library sizes.
 Non-DE genes that are stochastically higher in such cells would be given more weight and would be more likely to survive the filter.
 This would potentially inflate the size factors for the smaller cells (equivalent to the problem encountered when picking genes with all non-zero counts).
@@ -245,6 +279,12 @@ Thus, we are less likely to enrich for DE genes that are upregulated in the larg
 To further improve selection of balanced DE, the grand mean is also computed in a manner that is agnostic to the mean total counts of each cluster.
 Specifically, we compute the average proportion for each gene and then multiply this by the average total count across the two clusters.
 This avoids favouring DE genes that are only upregulated in the cluster that has larger total counts.
+
+We also filter before we pre-cluster (see below) to ensure that we have the same set of genes being used in `quickCluster` and `computeSumFactors`.
+This ensures that we focus on separating cells by the DE genes (or lack thereof) in the set of genes to be used for normalization.
+There's no need to worry about DE genes in the low-abundance genes, because we've filtered them out already.
+Obviously, filtering out low-abundance genes will discard some reoslution of biological structure.
+This is tolerable as the point of pre-clustering is to avoid DE genes within each cluster, not to identify genuine subpopulations.
 
 # Clustering to weaken the non-DE assumption
 
@@ -341,6 +381,45 @@ The error from double rescaling of $A\to B$ and $B\to C$ would be equivalent to 
 Of course, this is already the most optimistic scenario.
 Consider instead a situation where $A$, $B$ and $C$ are separated by the same set of 10% DE genes, of varying levels of expression in each cluster.
 Double rescaling would result in an effective 20% error from $A$ to $C$, even though a direct rescaling would only have 10%.
+
+## Quick clustering with binarized data
+
+An alternative to using `quickCluster` is to cluster on whether a gene is expressed or not.
+This is technically invariant to scaling, avoiding circularity between clustering and normalization.
+However, the clusters are more affected by bias than if rank correlations had been used, as the number of expressed features is tightly correlated to the library size.
+This means that you run the risk of clustering by library size rather than by actual differences in the expression profiles.
+
+```{r}
+# Constructing an expression matrix.
+set.seed(100)
+ngenes <- 1000
+prof1 <- runif(ngenes)
+prof2 <- runif(ngenes)
+true.means <- cbind(outer(prof1, rep(c(0.5, 2), each=50)),
+                    outer(prof2, rep(c(0.5, 2), each=50)))
+counts <- rpois(length(true.means), lambda=true.means)
+dim(counts) <- dim(true.means)
+
+# Computing distances with these two methods.
+by.cor <- sqrt(0.5*(1-cor(counts, method="spearman")))
+by.bin <- as.matrix(dist(t(counts)>0))
+
+# Figuring out which ones are good and bad.
+cell.ids <- paste0(rep(c("A", "B"), each=100), 
+                   rep(c(".s", ".l", ".s", ".l"), each=50))
+pair.ids <- outer(cell.ids, cell.ids, FUN=paste, sep="-")
+
+par(mfrow=c(1,2))
+keep <- lower.tri(by.cor)
+cor.box <- split(by.cor[keep], pair.ids[keep])
+boxplot(cor.box, col=ifelse(grepl("A.*A", names(cor.box)) | grepl("B.*B", names(cor.box)), "grey80", "red"))
+bin.box <- split(by.bin[keep], pair.ids[keep])
+boxplot(bin.box, col=ifelse(grepl("A.*A", names(bin.box)) | grepl("B.*B", names(bin.box)), "grey80", "red"))
+```
+
+The above simulation demonstrates this point, where small cells are more likely to cluster together with binarized data, irrespective of the population of origin.
+In contrast, the rank correlations are more appropriate as distance measures.
+Distances increase with small cells where the data are noisier, this is inevitable regardless of what method you use.
 
 # Supplementary details
 
