@@ -280,6 +280,23 @@ To further improve selection of balanced DE, the grand mean is also computed in 
 Specifically, we compute the average proportion for each gene and then multiply this by the average total count across the two clusters.
 This avoids favouring DE genes that are only upregulated in the cluster that has larger total counts.
 
+```{r}
+mu1 <- rep(c(10, 50, 100), each=1000)
+mu2 <- rep(c(10, 5, 1), each=1000) # 10x lower counts, due to fewer/smaller cells.
+mode <- rep(c("Down", "Same", "Up"), each=1000)
+a1 <- rnbinom(10000, mu=mu1, size=10)
+a2 <- rnbinom(10000, mu=mu2, size=10)
+
+# Raw count filtering (keeping the top 10%)
+nkeep <- length(mu1)/10
+keep <- rank(-(a1 + a2)) <= nkeep
+table(mode[keep])
+
+# Filtering after adjusting for library size - more balanced.
+keep <- rank(-scater::calcAverage(cbind(a1, a2))) <= nkeep
+table(mode[keep])
+```
+
 We also filter before we pre-cluster (see below) to ensure that we have the same set of genes being used in `quickCluster` and `computeSumFactors`.
 This ensures that we focus on separating cells by the DE genes (or lack thereof) in the set of genes to be used for normalization.
 There's no need to worry about DE genes in the low-abundance genes, because we've filtered them out already.
