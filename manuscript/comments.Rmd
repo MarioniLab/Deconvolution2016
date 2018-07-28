@@ -84,6 +84,7 @@ Thus, differences will be driven by zeroes in the numerator of the ratios.
 
 ## Justifying the pretense of a constant mean
 
+We assume that $U_{i}$ is constant in the approximation to obtain $E(R_{ik})$.
 The intuition is that when $U_i$ doesn't vary much, it doesn't have much effect on the variability of the ratio, and can basically be considered as fixed.
 We don't need to worry about correlations between $V_{ik}$ and $U_{i}$ when considering the quality of the approximation.
 See the explanation at www.stat.cmu.edu/~hseltman/files/ratio.pdf, where a second-order Taylor expansion yields:
@@ -106,7 +107,12 @@ $$
 &= \frac{1}{E(U)^3N^2} [ var(X)E(V) - var(V)E(X) ]
 \end{aligned}
 $$
-Further assume that all cells are represented by random variable $Y$.
+
+We can thus see several features of this error term that make it small.
+Firstly, it will tend to zero if $N$ is large, even after cancelling out the increase in $E(V)$ and $var(X)$ with an increased number of cells. 
+(The size of $E(U)$ has less effect as any scaling cancels out between the denominator and numerator.)
+The error will be equal to zero if the counts are Poisson-distibuted, as then $var(X)=E(X)$ and $var(V)=E(V)$.
+Alternatively, we could assume that all counts are i.i.d., with any given count represented by the random variable $Y$.
 Let's say that $V$ is made of a sum of $P$ cells, which also means that $X$ is made up of a sum of $N-P$ cells.
 Thus,
 $$
@@ -121,7 +127,10 @@ The error term can then be broken down into
 $$
 \frac{1}{E(U)^3N^2} [ (N-P)P E(Y)var(Y) - (N-P)P E(Y)var(Y) ] = 0
 $$
-So the approximation is actually pretty good. I'm not even sure we need the LLN.
+
+I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
+$R_{ik}$ (or more specifically, the robust average of $R_{ik})$ across genes) is our approximation for the true size factor,
+not the other way around as the text states. 
 
 ## Justifying the median-based estimator
 
@@ -282,7 +291,7 @@ This avoids favouring DE genes that are only upregulated in the cluster that has
 
 ```{r}
 mu1 <- rep(c(10, 50, 100), each=1000)
-mu2 <- rep(c(10, 5, 1), each=1000) # 10x lower counts, due to fewer/smaller cells.
+mu2 <- rep(c(10, 5, 1), each=1000) # 10x lower counts, due to fewer/smaller cells.
 mode <- rep(c("Down", "Same", "Up"), each=1000)
 a1 <- rnbinom(10000, mu=mu1, size=10)
 a2 <- rnbinom(10000, mu=mu2, size=10)
@@ -343,7 +352,7 @@ Using the brain dataset from the _simpleSingleCell_ workflow as an example, we s
 Correlations between size factor estimates with different numbers of clusters are clearly higher than those with the library size.
 This is consistent with the robustness of the method to DE within each set of cells used for deconvolution.
 
-```{r}
+```{r, eval=FALSE}
 library(scran)
 sce <- readRDS("brain_data.rds")
 
