@@ -88,7 +88,9 @@ runAllMethods <- function(counts) {
     lib.sf <- colSums(counts)
 
     # Size factors with summation, no abundance filtering for simplicity.
-    final.sf <- computeSumFactors(counts, clusters=NULL, min.mean=0)
+    sizes <- seq(21, 101, by=5)
+    sizes <- sizes[sizes <= ncol(counts)]
+    final.sf <- computeSumFactors(counts, sizes=sizes, clusters=NULL, min.mean=0)
 
     # Size factors with clustering prior to summation:
     if (ncol(counts) >= 200) {
@@ -96,7 +98,7 @@ runAllMethods <- function(counts) {
     } else {
         emp.clusters <- rep(1, ncol(counts))
     }
-    final2.sf <- computeSumFactors(counts, clusters=emp.clusters, min.mean=0)
+    final2.sf <- computeSumFactors(counts, sizes=sizes, clusters=emp.clusters, min.mean=0)
 
 #    # knn-based method
 #    final3.sf <- computeSumFactors(counts, mode="experimental", min.mean=0)

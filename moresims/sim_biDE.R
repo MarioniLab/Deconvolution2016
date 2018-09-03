@@ -13,9 +13,15 @@ for (mode in c("UMI", "read")) {
 
         for (genes.up in c(0, 1000, 2000)) {
             for (genes.down in c(0, 1000, 2000)) {
-                if (genes.up==0 && genes.down==0) { next; }
+                if (genes.up==0){
+                    if (genes.down==0) { next; }
+                    effects <- 1
+                } else {
+                    effects <- c(2, 5, 10)
+                }
+
                 for (prop in c(0.1, 0.2, 0.5)) {
-                    for (effect in c(2, 5, 10)) {
+                    for (effect in effects) {
 
 ###### BROKEN INDENTING ######
 
