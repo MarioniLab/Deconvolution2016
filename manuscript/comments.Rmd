@@ -330,7 +330,7 @@ This is tolerable as the point of pre-clustering is to avoid DE genes within eac
 
 # Clustering to weaken the non-DE assumption
 
-## When is the assumption violated?
+## Why is the assumption violated?
 
 If every gene is DE in a subset of cells, the average expression will include some contribution from DE for each gene.
 This means that the median ratio of the pool sum to the average pseudo-cell would no longer solely represent bias.
@@ -338,11 +338,14 @@ Instead, the ratio would also include some arbitrary DE between cells in and out
 The only situation in which it would be okay is if the amount of DE is the same for each gene, such that the relative size factors are unchanged.
 However, this seems like it would be unlikely.
 
-In fact, the effective failure point with respect to the DE proportion is much lower than 50%.
-Size factors will become increasingly inaccurate as we introduce a greater imbalance in the proportion of up/down-regulated DE genes.
-This is because the median gets shifted away from the true non-DE mean in the presence of skews in the ratio distribution.
-The simulations in `moresim` demonstrate this effectively, though the deconvolution method is still more accurate than library size normalization in most cases.
-This is part of its selling point; while clustering is still required, it is robust to imprecisions in the clustering that leave some DE genes behind.
+The clustering weakens this assumption by reducing the amount of DE _within_ each cluster.
+This avoids failure of the median-based estimator for heterogeneous populations (see `moresims` for examples).
+Even in relatively homogeneous populations, clustering will improve accuracy by avoiding skews in the distribution of the ratios.
+
+Of course, one might argue that we would not need deconvolution at all if we were able to cluster cells into their types.
+Specifically, we could just normalize using the library size within each cluster, and then rescale robustly across clusters.
+This is true, **provided you can cluster accurately in the first place** such that there are negligible DE genes within clusters.
+The appeal of deconvolution is that it is robust to imprecisions in the clustering (especially in high dimensions) that leave some DE genes behind.
 
 ## Explaining the rescaling
 
@@ -392,9 +395,11 @@ plot(log2(sizefacs1), log2(sizefacs3))
 ```
 
 Our reasoning suggests that overclustering would be ideal for minimizing the DE between cells to be pooled.
-This is true enough, provided that sufficient cells are still present in each cluster for pooling.
-A more subtle effect is there will be more all-zero and low-abundance genes in each cluster, due the structure of the semi-systematic zeroes.
+This is true enough, provided that sufficient cells are still present in each cluster for pooling and stable calculation of the average pseudo-cell.
+
+A more subtle effect is there will be more all-zero and low-abundance genes in each cluster, due to semi-systematic zeroes specific to each cell type.
 As such, it is important to re-filter _within_ each cluster to ensure that only informative genes are used during pooled size factor estimation.
+
 An even more subtle effect is that the cells are no longer strictly independent; cells that are stochastically similar are more likely to be placed in the same cluster.
 This weakens the convergence to normality via the CLT, though this would require very strong correlations between the majority of non-DE genes to have any impact.
 
