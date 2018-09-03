@@ -11,14 +11,16 @@ output:
 
 ## Origin of zeroes 
 
-Semi-systematic zeros are probably more relevant here than in bulk, due to the fact that you get pure cell types.
+Semi-systematic zeros are probably more relevant in single-cell RNA-seq data than in bulk.
 In bulk, you'd expect some contamination so the count would unlikely to be exactly zero in any particular sample.
+By comparison, each cell (aside from doublets) is of a single type.
+When genes are silenced in that cell type, you can get zero counts occurring in a subset of your samples. 
 
 ## Dealing with dropouts 
 
 Differences in dropout rates between cells should not affect scaling normalization.
 This is because scaling normalization concerns itself with systematic (technical) differences in the **expected** expression between cells.
-Whether such differences occur in the zero or non-zero components is irrelevant to the computed size factors. 
+Whether such differences occur due to changes in the zero or non-zero components is irrelevant to the computed size factors. 
 The distribution of expression only matters insofar as the robust average estimators are accurate.
 
 # Inaccuracies with existing methods
@@ -63,22 +65,22 @@ for (x in c(10, 20, 50, 100, 200, 500, 1000)) {
 }
 ```
 
-## Is accurate normalization really necessary?
-
-Normalizing on library size is usually sufficient for purposes of cell type identification.
-Separation of cell types is robust as the presence of differences in the expression profile is not affected by the scaling factor.
-Indeed, that a cell type exhibits strong composition biases indicates that it has plenty of DE genes to distinguish it from other cell types.
-
-However, the interpretation of these differences is sensitive to the choice of normalization strategy.
-For example, depending on whether you use spike-in or non-DE normalization, you can flip the sign of the log-fold changes.
-This could completely alter your determination of what the clusters actually represent.
-
 ## Explaining the zero-induced biases in existing methods
 
 The explanation in the main text does not need to consider undefined ratios (i.e., due to a zero in the denominator).
 For DESeq, there are none, as all ratios are defined after the workaround.
 For edgeR, the number of undefined ratios that are removed is constant when the same reference cell is used for each comparison.
 Thus, differences will be driven by zeroes in the numerator of the ratios.
+
+## Is accurate normalization really necessary?
+
+On a more philosophical note: normalizing on library size is usually sufficient for purposes of cell type identification.
+Separation of cell types is robust as the presence of differences in the expression profile is not affected by the scaling factor.
+Indeed, that a cell type exhibits strong composition biases indicates that it has plenty of DE genes to distinguish it from other cell types.
+
+However, the interpretation of these differences is sensitive to the choice of normalization strategy.
+For example, depending on whether you use spike-in or non-DE normalization, you can flip the sign of the log-fold changes.
+This could completely alter your determination of what the clusters actually represent.
 
 # Summation and deconvolution with linear equations
 
@@ -88,20 +90,25 @@ We assume that $U_{i}$ is constant in the approximation to obtain $E(R_{ik})$.
 The intuition is that when $U_i$ doesn't vary much, it doesn't have much effect on the variability of the ratio, and can basically be considered as fixed.
 We don't need to worry about correlations between $V_{ik}$ and $U_{i}$ when considering the quality of the approximation.
 See the explanation at www.stat.cmu.edu/~hseltman/files/ratio.pdf, where a second-order Taylor expansion yields:
+
 $$
 E(V/U) \approx \frac{E(V)}{E(U)} - \frac{cov(V, U)}{E(U)^2} + \frac{var(U)E(V)}{E(U)^3}
 $$
+
 Yes, there's a covariance in the error term, but this will drop as the variance of $U_i$ drops.
 
 More precisely, we note that, in this setting, $U=(V+X)/N$ where $X$ is independent of $V$ and represents all the other cells.
 As a result,
+
 $$
 E(V/U) \approx \frac{E(V)}{E(U)} - \frac{cov(V, V+X)}{E(U)^2N} + \frac{var(V+X)E(V)}{E(U)^3N^2}
 $$
+
 The error term then becomes (due to independence between $V$ and $X$):
+
 $$
 \begin{aligned}
-\frac{-var(V)}{E(U)^2N} + \frac{var(V+X)E(V)}{E(U)^3N^2} 
+& \frac{-var(V)}{E(U)^2N} + \frac{var(V+X)E(V)}{E(U)^3N^2} \\
 &= \frac{1}{E(U)^3N^2} [ var(V+X)E(V) - N var(V) E(U) ] \\
 &= \frac{1}{E(U)^3N^2} [ var(V)E(V) + var(X)E(V) - var(V)E(V) - var(V)E(X) ] \\
 &= \frac{1}{E(U)^3N^2} [ var(X)E(V) - var(V)E(X) ]
@@ -109,34 +116,29 @@ $$
 $$
 
 We can thus see several features of this error term that make it small.
-Firstly, it will tend to zero if $N$ is large, even after cancelling out the increase in $E(V)$ and $var(X)$ with an increased number of cells. 
+
+- Firstly, it will tend to zero if $N$ is large, even after cancelling out the increase in $E(V)$ and $var(X)$ with an increased number of cells. 
 (The size of $E(U)$ has less effect as any scaling cancels out between the denominator and numerator.)
-The error will be equal to zero if the counts are Poisson-distibuted, as then $var(X)=E(X)$ and $var(V)=E(V)$.
-Alternatively, we could assume that all counts are i.i.d., with any given count represented by the random variable $Y$.
+- The error will be equal to zero if the counts are Poisson-distibuted, as then $var(X)=E(X)$ and $var(V)=E(V)$.
+- Alternatively, we could assume that all counts are i.i.d., with any given count represented by the random variable $Y$.
 Let's say that $V$ is made of a sum of $P$ cells, which also means that $X$ is made up of a sum of $N-P$ cells.
 Thus,
+
 $$
 \begin{aligned}
 E(V) &= P E(Y) \;, \\
 var(V) &= P var(Y) \;, \\
 E(X) &= (N-P) E(Y) \; \mbox{and} \\
-var(X) &= (N-P) var(Y) \;.
+var(X) &= (N-P) var(Y) \; \mbox{such that} \\
+& \frac{1}{E(U)^3N^2} [ (N-P)P E(Y)var(Y) - (N-P)P E(Y)var(Y) ] = 0
 \end{aligned}
 $$
-The error term can then be broken down into
-$$
-\frac{1}{E(U)^3N^2} [ (N-P)P E(Y)var(Y) - (N-P)P E(Y)var(Y) ] = 0
-$$
-
-I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
-$R_{ik}$ (or more specifically, the robust average of $R_{ik})$ across genes) is our approximation for the true size factor,
-not the other way around as the text states. 
 
 ## Justifying the median-based estimator
 
 Another issue is with whether the expectation can be estimated with the median.
-This should be the case for pooled counts, where the sum should approach normality (via CLT);
-or, a NB distribution with increasing mean and decreasing dispersion such that the mean is close to the median.
+This should be the case for pooled counts, where the sum should approach normality via the CLT.
+Similarly, a NB distribution with increasing mean and decreasing dispersion will also ensure that the mean approaches the median.
 This seems to be the case even at low means with the smallest pool size:
 
 ```{r}
@@ -147,12 +149,12 @@ blah <- matrix(rnbinom(ngenes*20, mu=true.means, size=1/dispersions), nrow=ngene
 hist(rowSums(blah)/true.means)
 ```
 
-This is one of the motivations for filtering beforehand, to get rid of genes with small means for which this approximation is unlikely to hold
-(this would result in a biased estimate of $E(R_{ik})$, which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
-Another way to interpret this is that low count, high dispersion genes will have highly variable $R_{ik}$.
-This would decrease the precision _and_ accuracy of a median-based estimator.
+## Errata for the ratios
 
-I should also point out that taking the median across genes is permissible because the expected value of $R_{ik}$ doesn't actually depend on the gene (despite its notation).
+I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
+$R_{ik}$ (or more specifically, the robust average of $R_{ik})$ across genes) is our approximation for the true size factor,
+not the other way around as the text states. 
+Taking the median across genes is permissible because the expected value of $R_{ik}$ doesn't actually depend on the gene (despite its notation).
 Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
 
 # Constructing the linear system by selecting cell pools
@@ -160,21 +162,20 @@ Gene-specific factors cancel out, which means that the expectations are equal ac
 ## Why use different pool sizes?
 
 The different pool sizes probably help due to the inefficiency of the median estimator, such that even nested pools provide extra information.
-To a smaller extent, the smaller pools mitigate errors from pooling together cells with very different size factors.
-The larger pools also help for very low counts where the smaller pools might not be accurate with respect to the median-based estimator (or have too many zeroes).
-Larger counts also result in more precise ratios, which obviously helps with reducing the error from the median estimate.
-See standerr.Rout where the estimates with all pool sizes are less variable than just those with large or small pools.
-(Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.)
+See `standerr.Rout` where the estimates with all pool sizes are less variable than just those with large or small pools.
 Also see my thoughts on how using multiple pools increases column rank and reduces imprecision due to unestimable coefficients.
+By comparison, had the mean been used, changing the number of pool sizes used would not make any difference.
 
 The minimum pool size is chosen to reduce the number of zeros. 
 With just 20 cells, it's possible to have >95% randomly distributed zeros and still get a non-zero pooled size factor (0.95^20 < 0.5)
-In practice, the effective/tolerable proportion of zeroes is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
+In practice, the tolerable proportion of zeroes is probably lower because some zeros are semi-systematic and you need multiple non-zero counts for the median to work.
 Smaller cells will have more stochastic zeros anyway, but still; the equivalent failure point for DESeq would be 50%, which is clearly worse.
+
+Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.
 
 ## Why use library size-sorted ring
 
-The main reason for sorting by library size is actually different to that described.
+The main reason for sorting by library size is actually different to that described in the text.
 Specifically, cells with small library size will have more discrete counts and low $t_j$.
 This results in large, discrete $Z_{ij}$ values after library size adjustment.
 To improve the precision of the median ratio estimate, we need to reduce discreteness, and this can only be done by adding together values of similar size.
@@ -182,7 +183,7 @@ This motivates the use of the library size-sorted ring to group cells with simil
 
 There is no point adding smaller, continuous $Z_{ij}$ from large cells, as the discreteness will effectively manifest as DE and skew the pooled size factor estimate.
 In other words, convergence to a normal distribution or low-dispersion NB distribution would be compromised.
-Indeed, randomly scattering these cells around the ring will reduce the accuracy of all cells, large and small.
+Indeed, randomly scattering these cells around the ring will reduce the accuracy of all cells, large and small (see `poolsim.Rout`).
 It's not just a matter of the small cells having larger variance.
 If it were, one would expect that random placement would actually improve the accuracy of small cells (as they get pooled with the more precise large cells).
 
@@ -238,11 +239,18 @@ We also use a robust estimator of the size factor to protect against DE.
 
 ## Filtering to protect the median
 
-As discussed before, low counts are problematic for median-based normalization.
-This is because the count:mean ratios are less precise and the median is not accurate estimator of the mean.
-Consider the following simulation, where we compute the median for 10000 low-abundance genes, and calculate its expectation and variance.
+The use of the median assumes that the ratios are normally distributed.
+Filtering aims to get rid of genes with small means for which this approximation is unlikely to hold
+(this would result in a biased estimate of $E(R_{ik})$, which is likely to propagate to the size factors, as it won't cancel out exactly between equations).
+A related concern is that low count, high dispersion genes will have highly variable $R_{ik}$.
+This would decrease the precision _and_ accuracy of a median-based estimator.
 
-```{r}
+Consider the following simulation, where we compute the median for 10000 low-abundance genes, and calculate its expectation and variance.
+You can see that at counts below 2, the estimation error from using the median is pretty bad (exceeding 20% from the expected value of unity).
+It's at a similar point that the variance of the estimator also increases, though the bias is the major contributor here,
+Obviously you can expect that this will get even worse for overdispersed data where both the variance and bias are likely to increase.
+
+```{r, fig.width=10, fig.height=6}
 set.seed(100)
 ngenes <- 10000
 niter <- 100
@@ -255,13 +263,7 @@ for (it in seq_len(20)) {
     vals[[it]] <- c(lambda, mean(meds), sd(meds))
 }
 vals <- do.call(rbind, vals)
-```
 
-You can see that at counts below 2, the estimation error from using the median is pretty bad (exceeding 20% from the expected value of unity).
-It's at a similar point that the variance of the estimator also increases, though the bias is the major contributor here,
-Obviously you can expect that this will get even worse for overdispersed data where both the variance and bias are likely to increase.
-
-```{r, fig.width=10, fig.height=6}
 par(mfrow=c(1,2))
 plot(vals[,1], vals[,2], xlab="Lambda", ylab="Expected median ratio")
 plot(vals[,1], vals[,3], xlab="Lambda", ylab="Standard deviation")
@@ -408,7 +410,7 @@ Of course, this is already the most optimistic scenario.
 Consider instead a situation where $A$, $B$ and $C$ are separated by the same set of 10% DE genes, of varying levels of expression in each cluster.
 Double rescaling would result in an effective 20% error from $A$ to $C$, even though a direct rescaling would only have 10%.
 
-## Quick clustering with binarized data
+## Do not cluster with binarized data
 
 An alternative to using `quickCluster` is to cluster on whether a gene is expressed or not.
 This is technically invariant to scaling, avoiding circularity between clustering and normalization.
