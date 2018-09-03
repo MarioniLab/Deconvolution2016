@@ -165,17 +165,25 @@ As such, the median seems like the best choice despite its known flaws.
 
 ## Pre-scaling by the library size
 
-The previous version of this algorithm pre-scaled the counts by the library size, see $t_j$ in the manuscript.
-This was intended to equalize the contribution of small and large cells to each pool (and to the average reference pseudo-cell).
-However, this seems to cause more problems than it's worth when the library sizes are variable _and_ there are many DE genes.
+To be more precise, the problem with large libraries is that they have larger variance in their counts.
+This introduces large absolute errors that would manifest as very large relative errors in the size factors for smaller libraries.
+By dividing by the library size, we equalize the variance of large NB-distributed counts across libraries.
+Specifically, for a NB distribution with mean $\t_j\mu$ and dispersion $\varphi$, the variance of the scaled counts becomes $\mu t_j^{-1} + \varphi\mu^2$.
+This is effectively constant across $j$ when $\mu$ is large.
+
+For smaller counts, scaling will invert the Poisson mean-variance relationship and means that the smallest libraries end up dominating instead!
+This leads to the second protective mechanism, i.e., the library size-sorted ring.
+Small libraries are mostly pooled with other small libraries, such that no one can really dominate the variance of the pool-based size factor.
+
+That said, the scaling can cause problems in pathological scenarios.
 Recall that the median-based estimator is biased, resulting in errors in the normalization factors.
-Upon rescaling by $t_j$, the error is amplified in the size factors.
+If $t_j$ is very large, the estimated _normalization factor_ will be small with a large relative error.
 This is most apparent in situations like below:
 
 ```{r}
-mode <- "read"
+mode <- "UMI"
 ncells <- 100
-genes.up <- 500
+genes.up <- 1000
 genes.down <- 0
 prop <- 0.1
 effect <- 1000
@@ -190,26 +198,14 @@ goes.up <- seq_len(genes.up)
 goes.down <- seq_len(genes.down) + genes.up
 mus[goes.up,de.cell] <- mus[goes.up,de.cell] * effect
 mus[goes.down,de.cell] <- 0
-counts <- sampleCounts(mus, param$dispersion)
+counts <- sampleCounts(mus*100, param$dispersion)
 
 library(scran)
 X <- computeSumFactors(counts, min.mean=0)
-lib.sizes <- colSums(counts)
-X2 <- computeSumFactors(t(t(counts)/lib.sizes), min.mean=0)
-
 makeSFPlot(X, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
-makeSFPlot(X2*lib.sizes, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
+
+plot(X/curlibs, truth/curlibs)
 ```
-
-To avoid this problem, we no longer pre-scale by the library sizes prior to normalization.
-Note that this only applies to the values used for pooling; the average pseudo-cell is computed using `calcAverage` with scaling.
-This ensures that the average reference is not driven by a few large cells.
-
-With hindsight, domination of each pool is less of a concern as we have already sorted by library size.
-This means that large libraries are mostly pooled with other large libraries, such that no one can really dominate the final pool-based size factor.
-In fact, pre-scaling didn't even solve the problem in the first place, as domination of the pool _really_ refers to the contributed variance in the ratios.
-Division by the library size just inverts the Poisson mean-variance relationship and means that the smallest libraries end up dominating instead!
-Perhaps there is more of a case for doing so with NB data, but the disadvantages from the issues above are too great.
 
 ## Errata for the ratios
 
