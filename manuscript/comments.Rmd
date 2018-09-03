@@ -149,6 +149,20 @@ blah <- matrix(rnbinom(ngenes*20, mu=true.means, size=1/dispersions), nrow=ngene
 hist(rowSums(blah)/true.means)
 ```
 
+The downside with the median is that it becomes increasingly inaccurate as we introduce a greater imbalance in the proportion of up/down-regulated DE genes.
+In fact, the effective failure point with respect to the DE proportion is much lower than 50%.
+This is because the median gets shifted away from the true non-DE mean in the presence of skews in the ratio distribution.
+I have tried a number of alternatives, including:
+
+- Fitting a truncated normal distribution to a trimmed distribution of the ratios, taking advantage of the CLT.
+This involved using a maximum likelihood estimator for the mean and standard deviation, given the boundaries.
+- Using the asymmetry in the distances between the first-second and second-third quartiles to perform correction,
+exploiting the fact that this discrepancy between distances is about half the shift of the median from the true mean.
+
+These methods were indeed less biased, but a lot less precise, e.g., variances were larger by at least an order of magnitude.
+This resulted in unstable estimates of the pool-based size factors and greater errors in the final cell-based size factors.
+As such, the median seems like the best choice despite its known flaws.
+
 ## Errata for the ratios
 
 I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
