@@ -487,6 +487,10 @@ This motivates the use of multiple pool sizes, which should reduce the number of
 For example, with a single pool size of 20 you'll have 19 unestimable coefficients, whereas with pool sizes from 20 to 100 (going up by 5), it drops to 4.
 Admittedly, it is rather odd that a system with three cells and a pool size of 2 is solvable, while a system with four cells is not.
 
+Thus, to provide further protection, I have changed the default pool sizes to go from 21, 26, 31, etc. to 101.
+This reduces the chance that there is any GCD with the number of cells in the data set.
+The previous default (20 to 100) would have meant that estimation precision would degrade when the number of cells is a multiple of 5.
+
 ## Implementation details of the clustering approach
 
 Someone asked me if we should mean-center the genes before computing correlations (e.g., like PCA).
