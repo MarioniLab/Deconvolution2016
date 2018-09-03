@@ -166,10 +166,11 @@ As such, the median seems like the best choice despite its known flaws.
 ## Errata for the ratios
 
 I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
-$R_{ik}$ (or more specifically, the robust average of $R_{ik})$ across genes) is our approximation for the true size factor,
-not the other way around as the text states. 
-Taking the median across genes is permissible because the expected value of $R_{ik}$ doesn't actually depend on the gene (despite its notation).
-Gene-specific factors cancel out, which means that the expectations are equal across genes, thus allowing us to (robustly) average across genes.
+The per-gene expectation of $R_{ik}$ is our approximation for the true size factor, not the other way around as the text incorrectly states. 
+
+Despite its notation, the true size factor does not actually depend on the gene as all terms related to $i$ cancel out.
+This motivates the use of a robust average of $R_{ik}$ _across genes_ to estimate the true size factor.
+How you compute the mean of the expectation across genes is irrelevant if the per-gene expectations are assumed to be the same (as the true size factor).
 
 # Constructing the linear system by selecting cell pools
 
