@@ -163,6 +163,54 @@ These methods were indeed less biased, but a lot less precise, e.g., variances w
 This resulted in unstable estimates of the pool-based size factors and greater errors in the final cell-based size factors.
 As such, the median seems like the best choice despite its known flaws.
 
+## Pre-scaling by the library size
+
+The previous version of this algorithm pre-scaled the counts by the library size, see $t_j$ in the manuscript.
+This was intended to equalize the contribution of small and large cells to each pool (and to the average reference pseudo-cell).
+However, this seems to cause more problems than it's worth when the library sizes are variable _and_ there are many DE genes.
+Recall that the median-based estimator is biased, resulting in errors in the normalization factors.
+Upon rescaling by $t_j$, the error is amplified in the size factors.
+This is most apparent in situations like below:
+
+```{r}
+mode <- "read"
+ncells <- 100
+genes.up <- 500
+genes.down <- 0
+prop <- 0.1
+effect <- 1000
+
+source("../moresims/functions.R") 
+param <- generateRawMeans(ncells=ncells, mode=mode)
+truth <- param$sf
+
+mus <- param$fitted
+de.cell <- seq_len(ncells*prop)
+goes.up <- seq_len(genes.up)
+goes.down <- seq_len(genes.down) + genes.up
+mus[goes.up,de.cell] <- mus[goes.up,de.cell] * effect
+mus[goes.down,de.cell] <- 0
+counts <- sampleCounts(mus, param$dispersion)
+
+library(scran)
+X <- computeSumFactors(counts, min.mean=0)
+lib.sizes <- colSums(counts)
+X2 <- computeSumFactors(t(t(counts)/lib.sizes), min.mean=0)
+
+makeSFPlot(X, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
+makeSFPlot(X2*lib.sizes, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
+```
+
+To avoid this problem, we no longer pre-scale by the library sizes prior to normalization.
+Note that this only applies to the values used for pooling; the average pseudo-cell is computed using `calcAverage` with scaling.
+This ensures that the average reference is not driven by a few large cells.
+
+With hindsight, domination of each pool is less of a concern as we have already sorted by library size.
+This means that large libraries are mostly pooled with other large libraries, such that no one can really dominate the final pool-based size factor.
+In fact, pre-scaling didn't even solve the problem in the first place, as domination of the pool _really_ refers to the contributed variance in the ratios.
+Division by the library size just inverts the Poisson mean-variance relationship and means that the smallest libraries end up dominating instead!
+Perhaps there is more of a case for doing so with NB data, but the disadvantages from the issues above are too great.
+
 ## Errata for the ratios
 
 I should also mention that $E(V_{ik})/E(U_i)$ actually represents the true size factor for pool $k$.
