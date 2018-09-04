@@ -206,12 +206,12 @@ counts <- counts[keep,]
 
 new.sys <- scran:::.create_linear_system(counts, ave.cell, sphere, c(21)) 
 final <- Matrix::qr.coef(Matrix::qr(new.sys$design), new.sys$output)
-makeSFPlot(final, truth, 1)[1]
+makeSFPlot(final, truth, NULL)[1]
 
 # WITH:
 new.sys <- scran:::.create_linear_system(t(t(counts)/libsizes), ave.cell, sphere, c(21))
 final <- Matrix::qr.coef(Matrix::qr(new.sys$design), new.sys$output)
-makeSFPlot(final * libsizes, truth, 1)[1]
+makeSFPlot(final * libsizes, truth, NULL)[1]
 ```
 
 Of course, when this assumption is not true, we can get very large relative errors as the fitted values are very unequal. 

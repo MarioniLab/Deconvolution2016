@@ -30,11 +30,12 @@ makeSFPlot <- function(sf, truth, is.de=NULL, main="", col="black") {
         resids <- logfold - coef(fitted)
     }
 
-    all.range <- range(truth)
+    obs <- truth * 2^resids
+    all.range <- range(range(truth), range(obs))
     col <- rep(col, length.out=length(sf))
     shuffle <- sample(length(sf))
     
-    plot(truth[shuffle], (truth * 2^resids)[shuffle], xlim=all.range, ylim=all.range, 
+    plot(truth[shuffle], obs[shuffle], xlim=all.range, ylim=all.range, 
          ylab="Estimated factors", xlab="True factors", log="xy", pch=16, 
          col=col[shuffle], cex.axis=1.5, cex.lab=1.8, main=main, cex.main=1.8)
     abline(0, 1, col="red")
