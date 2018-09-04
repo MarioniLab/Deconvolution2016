@@ -166,19 +166,46 @@ As such, the median seems like the best choice despite its known flaws.
 ## Pre-scaling by the library size
 
 To be more precise, the problem with large libraries is that they have larger variance in their counts.
-This introduces large absolute errors that would manifest as very large relative errors in the size factors for smaller libraries.
-By dividing by the library size, we equalize the variance of large NB-distributed counts across libraries.
-Specifically, for a NB distribution with mean $\t_j\mu$ and dispersion $\varphi$, the variance of the scaled counts becomes $\mu t_j^{-1} + \varphi\mu^2$.
-This is effectively constant across $j$ when $\mu$ is large.
+This manifests as large errors in the pooled size factors that will propagate throughout the linear system.
+Subsequently, the size factor estimates for the smaller libraries will have very large relative errors, even though the absolute errors may be of the same size.
 
-For smaller counts, scaling will invert the Poisson mean-variance relationship and means that the smallest libraries end up dominating instead!
-This leads to the second protective mechanism, i.e., the library size-sorted ring.
-Small libraries are mostly pooled with other small libraries, such that no one can really dominate the variance of the pool-based size factor.
+Prescaling by $t_j$ aims to get all of the fitted values of the linear system as similar to each other as possible.
+This ensures that the absolute error is equivalent to the relative error (upon reversing the scaling by $t_j$).
+Our assumption is that the library size is close to the true size factor, so we set $t_j$ to the library size.
+This demonstrably improves the stability of the estimates for small cells and reduces the chance of obtaining negative size factor estimates:
 
-That said, the scaling can cause problems in pathological scenarios.
-Recall that the median-based estimator is biased, resulting in errors in the normalization factors.
-If $t_j$ is very large, the estimated _normalization factor_ will be small with a large relative error.
-This is most apparent in situations like below:
+```{r}
+set.seed(12345)
+mode <- "UMI"
+ncells <- 200
+
+source("../moresims/functions.R") 
+param <- generateRawMeans(ncells=ncells, mode=mode)
+truth <- param$sf
+mus <- param$fitted
+counts <- sampleCounts(mus, param$dispersion)
+
+# WITHOUT:
+libsizes <- colSums(counts)
+sphere <- scran:::.generateSphere(libsizes)
+ave.cell <- scater::calcAverage(counts)
+keep <- ave.cell > 0
+ave.cell <- ave.cell[keep]
+counts <- counts[keep,]
+
+new.sys <- scran:::.create_linear_system(counts, ave.cell, sphere, c(21)) 
+final <- Matrix::qr.coef(Matrix::qr(new.sys$design), new.sys$output)
+makeSFPlot(final, truth, 1)[1]
+
+# WITH:
+new.sys <- scran:::.create_linear_system(t(t(counts)/libsizes), ave.cell, sphere, c(21))
+final <- Matrix::qr.coef(Matrix::qr(new.sys$design), new.sys$output)
+makeSFPlot(final * libsizes, truth, 1)[1]
+```
+
+Of course, when this assumption is not true, we can get very large relative errors as the fitted values are very unequal. 
+This is most apparent in pathological situations where there are many DE genes and the library sizes are also very different.
+Any absolute errors (due to the bias of the median) are subsequently amplified into large relative errors:
 
 ```{r}
 mode <- "UMI"
@@ -186,7 +213,7 @@ ncells <- 100
 genes.up <- 1000
 genes.down <- 0
 prop <- 0.1
-effect <- 1000
+effect <- 100
 
 source("../moresims/functions.R") 
 param <- generateRawMeans(ncells=ncells, mode=mode)
@@ -198,13 +225,11 @@ goes.up <- seq_len(genes.up)
 goes.down <- seq_len(genes.down) + genes.up
 mus[goes.up,de.cell] <- mus[goes.up,de.cell] * effect
 mus[goes.down,de.cell] <- 0
-counts <- sampleCounts(mus*100, param$dispersion)
+counts <- sampleCounts(mus, param$dispersion)
 
 library(scran)
 X <- computeSumFactors(counts, min.mean=0)
 makeSFPlot(X, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
-
-plot(X/curlibs, truth/curlibs)
 ```
 
 ## Errata for the ratios
