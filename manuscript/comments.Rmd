@@ -150,10 +150,21 @@ hist(rowSums(blah)/true.means)
 ```
 
 The downside with the median is that it becomes increasingly inaccurate as we introduce a greater imbalance in the proportion of up/down-regulated DE genes.
-In fact, the effective failure point with respect to the DE proportion is much lower than 50%.
 This is because the median gets shifted away from the true non-DE mean in the presence of skews in the ratio distribution.
-I have tried a number of alternatives, including:
+The inaccuracy is further exacerbated by our pooling procedure:
 
+- Solution of the linear system "concentrates" the median bias into cells containing DE genes.
+The simplest demonstration is that of a data set containing a 50:50 mix of two different types, each occupying one half of the library size-sorted ring.
+When the sliding window hits the boundary of the two cell types, the median becomes inaccurate once the pool contains one cell of the other type.
+However, the inaccuracy of the median is the same at the next position with two cells of the same type (as the same genes are DE, so the skew is unchanged).
+This means that the bias is fully attributed to the first cell of the other type!
+- The bias itself is relative to the pooled size factor.
+Even if the relative error is small, the absolute error can become quite large for any given cell-specific size factor.
+This is especially pronounced when the library size is not a good initial proxy for the size factor, see the issues related to $t_j$ choice below.
+
+I have tried a number of alternatives to address this problem at the source:
+
+- Detecting the mode, based on a sliding window kernel of some kind.
 - Fitting a truncated normal distribution to a trimmed distribution of the ratios, taking advantage of the CLT.
 This involved using a maximum likelihood estimator for the mean and standard deviation, given the boundaries.
 - Using the asymmetry in the distances between the first-second and second-third quartiles to perform correction,
@@ -257,7 +268,7 @@ Smaller cells will have more stochastic zeros anyway, but still; the equivalent 
 
 Incidentally, there doesn't seem to be a problem with using very large pools; so I got rid of the warning asking for pool sizes below half the number of cells.
 
-## Why use library size-sorted ring
+## Why use a library size-sorted ring?
 
 The main reason for sorting by library size is actually different to that described in the text.
 Specifically, cells with small library size will have more discrete counts and low $t_j$.
