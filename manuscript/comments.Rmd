@@ -219,6 +219,7 @@ This is most apparent in pathological situations where there are many DE genes a
 Any absolute errors (due to the bias of the median) are subsequently amplified into large relative errors:
 
 ```{r}
+set.seed(1000)
 mode <- "UMI"
 ncells <- 100
 genes.up <- 1000
@@ -241,6 +242,10 @@ counts <- sampleCounts(mus, param$dispersion)
 library(scran)
 X <- computeSumFactors(counts, min.mean=0)
 makeSFPlot(X, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
+
+# We can fix this by iterating and using the first-round size factors as t_j.
+Y <- computeSumFactors(counts, min.mean=0, scaling=X)
+makeSFPlot(Y, truth, de.cell,col=rep(c("red", "blue"), c(10, 90)))
 ```
 
 ## Errata for the ratios
