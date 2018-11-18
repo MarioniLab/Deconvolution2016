@@ -1,10 +1,14 @@
 # Using deconvolution to normalize scRNA-seq data with many zeroes
 
+## Overview
+
 This repository contains the code and manuscript files for the paper **Pooling across cells to normalize single-cell RNA sequencing data with many zero counts**,
-by [Lun et al. (2018)](https://doi.org/10.1186/s13059-016-0947-7).
+by [Lun et al. (2016)](https://doi.org/10.1186/s13059-016-0947-7).
 
 **Note:** Further updates and development of the analysis and simulation code will take place at https://github.com/MarioniLab/FurtherNorm2018. 
 If you have general questions regarding the code (i.e., not specifically involving the manuscript), please post your issues at the above repository instead.
+
+## Simulations
 
 To run the simulation code, enter `simulations` and then:
 
@@ -14,6 +18,8 @@ To run the simulation code, enter `simulations` and then:
 4. Run `complexity.R` to determine the time-complexity of the deconvolution method.
 
 You can also run `fewcounts.R` to see behaviour with few cells, or `highcounts.R` to see behaviour at very high counts.
+
+## Real analyses
 
 To run the real data analysis code:
 
@@ -25,5 +31,8 @@ To run the real data analysis code:
 
 Also, run `plotKleinParam.R` to generate plots that justify parameter settings in the simulations.
 
+## Manuscript
+
 The `manuscript` directory contains all LaTeX code used to generate the manuscript.
 This can be compiled with `make`.
+It assumes that all of the simulations and real data analyses have already been performed.
